@@ -6,6 +6,7 @@ from io import TextIOWrapper, StringIO
 from django.http import HttpResponse
 
 
+
 def float2int(value):
     try:
         return math.floor(float(value))
@@ -119,6 +120,6 @@ def csv_update(request):
                     obj.save()
                     context['preupdated'].append(pre_obj)
                     context['updated'].append(late_obj)
-    context['total_count'] = context[
-        'success_count'] + context['failure_count']
+    context['total_count'] = context['success_count'] + context['failure_count']
+    fp.close()
     return context

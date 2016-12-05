@@ -37,9 +37,11 @@ class CSVUpdateFV(LoginRequiredMixin ,FormView):
 			pvt = updates[0].keys()
 			for pre, up in zip(prepudates, updates):
 				for key in pvt:
-					if str(pre[key]) != str(up[key]):
-						up[key] = mark_safe('<strong style="color:green;">' + up[key] + '<strong>')
-						pre[key] = mark_safe('<strong style="color:red;">' + pre[key] + '<strong>')
+					up_val = str(up.get(key) or "")
+					pre_val = str(pre.get(key) or "")
+					if pre_val != up_val:
+						up[key] = mark_safe('<strong style="color:green;">' + up_val + '<strong>')
+						pre[key] = mark_safe('<strong style="color:red;">' + pre_val + '<strong>')
 
 		return render_to_response('info/update_result.html', context)
 
