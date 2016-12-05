@@ -21,7 +21,9 @@
   $(function(){
 
  	form = $('form[name=show]')
-  
+   $('[name=indate]').change(function(){
+     $('[name=indate]').val($(this).val())
+   })
 
   if(location.href.search('start')==-1){
     form.attr('action',"{% url 'stock:show_incomplete_list' %}")

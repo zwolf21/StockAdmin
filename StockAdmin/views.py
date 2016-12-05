@@ -32,8 +32,6 @@ class Staff_memberRequiredMixin(object):
 def autocomplete(request):
 	if request.is_ajax():
 		kw = request.GET['term']
-		# qry = reduce(operator.__and__, (Q(name__contains=word) for word in kw))
-		# print(dir(qry))
 		queryset = Info.objects.filter(Q(name_as__contains=kw), status=1).iterator()
 		ret = []
 		for drug in queryset:

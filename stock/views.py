@@ -12,7 +12,8 @@ from itertools import groupby
 from .models import StockRec
 from buy.models import BuyItem
 from .forms import DateRangeForm, StockRecAmountForm
-from .utils import get_narcotic_classes, get_date_range, gen_etc_classQ
+from .utils import get_narcotic_classes, get_date_range
+from .kwQutils import gen_etc_classQ, gen_date_rangeQ, gen_name_containQ, Qfilter
 from StockAdmin.views import LoginRequiredMixin
 
 
@@ -52,7 +53,7 @@ class StockIncompleteLV(ListView):
 		name = self.request.GET.get('name')
 		queryset = BuyItem.objects.filter_by_date(*get_date_range(self.request.GET))
 		queryset =  queryset.filter(
-			Q(drug__name__icontains=name)|Q(buy__slug__icontains=name)|gen_etc_classQ(name),
+			Q(drug__name__icontains=name)|Q(buy__slug__icontains=name)|Qfilter(self.request.GET, name,'buydate'),
 			drug__narcotic_class__in=get_narcotic_classes(self.request.GET),
 			buy__commiter__isnull=False
 		).order_by('drug__firm')
@@ -112,7 +113,7 @@ class StockInPLV(ListView):
 	def get_queryset(self):
 		name = self.request.GET.get('name')
 		queryset = StockRec.objects.filter(
-			Q(drug__name__icontains=name)|Q(buyitem__buy__slug__contains=name)|Q(date__contains=name)|gen_etc_classQ(name),
+				Q(buyitem__buy__slug__contains=name)|Q(date__contains=name)|Qfilter(self.request.GET, name,'indate'),
 				date__range=get_date_range(self.request.GET), 
 				amount__gt=0, 
 				drug__narcotic_class__in=get_narcotic_classes(self.request.GET)

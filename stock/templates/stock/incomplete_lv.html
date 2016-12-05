@@ -3,11 +3,12 @@
 {% block tablistclass %}class="active"{% endblock tablistclass %}
 
 {% block stock_content %}
-	<form  class="form-inline" action="{% url 'stock:stockin' %}" method="post">
+	<form id="table-form" class="form-inline" action="{% url 'stock:stockin' %}" method="post">
 	{% csrf_token %}
 	{% block indate %}
 	<div class="form-group" style="display: inline;">
-		<label class="control-label">입고일자 지정:{{ form.indate }}</label>	
+		<label class="control-label">입고일자 지정:{{ form.indate }}</label>
+	
 	</div>
 	{% endblock indate %}
 	<table class="tablesorter">

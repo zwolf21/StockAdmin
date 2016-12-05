@@ -23,9 +23,10 @@
 		</div>
 
 		<div class="form-group">
-		    <input id="search_window" type="text" placeholder="퀵필터" class="form-control input-sm" name="name">
+		    {% comment %}<input id="search_window" type="text" placeholder="퀵필터" class="form-control input-sm" name="name">{% endcomment %}
+			{{ form.name }}
 			<input type="submit" hidden>                          
-			<script>document.getElementById('search_window').focus();</script>  
+			<script>document.getElementById('search_window').select();</script>  
 		</div>
 
 		<div class="form-group" style="display: inline;">
@@ -36,7 +37,8 @@
 			</div>
 		</div>
 		
-		<label class="control-label" hidden>입고일자 지정{{ form.indate }}</label>	
+		<label class="control-label" hidden>입고일자 지정{{ form.indate }}</label>
+			{% comment %}페이지 재로딩시 입고 날짜 세션유지를 위한 필드{% endcomment %}
 	</form>
 	</div>
 
