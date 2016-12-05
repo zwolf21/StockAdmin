@@ -1,0 +1,17 @@
+{% extends "home.html" %}
+
+{% block content %}
+<div class="container">
+    <h3>엑셀 또는 CSV 파일로 약품정보 업데이트 하기</h3>
+    <form action="{% url 'info:fromcsv' %}" method="post" enctype="multipart/form-data" class="form-inline">
+        {% csrf_token %}
+        {{ form.csv.label_tag }}{{ form.csv }}
+        <input type="submit" class="btn btn-default">  
+    </form>
+</div>
+
+
+
+
+{% endblock content %}
+

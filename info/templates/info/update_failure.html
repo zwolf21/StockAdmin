@@ -1,0 +1,16 @@
+
+<div class="content">
+	<h3>{{ file_name }}</h3>
+	<h3>{{ error_message }}</h3>
+
+	<h4>엑셀 파일에 추가로 필요한 컬럼(항목)</h4>
+	{% for missing in missing_fields %}
+		{% if forloop.first %}
+			[
+		{% elif forloop.last %}
+			{{ missing }}]
+		{% else %}
+			{{ missing }},
+		{% endif %}
+	{% endfor %}
+</div>

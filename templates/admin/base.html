@@ -1,0 +1,157 @@
+{% load admin_static %}{% load firstof from future %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
+<link rel="stylesheet" type="text/css" href="{% static "jquery-ui-1.12.1.custom/jquery-ui.css" %}">
+{% block extrastyle %}{% endblock %}
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
+<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+
+{% block extrahead %}{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+
+<script src="{% static "jquery-3.1.1.min.js" %}"></script>
+<script src="{% static "bootstrap-3.3.7-dist/js/bootstrap.min.js" %}"></script>
+<script src="{% static "jquery-ui-1.12.1.custom/jquery-ui.js" %}"></script>
+</head>
+{% load i18n %}
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+
+<!-- Container -->
+<div id="container">
+
+    {% if not is_popup %}
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+        {% block branding %}{% endblock %}
+        </div>
+        {% if user.is_active and user.is_staff %}
+        <div id="user-tools">
+            {% trans 'Welcome,' %}
+            <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+            {% block userlinks %}
+                {% url 'django-admindocs-docroot' as docsroot %}
+                {% if docsroot %}
+                    <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
+                {% endif %}
+                {% if user.has_usable_password %}
+                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+                {% endif %}
+                <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+            {% endblock %}
+        </div>
+        {% endif %}
+        {% block nav-global %}{% endblock %}
+    </div>
+    <!-- END Header -->
+    {% block breadcrumbs %}
+    <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    {% if title %} &rsaquo; {{ title }}{% endif %}
+    </div>
+    {% endblock %}
+    {% endif %}
+
+    {% block messages %}
+        {% if messages %}
+        <ul class="messagelist">{% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+        {% endfor %}</ul>
+        {% endif %}
+    {% endblock messages %}
+
+    <!-- Content -->
+    <div id="content" class="{% block coltype %}colM{% endblock %}">
+        {% block pretitle %}{% endblock %}
+        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        {% block content %}
+        {% block object-tools %}{% endblock %}
+        {{ content }}
+        {% endblock %}
+        {% block sidebar %}{% endblock %}
+        <br class="clear" />
+    </div>
+    <!-- END Content -->
+
+    {% block footer %}<div id="footer"></div>{% endblock %}
+</div>
+<!-- END Container -->
+    <script type="text/javascript">
+$(function(){
+
+    $("#id_name").autocomplete({
+    
+        source : function( request, response ) {
+             $.ajax({
+                    type: 'get',
+                    url: "{% url 'info:create_auto' %}",
+                    dataType: "json",
+                    //request.term = $("#autocomplete").val()
+                    data: { term : request.term },
+                    success: function(data) {
+                        //서버에서 json 데이터 response 후 목록에 뿌려주기 위함
+                        rsp = $.map(data, function(e){return {
+                            label:e.제품명, 
+                            value:e.제품명,
+                            edi:e.보험코드,
+                            firm:e.판매사,
+                            name_as:e.제품명,
+                            price: parseInt(e.약가)
+                        }})
+                        response(rsp.slice(0,15));
+                        if(data.length==1)
+                        {
+                            tgt = $("[name='name']");
+                            tgt.val(data[0].drug_name);
+                            tgt.focus();
+                            $("#auto_amount").attr({'min':data[0].pkg_amount, 'step':data[0].pkg_amount}).val(data[0].pkg_amount);  
+                        }
+                    }
+               });
+            },
+        //조회를 위한 최소글자수
+        minLength: 2,
+        select: function( event, ui ) {
+            // 만약 검색리스트에서 선택하였을때 선택한 데이터에 의한 이벤트발생
+                $.ajax({
+                url : "{% url 'info:create_auto' %}",
+                type : 'get',
+                dataType:'json',
+                data : {term:ui.item.edi},
+                success: function(rsp){
+                    $('[name=pkg_amount]').val(rsp.pkg_amount)
+                    $("[name=standard_unit]").val(rsp.pkg_unit)
+                    $("[name=narcotic_class]").val(rsp.narcotic_class)
+
+                    }
+                })
+    
+            
+        },
+        change : function(event, ui){
+            
+        },
+
+        focus: function( event, ui ) {
+            event.preventDefault(); 
+            $("[name='edi']").val(ui.item.edi)
+            $("[name='firm']").val(ui.item.firm)
+            $("[name='name_as']").val(ui.item.name_as)
+            $("[name='price']").val(ui.item.price)
+           
+
+            // $("#auto_amount").attr({'min':ui.item.pkg_amount, 'step':ui.item.pkg_amount}).val(ui.item.pkg_amount);
+
+        }
+    });
+    $("#id_date").datepicker({
+        dateFormat: 'yy-mm-dd'
+    });
+
+})
+</script>
+</body>
+</html>

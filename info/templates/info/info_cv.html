@@ -1,0 +1,122 @@
+{% extends "home.html" %}
+
+
+{% block content %}
+
+<div class="container">
+<h3>약품 정보 생성</h3>
+<form role="form" name="info" action="{% url 'info:create' %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+        <div class="form-group">
+            {{ form.edi.label_tag }}{{ form.edi }} {{ form.name.label_tag }}{{ form.name }}
+        </div>
+        <div class="form-group">
+            {{ form.name_as.label_tag }}{{ form.name_as }}
+        </div>
+        <div class="form-group">
+            {{ form.firm.label_tag }}{{ form.firm }}
+        </div>
+        <div class="form-group">
+            {{ form.price.label_tag }}{{ form.price }}
+        </div>
+        <div class="form-group">
+            {{ form.pkg_amount.label_tag }}{{ form.pkg_amount }}
+        </div>
+        <div class="form-group">
+            {{ form.purchase_standard.label_tag }}{{ form.purchase_standard }}
+        </div>
+        <div class="form-group">
+            {{ form.standard_unit.label_tag }}{{ form.standard_unit }}
+        </div>
+        <div class="form-group">
+            {{ form.narcotic_class.label_tag }}{{ form.narcotic_class }}
+        </div>
+        <div class="form-group">
+            {{ form.account.label_tag }}{{ form.account }}
+        </div>
+    </fieldset>
+    <input class="btn btn-primary" type="submit" value="정보생성">
+</form>
+</div>
+
+
+
+
+{% block script %}
+<script type="text/javascript">
+$(function(){
+
+    $("#id_name").autocomplete({
+    
+        source : function( request, response ) {
+             $.ajax({
+                    type: 'get',
+                    url: "{% url 'info:create_auto' %}",
+                    dataType: "json",
+                  //request.term = $("#autocomplete").val()
+                    data: { term : request.term },
+                    success: function(data) {
+                        //서버에서 json 데이터 response 후 목록에 뿌려주기 위함
+                        rsp = $.map(data, function(e){return {
+                        	label:e.제품명, 
+                        	value:e.제품명,
+                        	edi:e.보험코드,
+                        	firm:e.판매사,
+                            name_as:e.제품명,
+                            price: parseInt(e.약가)
+                        }})
+                        response(rsp.slice(0,15));
+                        if(data.length==1)
+                        {
+                            tgt = $("[name='name']");
+                            tgt.val(data[0].drug_name);
+                            tgt.focus();
+                            $("#auto_amount").attr({'min':data[0].pkg_amount, 'step':data[0].pkg_amount}).val(data[0].pkg_amount);  
+                        }
+                    }
+               });
+            },
+        //조회를 위한 최소글자수
+        minLength: 2,
+        select: function( event, ui ) {
+            // 만약 검색리스트에서 선택하였을때 선택한 데이터에 의한 이벤트발생
+                $.ajax({
+                url : "{% url 'info:create_auto' %}",
+                type : 'get',
+                dataType:'json',
+                data : {term:ui.item.edi},
+                success: function(rsp){
+                    $('[name=pkg_amount]').val(rsp.pkg_amount)
+                    $("[name=standard_unit]").val(rsp.pkg_unit)
+                    $("[name=narcotic_class]").val(rsp.narcotic_class)
+
+                    }
+                })
+    
+            
+        },
+        change : function(event, ui){
+            
+        },
+
+        focus: function( event, ui ) {
+            event.preventDefault(); 
+            $("[name='edi']").val(ui.item.edi)
+            $("[name='firm']").val(ui.item.firm)
+            $("[name='name_as']").val(ui.item.name_as)
+            $("[name='price']").val(ui.item.price)
+           
+
+            // $("#auto_amount").attr({'min':ui.item.pkg_amount, 'step':ui.item.pkg_amount}).val(ui.item.pkg_amount);
+
+        }
+    });
+    $("#id_date").datepicker({
+    	dateFormat: 'yy-mm-dd'
+    });
+
+})
+</script>
+{% endblock script %}
+{% endblock content %}

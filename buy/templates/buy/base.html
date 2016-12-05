@@ -1,0 +1,26 @@
+{% extends "home.html" %}
+{% load humanize %}
+
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+
+{% block content %}
+
+{% block buy_style %} {% endblock buy_style %}
+
+<div class="container">
+	
+{% block buy_title %} {% endblock buy_title %}
+
+{% block buy_header %} {% endblock buy_header %}
+
+{% block buy_table %} {% endblock buy_table %}
+
+{% block buy_footer %} {% endblock buy_footer %}
+
+</div>
+
+{% block buy_script %} {% endblock buy_script %}
+
+
+{% endblock content %}

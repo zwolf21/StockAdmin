@@ -1,0 +1,264 @@
+{% extends "home.html" %}
+{% block content %}
+	<style type="text/css">
+
+		table {
+			border-collapse: collapse;
+		}
+	
+		.row1 td{
+			 border:0px solid white;
+
+		}
+		.row2 td{
+			border:none !important;
+			text-align: center;
+			font-size: 25px;
+			font-weight: bold;
+			margin-top: 0;
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+			height: 0;
+		}
+		.row4 > td{
+			background-color: gray;
+			border: 1px solid black;
+			padding-left: 0px;
+			margin-left: 0px;
+		}
+		.row5 >td{
+			border: 1px solid black;
+
+		}
+		.row6 > td{
+			border: 1px solid black;	
+		}
+		.row7 > td, .row7{
+			border: 1px solid black;	
+			border-bottom: 2px solid black;
+		}
+		.row8 > td{
+			border:1px solid;
+			text-align: center;
+		}
+
+		.data > td{
+			border:1px solid;
+		}
+		.row9 td{
+			height: 40px;
+			font-size: 15px;
+			border: 0px;
+		}
+		.row10 td, .row11 td, .row12 td{
+			text-align: right;
+		}
+		.row14{
+			display: block;
+			height: 22px;
+		}
+		.row13 td{
+			font-size: 18px;
+			font-weight: lighter;
+			border-bottom: 3px solid dimgray;
+			height: 35px;
+		}
+		.row15 td{
+			border: 1px solid;
+			
+		}
+		.row16 {
+			display: block;
+			height: 4px;
+		}
+		.row17 td{
+			border-collapse: false;
+			border: 1px solid;
+			border-top: 3px solid dimgray;
+			text-align: center;
+			background-color: lightgray;
+			border-left: none;
+			border-right: none;
+
+		}
+		.row18 td li{
+			display: inline-block;
+			height: 40px;
+			text-align: center;
+		
+			padding-top: 10px;
+		}
+
+		.row18 td li:odd{
+			border: 1px solid;
+		}
+		.row18 td{
+			padding-top: 7px;
+
+		}
+		.box{
+			border: 1px solid;
+			width: 80px;
+
+		}
+		.arrow{
+			width: 15px;
+		}
+
+		.row19 td{
+			border-bottom: 1px solid;
+			text-align: center;
+		}
+		.row20 td{
+			text-align: right;
+		}
+
+	</style>
+	
+ 
+
+<div class="content">
+	<table>	
+		<tr class="row1">
+			<td colspan="9"> ■ 마약류 관리에 관한 법률 시행규칙 [별지 제16호서식] 	<span style="font-size:20px;color:blue;">&lt;개정 2012.6.15&gt;</span> </td>
+		</tr>
+		<tr class="row2">
+			<td colspan="8">마약구입서ㆍ마약판매서 발급 신청서</td>
+		</tr>
+		<tr class="row3">
+			<td colspan="8"></td>
+		</tr>
+		<tr class="row4">
+			<td colspan="1">접수번호</td><td colspan="2">접수일</td><td colspan="5">발급일</td>
+		</tr>
+		<tr class="row5">
+			<td rowspan="3" style="border-bottom: 2px solid">신청인</td><td colspan="2">허가번호 36호</td><td colspan="2">허가종별</td><td colspan="3">허가일자 2013.10.16</td>
+		</tr>
+		<tr class="row6">
+			<td colspan="3">업소의 명칭 에이치플러스양지병원</td><td colspan="4">대표자 김철수</td>
+		</tr>
+		<tr class="row7">
+			<td colspan="3">업소의 소재지 관악구 남부순환로 1636</td><td colspan="4">용지소요매수</td>
+		</tr>
+		<tr class="row15">
+			<td  width="100px;" rowspan="16">구입 또는 <br>판매 예정<br>인 마약의<br>품명 및 수<br>량<br></td>
+			<td width="40px">연번</td><td width="320px" style="text-align: center;">품명</td><td width="80px">포장단위</td><td width="60px;" style="text-align: center;">수량</td><td width="60px;" style="text-align: center;">제조번호</td><td width="70px;" style="text-align: center;">사용기한</td><td width="40px;">비고</td>
+		</tr>
+		
+	{% for object in object_list %}
+		<tr class="data">
+			<td style="text-align: center;">{{ forloop.counter }}</td>
+			<td style="font-size: 11px;">{{ object.drug }}</td>
+			<td style="text-align: center;">{{ object.drug.pkg_amount }}</td>
+			<td style="text-align: center;">{% widthratio object.amount object.drug.pkg_amount 1 %}</td>
+			<td></td><td></td><td></td>
+		</tr>
+	{% endfor %}
+	{% for pad in padding %}
+		<tr class="data">
+			<td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td>
+		</tr>
+	{% endfor %}
+	
+
+		<tr class="row8">
+			<td rowspan="5">신청 당시 <br>재고 마약<br>의 품명 및<br>수량<br></td>
+			<td>연번</td><td style="text-align:center;">품명</td><td style="text-align: center;">포장단위</td><td style="text-align: center;">수량</td><td style="text-align: center;">제조번호</td><td style="text-align: center;">사용기한</td><td>비고</td>
+		</tr>
+
+		<tr class="data">
+			<td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td>
+		</tr>
+		<tr class="data">
+			<td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td>
+		</tr>
+		<tr class="data">
+			<td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td>
+		</tr>
+		<tr class="data">
+			<td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td>
+		</tr>
+		<tr class="row9">
+			<td colspan="8">&nbsp;&nbsp;「마약류 관리에 관한 법률 시행규칙」 제20조제2항에 따라 위와 같이 마약구입서ㆍ마약판매서의 발급을 신청합니다.</td>
+		</tr>
+		
+		<tr class="row10">
+			<td colspan="8">{% now "Y 년 m월  d일" %}</td> 
+		</tr>
+		<tr class="row10">
+			<td colspan="3"></td><td colspan="1"></td><td>신청인</td><td>김철수</td><td colspan="2">(서명 또는 인)</td>
+		</tr>
+		<tr class="row11">
+			<td colspan="2"></td><td colspan="2"></td><td>담당자 </td><td style="text-align:center;">성명</td><td style="text-align:left;">김희수</td>
+		</tr>
+		<tr class="row12">
+			<td colspan="3"></td><td></td><td>담당자</td><td>전화번호</td><td colspan="2">070-4665-9370</td>
+		</tr>
+		<tr class="row13">
+			<td colspan="8">&nbsp;관 악 구 보 건 소 장 <span style="font-size: 17px;">&nbsp;귀하</span></td>
+		</tr>
+		<tr class="row14">
+			
+		</tr>
+		<tr class="row15">
+			<td style="border-left:none">첨부서류</td><td colspan="6">없음</td><td style="border-right:none; text-align:center;">수수료 없음</td>
+		</tr>
+		<tr class="row16">
+			
+		</tr>
+		<tr class="row17">
+			<td colspan="8">처리절차</td>
+		</tr>
+		<tr class="row18">
+			<td colspan="8">
+				<ul>
+					<li class="box">신청서 작성</li>
+					<li class="arrow"><span class="glyphicon glyphicon-arrow-right"></span></li>
+					<li class="box">접 수</li>
+					<li class="arrow"><span class="glyphicon glyphicon-arrow-right"></span></li>
+					<li class="box">검 토</li>
+					<li class="arrow"><span class="glyphicon glyphicon-arrow-right"></span></li>
+					<li class="box">기안 결재</li>
+					<li class="arrow"><span class="glyphicon glyphicon-arrow-right"></span></li>
+					<li class="box">통보 및 발급</li>
+				</ul>
+			</td>
+		</tr>
+		<tr class="row19">
+			<td>신청인</td><td colspan="7">처리기관 : 시ㆍ도</td>
+		</tr>
+		<tr class="row20">
+			<td colspan="8"> 210mm×297mm[백상지 80g/㎡] </td>
+		</tr>
+
+	</table>
+</div>
+{% block buy_script %}
+<script>
+
+
+
+$(function(){
+window.print();
+window.close();
+
+
+})
+
+</script>
+
+{% endblock buy_script %}
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+

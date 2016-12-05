@@ -1,0 +1,38 @@
+{% extends "buy/base.html" %}
+
+{% block buy_title %} <h4>발주서 리스트</h4> {% endblock buy_title %}
+
+
+{% block buy_table %}
+	<table border="1" class="tablesorter">
+		<thead>
+			<tr>
+				<th>발주번호</th>
+				<th>발주서요약</th>
+				<th>발주일자</th>
+				<th>발주승인자</th>
+				<th>승인일자</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for object in object_list %}
+			<tr>
+				<td>{{ object }}</td>
+				{% if object.buyitem_set.all.count == 0 %}
+				<td>{{ object.description }}(폐기됨)</a></td>
+				{% else %}
+				<td><a href="{% url 'buy:buy_detail' object.slug %}">{{ object.description }}</a></td>
+				{% endif %}
+				<td>{{ object.date|date:"Y-m-d" }}</td>
+				<td>{{ object.commiter|default:"미승인" }}</td>
+				<td>{{ object.date|date:"Y-m-d" }}</td>
+			</tr>	
+		{% endfor %}
+		</tbody>
+	</table>
+{% endblock buy_table %}
+
+{% block buy_script %}
+	
+{% include "tablesorter_js.html" %}
+{% endblock buy_script %}

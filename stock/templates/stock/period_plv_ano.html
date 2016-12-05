@@ -1,0 +1,29 @@
+{% extends "stock/period_tv.html" %}
+{% load humanize %}
+{% block tabanoclass %}class="active"{% endblock tabanoclass %}
+{% block stock_content %}
+
+<table class="tablesorter">
+	<thead>
+		<tr>
+			<th>거래처</th>
+			<th>약품명</th>
+			<th>입고단가</th>
+			<th>입고수량</th>
+			<th>입고금액</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+			<tr>
+				<td>{{ object.drug.account }}</td>
+				<td>{{ object.drug }}</td>
+				<td style="text-align: center">{{ object.drug.price }}</td>
+				<td style="text-align: center">{{ object.total_amount }}</td>
+				<td style="text-align: center">{% widthratio object.drug.price 1 object.total_amount %}</td>
+			</tr>
+		{% endfor %}		
+	</tbody>
+</table>
+
+{% endblock stock_content %}

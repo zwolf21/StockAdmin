@@ -1,0 +1,76 @@
+{% include "home.html" %}
+
+{% block content %}
+<style type="text/css">
+	.content{
+		margin-left: 20px;
+		margin-right: 30px;
+	}
+	tr {
+		border-bottom: 1px solid #eee;
+	}
+
+	.user{
+		border: 2px solid;
+		text-align: center;
+	}
+</style>
+
+{% load humanize %}
+<div class="content">
+	
+	<table width="100%" class="req-header">
+		<tr>
+			<td width="80%" rowspan="2">
+				<h4>구매요청서</h4>
+				<h5>거래처: {{ object.buyitem_set.first.drug.account }}</h5>
+				<h5>발주번호: {{ object.slug }}</h5>
+			</td>
+			<td height="20px;" width="100px" class="user">담당자</td>
+			<td width="100px;" class="user">약제팀장 </td>
+		</tr>
+		<tr>
+			<td class="user">{{ user }}</td>
+			<td class="user"></td>
+		</tr>
+	</table>
+
+		<table class="tablesorter">
+			<thead>
+			    <tr>
+					<th>No.</th>
+					<th>EDI코드</th>
+					<th>약품명</th>
+					<th>제조회사</th>
+					<th>구매수량</th>
+					<th>구매규격</th>
+					<th>구매금액(원)</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for item in object.buyitem_set.all %}
+				<tr>
+					<td>{{ forloop.counter }}</td>
+					<td>{{ item.drug.edi }}</td>
+					<td>{{ item.drug }}</td>
+					<td>{{ item.drug.firm }}</td>
+					<td>{% widthratio item.amount item.drug.pkg_amount 1 %}</td>
+					<td>{{ item.drug.purchase_standard }}</td>
+					<td>{{ item.get_buy_price|intcomma }}</td>
+				</tr>
+			{% endfor %}
+				<tr>
+					<td colspan="6" style="text-align: center">계: {{ object.description }}</td>
+					<td>{{ object.get_total_price|intcomma }}</td>
+				</tr>
+			</tbody>
+		</table>
+</div>
+<div class="btn-group">
+	<a class="btn btn-default" href="{% url 'buy:buyupdate' object %}">항목추가</a>
+	<a class="btn btn-danger" href="{% url 'buy:buyupdate' object %}">발주승인</a>
+</div>
+<div>
+</div>
+{% include "ajax_autocomplete_script.html" %}
+{% endblock content %}

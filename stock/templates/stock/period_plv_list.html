@@ -1,0 +1,48 @@
+{% extends "stock/period_tv.html" %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+
+{% load humanize %}
+{% block tablistclass %}class="active"{% endblock tablistclass %}
+{% block stock_content %}
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>입고일자</th>
+				<th>발주번호</th>
+				<th>거래처</th>
+				<th>약품명</th>
+				<th>입고수량</th>
+				<th>입고단가</th>
+				<th>입고금액</th>
+				<th>기타구분</th>
+				<th>입고취소</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for object in object_list %}
+			<tr>
+				<td>{{ object.date|date:"Y-m-d" }}</td>
+				<td>{{ object.buyitem.buy }}</td>
+				<td>{{ object.drug.account }}</td>
+				<td>{{ object.drug }}</td>
+				<td style="text-align: center">{{ object.amount }}</td>
+				<td style="text-align: center">{{ object.drug.price|intcomma }}</td>
+				<td style="text-align: center">{{ object.total_price|intcomma }}</td>
+				<td style="text-align: center">{{ object.drug.etc_class }}</td>
+				<td style="text-align: center">
+					<form width="100%" name="delete" action="{% url 'stock:delete' object.pk %}" method="post">
+						{% csrf_token %}
+						{% if not user.is_staff %}
+				        <button width="100%" class="btn btn-warning btn-xs" disabled><i class="glyphicon glyphicon-repeat gly-spin"></i></button>
+						{% else %}
+				        <button width="100%" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-repeat gly-spin"></i></button>
+						{% endif %}
+					</form>
+				</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+
+{% endblock stock_content %}

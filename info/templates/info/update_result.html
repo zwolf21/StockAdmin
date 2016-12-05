@@ -1,0 +1,134 @@
+{% extends "home.html" %} {% block content %}
+<div class="container">
+	<h2>업데이트 파일 {{ total_count }} 건 중</h2>
+
+	{% if noupdated %}
+	<h4>변경내역 없음 {{ noupdated|length }} 건</h4>
+	{% endif %}
+	<h4>실패항목 {{ failure_count }}건</h4>
+	{% if failure_count > 0 %}
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>실패약품명</th>
+				<th>오류타입</th>
+				<th>오류값</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for failure in failures %}
+			<tr>
+				<td>{{ failure.name }}</td>
+				<td>{{ failure.error_type }}</td>
+				<td>{{ failure.error_value }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	<h4>새로 생성된 항목 {{ created|length }}건</h4>
+	{% if created %}
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>EDI 코드</th>
+				<th>약품명</th>
+				<th>약품명2</th>
+				<th>제약회사</th>
+				<th>현재상태</th>
+				<th>포장단위</th>
+				<th>구매규격</th>
+				<th>가격</th>
+				<th>기타구분</th>
+				<th>마약류</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for c in created %}
+			<tr>
+				<td>{{ c.edi }}</td>
+				<td>{{ c.name }}</td>
+				<td>{{ c.name_as }}</td>
+				<td>{{ c.firm }}</td>
+				<td>{{ c.status }}</td>
+				<td>{{ c.pkg_amount }}</td>
+				<td>{{ c.purchase_standard }}</td>
+				<td>{{ c.price }}</td>
+				<td>{{ c.etc_class }}</td>
+				<td>{{ c.narcotic_class }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	<h4>정보가 변경 된 항목 {{ updated|length }}건</h4>
+	{% if updated %}
+	<h3>변경 후</h3>
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>EDI 코드</th>
+				<th>약품명</th>
+				<th>약품명2</th>
+				<th>제약회사</th>
+				<th>현재상태</th>
+				<th>포장단위</th>
+				<th>구매규격</th>
+				<th>가격</th>
+				<th>기타구분</th>
+				<th>마약류</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for c in updated %}
+			<tr>
+				<td>{{ c.edi }}</td>
+				<td>{{ c.name }}</td>
+				<td>{{ c.name_as }}</td>
+				<td>{{ c.firm }}</td>
+				<td>{{ c.status }}</td>
+				<td>{{ c.pkg_amount }}</td>
+				<td>{{ c.purchase_standard }}</td>
+				<td>{{ c.price }}</td>
+				<td>{{ c.etc_class }}</td>
+				<td>{{ c.narcotic_class }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<h3>변경 전 내역</h3>
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>EDI 코드</th>
+				<th>약품명</th>
+				<th>약품명2</th>
+				<th>제약회사</th>
+				<th>현재상태</th>
+				<th>포장단위</th>
+				<th>구매규격</th>
+				<th>가격</th>
+				<th>기타구분</th>
+				<th>마약류</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for c in preupdated %}
+			<tr>
+				<td>{{ c.edi }}</td>
+				<td>{{ c.name }}</td>
+				<td>{{ c.name_as }}</td>
+				<td>{{ c.firm }}</td>
+				<td>{{ c.status }}</td>
+				<td>{{ c.pkg_amount }}</td>
+				<td>{{ c.purchase_standard }}</td>
+				<td>{{ c.price }}</td>
+				<td>{{ c.etc_class }}</td>
+				<td>{{ c.narcotic_class }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+</div>
+{% endblock content %}

@@ -1,0 +1,161 @@
+{% extends "buy/base.html" %}
+
+{% block buy_style %}
+	<style type="text/css">
+		  .ui-effects-transfer {
+    border: 1px solid green;
+  }
+	</style>
+{% endblock buy_style %}		
+{% block buy_title %}
+	<h3 style="display: inline;">주문 입력</h3>
+{% endblock buy_title %}
+{% block buy_header %}
+	{{ uptodate_form.date }}
+	<button class="btn btn-primary" name="uptobuy">발주서로 올리기</button>
+	
+{% endblock buy_header %}
+
+{% block buy_table %}
+	<table class="tablesorter" id="mytable">
+				<thead>
+					<tr nrow="0">
+						<th>전체<input type="checkbox" name="checkall" id="checkall"></th>
+						<th>거래처</th>
+						<th>약품명</th>
+						<th>요구수량</th>
+						<th>포장단위</th>
+						<th>미입고량</th>
+						<th>주간평균입고량</th>
+						<th>최종입고일/수량</th>
+						<th>비고</th>
+					</tr>
+				</thead>
+				<tbody>	
+				{% for buyitem in object_list %}
+					<tr nrow={{ buyitem.pk }}>
+						<td><input id="{{ buyitem.pk }}" type="checkbox" name="checklist" /></td>
+						<td>{{ buyitem.drug.account }}</td>
+						<td>{{ buyitem.drug }}</td>
+						<form class="save" action="{% url 'buy:buyitem_update' buyitem.pk %}" method="post">
+						<td >
+								{% csrf_token %}
+								<input  type="number" name="amount" value="{{ buyitem.amount }}" min="{{ buyitem.drug.pkg_amount }}" step="{{ buyitem.drug.pkg_amount }}">
+						</td>
+						<td>{{ buyitem.drug.pkg_amount }}</td>
+						<td>{{ buyitem.drug.total_incomplete_amount }}</td>
+						<td>{{ buyitem.drug.monthly_avg_stockin }}</td>
+						<td>{{ buyitem.drug.last_stockin_date|date:"Y-m-d" }}{% if buyitem.drug.last_stockin_date %}/{% endif %}{{ buyitem.drug.last_stockin_amount }}</td>
+						<td><input type="text" name="comment" value="{{ buyitem.comment }}" maxlength="30"></td>
+						<input type="submit" hidden>
+						</form>
+					</tr>
+				{% endfor %}
+					<tr>
+						<td></td>
+						<td>{{ buyitem.drug.account }}</td>
+						{% block post2 %}
+						<form action="{% url 'buy:buyitem_add' %}" method="post" name="add">
+						{% endblock post2 %}
+							{% csrf_token %}
+							{% if slug %}
+							<input type="hidden" name="slug" value="{{ slug }}">
+							{% endif %}
+							<td><div class="ui-widget"><input type="text" id="id_name" name="name" onclick="this.select();"></div></td>
+							<td><input id="auto_amount" name="amount" type="number"><input type="submit" value="입력"></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							{# <td><input type="text" name="comment" id="id_comment" tabindex="-1"></td> #}
+							<td>{{ add_form.comment }}</td>
+						</form>
+						{% block script %}
+							<script> document.getElementById('id_name').select(); </script>
+						{% endblock script %}
+					</tr>
+				</tbody>
+			</table>
+			{% if slug %}
+				<a class="btn btn-default" href="{% url 'buy:buy_detail' slug %}">수정완료</a>
+			{% endif %}
+{% endblock buy_table %}
+
+
+
+{% block buy_script %}
+{# {% include "tablesorter_js.html" %} #}
+{% include "ajax_autocomplete_script.html" %}
+<script>
+	$(function(){
+
+		// $('.save').click(function(){
+		// 	$('.save').children(":nth-child(2)").attr('disabled',true)
+		// 	$(this).children(":nth-child(2)").attr('disabled',false).select()
+		// 	$(this).children("input[name=comment]").attr('disabled',false)
+
+		// });
+
+		// $(".save").click(function(){
+		// 	$(".save > input[name='amount']").attr('disabled', false)
+		// 	// $(this).("input[name='amount']").attr('disabled', false).select()
+
+		// });
+
+
+	
+
+		$('.tablesorter th input').click(function(){
+			if($('.tablesorter th input').is(':checked'))
+			{
+				$('input[name=checklist]').each(function(){
+					$(this).prop('checked',true);
+				});
+			
+			}
+			else
+			{
+				$('input[name=checklist]').each(function(){
+					$(this).prop('checked',false);
+				});
+			}
+		})
+
+
+
+		$('[name=uptobuy]').click(function(){
+
+			var checked_list = []
+			var date = $('#id_date').val()
+			$(":checkbox[name='checklist']:checked").each(function(pi,po){
+				checked_list.push($(po).attr('id'))
+			
+			});
+			$.ajax({
+				url : "{% url 'buy:buy_gen' %}",
+				type : 'get',
+				dataType:'json',
+				data : {date:date, pk_list: JSON.stringify(checked_list)},
+				success: function(rsp){
+					for (var i = 0; i < rsp.length; i++) {
+						var n = rsp[i]
+						var elm = $('[nrow='+n+']')
+
+						// elm.effect( "transfer", { to: $("div") }, 1000 );
+						elm.transfer({to:$('[name=uptobuy]'), duration:100 });
+
+						elm.remove()
+					}
+
+				}
+			})
+
+		})
+
+
+	})
+
+</script>
+
+{% endblock buy_script %}
+

@@ -1,0 +1,74 @@
+{% extends "stock/period_tv.html" %}
+{% load humanize %}
+{% block stock_title %}
+	<h3>입고되어야할 품목</h3>
+{% endblock stock_title %}
+
+{% block indate %}
+
+{% endblock indate %}
+
+{% block header %}
+<ul class="nav nav-tabs">
+  {# <li class="active"><a href="#">Home</a></li> #}
+  <li id="list" {% block tablistclass %}{% endblock tablistclass %}><a class="list" href="#">내역별보기</a></li>
+  <li id="end" {% block tabendclass %}{% endblock tabendclass %}><a class="end" href="#">마감현황</a></li>
+
+
+  {% block stock_script %}
+  <script type="text/javascript">
+
+  $(function(){
+
+ 	form = $('form[name=show]')
+  
+
+  if(location.href.search('start')==-1){
+    form.attr('action',"{% url 'stock:show_incomplete_list' %}")
+    form.submit()
+  }
+  
+  $('.list').click(function(){
+  		form.attr('action',"{% url 'stock:show_incomplete_list' %}")
+
+  		form.submit()
+  });
+  $('.end').click(function(){
+      form.attr('action',"{% url 'stock:end' %}")
+      form.submit()
+  });
+    var start = $("#id_start")
+    var end = $("#id_end")
+    $("#id_start").change(function(){
+
+      if(start.val() > end.val()){
+        end.val(start.val());
+      }
+    });
+    $("#id_end").change(function(){
+
+      if(start.val() > end.val()){
+        start.val(end.val());
+      }
+    });
+ $('#id_start, #id_end, #id_general, #id_psychotic, #id_narcotic').change(function(){
+   
+    if($('.active').attr('id')==='list')
+    {
+      form.attr('action',"{% url 'stock:show_incomplete_list' %}")
+    }else
+    {
+      form.attr('action',"{% url 'stock:end' %}")
+    }
+      form.submit()
+  });
+})
+  </script>
+  {% endblock stock_script %}
+</ul>
+{% endblock header %}
+
+
+
+{% block summary %} {% endblock summary %}
+

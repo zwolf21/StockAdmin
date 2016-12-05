@@ -1,0 +1,99 @@
+{% extends "buy/base.html" %}
+{% load humanize %}
+{% block buy_style %}
+<style type="text/css">
+	.content{
+		margin-left: 20px;
+		margin-right: 30px;
+	}
+	tr {
+		border-bottom: 1px solid #eee;
+	}
+
+	.user{
+		border: 2px solid;
+		text-align: center;
+	}
+	
+	th, td:nth-child(5){
+		text-align-last: center;
+	}
+
+</style>
+{% endblock buy_style %}
+
+{% block buy_header %}
+<div id="printArea">
+	<table width="100%" class="req-header">
+		<tr>
+			<td width="80%" rowspan="2">
+				<h4>구매요청서</h4>
+				<h5>거래처: {{ object_list.first.drug.account }}</h5>
+				<h5>발주번호: {{ object.slug }}</h5>
+			</td>
+			<td height="20px;" width="100px" class="user">담당</td>
+			<td width="100px;" class="user">승인 </td>
+		</tr>
+		<tr>
+			<td height="80px" class="user">{{ user }}</td>
+			<td class="user">{{ object.commiter|default:"미승인" }}</td>
+		</tr>
+	</table>
+{% if not object.commiter %}
+<a class="btn btn-warning" href="{% url 'buy:cart_rollback' object %}">발주삭제(장바구니로 되돌리기)</a>
+{% endif %}
+{% endblock buy_header %}
+{% block buy_table %}
+	<table class="tablesorter">
+			<thead>
+			    <tr>
+					<th>No.</th>
+					<th>EDI코드</th>
+					<th>약품명</th>
+					<th>제조회사</th>
+					<th>구매수량</th>
+					<th>구매규격</th>
+					<th>비고</th>
+					<!-- <th>구매금액(원)</th> -->
+				</tr>
+			</thead>
+			<tbody>
+			{% for item in object_list %}
+				<tr>
+					<td>{{ forloop.counter }}</td>
+					<td>{{ item.drug.edi }}</td>
+					<td>{{ item.drug }}</td>
+					<td>{{ item.drug.firm }}</td>
+					<td>{% widthratio item.amount item.drug.pkg_amount 1 %}</td>
+					<td>{{ item.drug.purchase_standard }}</td>
+					<td>{{ item.comment }}</td>
+					<!-- <td>{{ item.get_buy_price|intcomma }}</td> -->
+				</tr>
+			{% endfor %}
+				
+			</tbody>
+	</table>
+</div>
+{% endblock buy_table %}
+
+{% block buy_footer %}
+	<div class="btn-group">
+
+	{% if not object.commiter %}
+		<a class="btn btn-default" href="{% url 'buy:buy_update' object %}">항목수정</a>
+		
+		{% if user.is_staff %}
+		<a class="btn btn-danger" href="{% url 'buy:commit' object %}">발주승인</a>
+		{% endif %}
+	{% else %}
+		{% if is_narcotic %}
+		<a class="btn btn-primary" onclick="javascript:window.open('{% url "buy:narcotic" object %}', 'pop1', 'width=700, height=1000, left=100, top=100, scrollbars=no, toolbars=no, location=no')">마약구매서 출력</a>
+		{% else %}
+		<a class="btn btn-success" onclick="javascript:window.open('{% url "buy:buy_print" object %}', 'pop1', 'width=700, height=1000, left=100, top=100, scrollbars=no, toolbars=no, location=no')">주문서 출력</a>
+		{% endif %}
+	{% endif %}
+	</div>
+
+{% endblock buy_footer %}
+
+

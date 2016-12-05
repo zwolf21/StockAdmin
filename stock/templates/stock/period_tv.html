@@ -1,0 +1,116 @@
+{% extends "home.html" %}
+{% load humanize %}
+{% block content %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+
+<div class="container">
+	<div class="row">
+
+	{% block stock_title %} <h3>입고현황 조회</h3> {% endblock stock_title %}
+
+	<form name="show" method="get" class="form-inline">
+
+		<div class="form-group">
+			<div class="col-xs-2">
+				{{ form.start }}
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-xs-2">
+				{{ form.end }}
+			</div>
+		</div>
+
+		<div class="form-group">
+		    <input id="search_window" type="text" placeholder="퀵필터" class="form-control input-sm" name="name">
+			<input type="submit" hidden>                          
+			<script>document.getElementById('search_window').focus();</script>  
+		</div>
+
+		<div class="form-group" style="display: inline;">
+			<div class="col-xs-8">
+				<label for="{{ form.general.auto_id }}" class="btn btn-success btn-xs">일반 {{ form.general }}<span class="badge">&check;</span></label>
+				<label for="{{ form.psychotic.auto_id }}" class="btn btn-warning btn-xs">향정 {{ form.psychotic }}<span class="badge">&check;</span></label>
+				<label for="{{ form.narcotic.auto_id }}" class="btn btn-danger btn-xs">마약 {{ form.narcotic }}<span class="badge">&check;</span></label>
+			</div>
+		</div>
+		
+		<label class="control-label" hidden>입고일자 지정{{ form.indate }}</label>	
+	</form>
+	</div>
+
+
+{% block header %}
+<ul class="nav nav-tabs">
+  {# <li class="active"><a href="#">Home</a></li> #}
+  <li id='list' {% block tablistclass %}{% endblock tablistclass %} tabindex="-1"><a class="list" href="#" >내역별보기</a></li>
+  <li id='ano' {% block tabanoclass %}{% endblock tabanoclass %}><a class="ano" href="#">품목별집계</a></li>
+  {% block stock_script %}
+ 
+<script type="text/javascript">
+  $(function(){
+	 	form = $('form[name=show]')
+	if(location.href.search('start')==-1){
+  		form.attr('action',"{% url 'stock:show_period_result_list' %}")
+	 	form.submit();
+	 }
+
+	$('.list').click(function(){
+	  		form.attr('action',"{% url 'stock:show_period_result_list' %}")
+	  		form.submit()
+	  });
+	  $('.ano').click(function(){
+	  		form.attr('action', "{% url 'stock:show_period_result_ano' %}")
+	  		form.submit()
+	  
+	  })
+	  		var start = $("#id_start")
+			var end = $("#id_end")
+			$("#id_start").change(function(){
+
+				if(start.val() > end.val()){
+					end.val(start.val());
+				}
+			});
+			$("#id_end").change(function(){
+
+				if(start.val() > end.val()){
+					start.val(end.val());
+				}
+			});
+	  $('#id_start, #id_end, #id_general, #id_psychotic, #id_narcotic').change(function(){
+
+	  	if($('.active').attr('id')==='list')
+	  	{
+	      form.attr('action',"{% url 'stock:show_period_result_list' %}")
+	  	}else
+	  	{
+	  		form.attr('action',"{% url 'stock:show_period_result_ano' %}")
+	  	}
+	      form.submit()
+	  	});
+});
+  </script>
+  {% endblock stock_script %}
+</ul>
+{% endblock header %}
+
+{% block stock_content %}
+	
+{% endblock stock_content %}
+{% block summary %}
+	
+<div style="text-align: right;">
+			<td colspan="6" > 종합:</td>
+			<td>{{ object_list|length }}건: </td>
+			<td colspan="1">{{ total_price|intcomma }}</td>
+			
+</div>
+{% endblock summary %}
+
+
+{% include "tablesorter_js.html" %}
+{% include "datepicker_js.html" %}
+{% include "ajax_autocomplete_script.html" %}
+{% endblock content %}

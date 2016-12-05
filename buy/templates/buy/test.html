@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="en-us" >
+<head>
+<title>title</title>
+{% load staticfiles %}
+
+
+
+
+
+<meta name="robots" content="NONE,NOARCHIVE" />
+</head>
+
+
+<body class="change-list">
+<form id="changelist-form" action="" method="post"><input type='hidden' name='csrfmiddlewaretoken' value='AVtyVJ8EaV1nlS15meQQJsflWHDZ8vp2' />
+      
+
+      
+          
+<div class="actions">
+    <label>동작: <select name="action">
+	<option value="" selected="selected">---------</option>
+	<option value="delete_selected">선택항목 삭제</option>
+	</select></label><input class="select-across" name="select_across" type="hidden" value="0" />
+    <button type="submit" class="button" title="Run the selected action" name="index" value="0">Go</button>
+    <script type="text/javascript">var _actions_icnt="{{ object_list.count }}";</script>
+    <span class="action-counter">0 of {{ object_list.count }} selected</span>
+</div>
+
+          
+<div class="results">
+	<table id="result_list">
+		<thead>
+			<tr>
+				<th scope="col"  class="action-checkbox-column">
+				   <div class="text"><span><input type="checkbox" id="action-toggle" /></span></div>
+				   <div class="clear"></div>
+				</th>
+				<th scope="col"  class="sortable column-">
+					<div class="text"><a href="#">거래처</a></div>
+				    <div class="clear"></div>
+				</th>
+
+				<th scope="col"  class="sortable column-">
+			   		<div class="text"><a href="#">약품명</a></div>
+			   		<div class="clear"></div>
+				</th>
+				<th scope="col"  class="sortable column-">
+				   <div class="text"><a href="#">요청수량</a></div>
+				   <div class="clear"></div>
+				</th>
+				<th scope="col"  class="column-">
+			   
+			   		<div class="text"><span>포장단위</span></div>
+			   		<div class="clear"></div>
+				</th>
+				<th scope="col"  class="column-">
+				   <div class="text"><span>미입고량</span></div>
+				   <div class="clear"></div>
+				</th>
+				<th scope="col"  class="column-">
+				   <div class="text"><span>누적입고량</span></div>
+				   <div class="clear"></div>
+				</th>
+				<th scope="col"  class="sortable column-">
+				   <div class="text"><a href="#">최종입고일</a></div>
+				   <div class="clear"></div>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for object in object_list %}
+			<tr class="{% cycle 'row1' 'row2' %}">
+				<td class="action-checkbox"><input class="action-select" name="_selected_action" type="checkbox" value="{{ object.id }}" /></td>
+				<td class="nowrap">{{ object.drug.account }}</td>
+				<td class="nowrap">{{ object.drug }}</td>
+				<td class="nowrap">{{ object.drug.amount }}</td>
+				<td class="nowrap">{{ object.drug.pkg_amount }}</td>
+				<td class="nowrap">{{ object.drug.total_incomplete_amount }}</td>
+				<td class="nowrap">{{ object.drug.total_stockin_amount }}</td>
+				<td class="nowrap">{{ object.drug.last_stockin_date }}</td>
+			</tr>
+		{% endfor %}
+			<tr>
+				<td></td>
+				<td>{{ buyitem.drug.account }}</td>
+				{% if buy %}
+				<form action="{% url 'buy:add' buy.slug %}" method="post">
+				{% else %}
+				<form action="{% url 'buy:cart' %}" method="post">
+					
+				{% endif %}
+					{% csrf_token %}
+					<td><div class="ui-widget"><input type="text" id="id_name" name="name" ></div></td>
+					<td>{{ form.amount }}<input type="submit" value="입력" style="display:none"></td>
+					<script type="text/javascript">
+						$('#id_code').val('')
+						$('#id_name').focus().val('')
+					</script>
+				</form>
+					<td><input type="text" name="pkg_amount" disabled></td>
+					<td><input type="text" name="incompletes" disabled></td>
+					<td><input type="text" name="stockacc" disabled></td>
+					<td><input type="date" name="stocklast" disabled></td>
+			</tr>
+
+		</tbody>
+	</table>
+</div>
+
+
+          
+      
+      
+
+<p class="paginator">
+
+{{ object_list.count }} 구매품목
+
+
+</p>
+
+</form>
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        $("tr input.action-select").actions();
+    });
+})(django.jQuery);
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content">
+
+<form action="." method="post">
+{% csrf_token %}
+{% if form.errors %}
+	<p>비밀번호가 맞습니까</p>
+{% endif %}
+
+<p>{{ form.username.label_tag }} {{ form.username }}</p>
+<p>{{ form.password.label_tag }} {{ form.password }}</p>
+<p><input type="submit" value="login"></p>
+<p><input type="hidden" name="next" value="{{ request.META.HTTP_REFERER }}"></p>
+<script type="text/javascript">document.getElementById('id_username').focus();</script>
+</form>
+
+</div>
+
+{% endblock content %}

@@ -1,0 +1,25 @@
+{% extends "buy/buyitem_lv.html" %}
+
+{% block buy_title %}
+	
+{% endblock buy_title %}
+
+{% block buy_header %}
+<table width="100%" class="req-header">
+	<tr>
+		<td width="80%" rowspan="2">
+			<h4>구매요청서 수정</h4>
+			<h5>거래처: {{ object_list.first.drug.account }}</h5>
+			<h5>발주번호: {{ object }}</h5>
+		</td>
+	</tr>
+</table>
+{% endblock buy_header %}
+
+
+
+
+
+
+{% block buy_footer %}
+{% endblock buy_footer %}

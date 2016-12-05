@@ -1,0 +1,30 @@
+{% include "home.html" %}
+{% block content %}
+<div class="content">
+	<header>
+	<h4>발주서리스트</h4>		
+	</header>
+	<content>
+	<table border="1" class="tablesorter">
+		<thead>
+			<tr>
+				<th>발주번호</th>
+				<th>발주서요약</th>
+				<th>발주일자</th>
+				<th>발주승인자</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for buy in object_list %}
+			<tr>
+				<td>{{ buy }}</td>
+				<td><a href="{% url 'buy:buydetail' buy.slug %}">{{ buy.description }}</a></td>
+				<td>{{ buy.date|date:"Y-m-d" }}</td>
+				<td>{{ buy.commiter }}</td>
+			</tr>	
+		{% endfor %}
+		</tbody>
+	</table>
+	</content>
+</div>
+{% endblock content %}
