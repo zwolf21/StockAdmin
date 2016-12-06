@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>미입고현황</title>
+	<meta charset="utf-8">
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap.min.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "jquery-ui-1.12.1.custom/jquery-ui.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
+
+	<link rel="stylesheet" type="text/css" href="{% static "tablesorter/themes/blue/style.css" %}">
+	<script src="{% static "jquery-3.1.1.min.js" %}"></script>
+	<script src="{% static "bootstrap-3.3.7-dist/js/bootstrap.min.js" %}"></script>
+	<script src="{% static "jquery-ui-1.12.1.custom/jquery-ui.js" %}"></script>
+	<script src="{% static "tablesorter/jquery.tablesorter.min.js" %}"></script>
+
+</head>
+<body>
+	<div class="container">
+		<h1>미입고현황</h1>
+		<table class="tablesorter" border="1">
+		<thead>
+			<tr>
+				<th>연번</th>
+				<th>발주번호</th>
+				<th>거래처</th>
+				<th>제약회사</th>
+				<th>약품명</th>
+				<th>발주수량</th>
+				<th>기입고수량</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for buyitem in object_list %}
+			<tr>
+				<td>{{ forloop.counter }}</td>
+				<td>{{ buyitem.buy }}</td>
+				<td>{{ buyitem.drug.account }}</td>
+				<td>{{ buyitem.drug.firm }}</td>
+				<td>{{ buyitem.drug }}</td>
+				<td>{{ buyitem.amount }}</td>
+				<td>{{ buyitem.stockin_amount }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+
+	</div>
+</body>
+<script>
+
+$(function(){
+window.print();
+window.close();
+
+})
+</script>
+</html>

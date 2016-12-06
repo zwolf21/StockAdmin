@@ -8,6 +8,7 @@
 	{% block indate %}
 	<div class="form-group" style="display: inline;">
 		<label class="control-label">입고일자 지정:{{ form.indate }}</label>
+<a id="btn-print" class="btn btn-success btn-sm">미입고리스트 출력</a>
 	
 	</div>
 	{% endblock indate %}
@@ -49,7 +50,16 @@
 	</form>
 
 	<script>
+
+	$('#btn-print').click(function(){
+		popurl = window.location.href.replace('result','print')
+		window.open(popurl, 'pop1', 'width=700, height=1000, left=100, top=100, scrollbars=no, toolbars=no, location=no')
+	})
+
 	  $('table input[type=number]').keydown(function(event){
+
+
+
 	  		// alert(event.keyCode)
 			var cur_val = $(this).val()
 			var step = $(this).attr('step')

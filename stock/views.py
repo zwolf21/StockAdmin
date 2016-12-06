@@ -66,6 +66,12 @@ class StockIncompleteLV(ListView):
 		context['amount_form'] = StockRecAmountForm
 		return context
 
+class StockIncompleteLVprint(StockIncompleteLV):
+	template_name = 'etc/incomplete_print.html'
+
+	def get_queryset(self):
+		qryset = super(StockIncompleteLVprint, self).get_queryset()
+		return sorted(qryset, key=lambda item: item.buy.slug)
 
 
 class StockInEndLV(ListView):
