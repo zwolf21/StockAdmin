@@ -1,0 +1,178 @@
+{% include "home.html" %}
+
+{% block content %}
+<div class="container">
+<button class="btn btn-primary" name="uptobuy">생성하기</button>
+<button class="btn btn-primary" name="unlink">삭제하기</button>
+
+	<table class="tablesorter">
+		<thead>
+			<tr>
+                <th>전체선택<input type="checkbox" name="checkall" id="checkall"></th>
+				<th>도매상</th>
+				<th>기타구분</th>
+				<th>EDI코드</th>
+				<th>약품명</th>
+				<th>약품별명</th>
+				<th>제약회사</th>
+				<th>단가</th>
+				<th>규격단위</th>
+				<th>포장단위</th>
+				<th>구매규격</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for object in object_list %}
+				<tr nrow={{ object.edi }}>
+                    <td><input id="{{ object.edi }}" type="checkbox" name="checklist" /></td>
+					<td>{{ object.account }}</td>
+					<td>{{ object.etc_class }}</td>
+					<td>{{ object.edi }}</td>
+					<td>{{ object.name }}</td>
+					<td>{{ object.name_as }}</td>
+					<td>{{ object.firm }}</td>
+					<td>{{ object.price }}</td>
+					<td>{{ object.standard_unit }}</td>
+					<td>{{ object.pkg_amount }}</td>
+					<td>{{ object.purchase_standard }}</td>
+				</tr>
+			{% endfor %}
+				<tr>
+                    <td></td>
+                    <form id="update" action="{% url 'info:update_cv' %}" method="post">
+                        {% csrf_token %}
+                        <td>{{ form.account }}</td>
+                        <td>{{ form.etc_class }}</td>
+                        <td>{{ form.edi }}</td>
+                        <td>{{ form.name }}</td>
+                        <td>{{ form.name_as }}</td>
+                        <td>{{ form.firm }}</td>
+                        <td>{{ form.price }}</td>
+                        <td>{{ form.standard_unit }}</td>
+                        <td>{{ form.pkg_amount }}</td>
+                        <td>{{ form.purchase_standard }}</td>
+                        <input type="submit" hidden>
+                    </form>
+				</tr>
+		</tbody>
+	</table>
+</div>
+<script type="text/javascript">
+$(function(){
+
+    $('.tablesorter th input').click(function(){
+			if($('.tablesorter th input').is(':checked'))
+			{
+				$('input[name=checklist]').each(function(){
+					$(this).prop('checked',true);
+				});
+			
+			}
+			else
+			{
+				$('input[name=checklist]').each(function(){
+					$(this).prop('checked',false);
+				});
+			}
+		})
+    
+    	$('[name=uptobuy] [name=unlink]').click(function(){
+			var checked_list = []
+			var date = $('#id_date').val()
+			$(":checkbox[name='checklist']:checked").each(function(pi,po){
+				checked_list.push($(po).attr('id'))
+			});
+            var requrl = $(this).attr('name') == 'uptobuy' ? "{% url 'info:drug_gen' %}" : "{% url 'info:durg_unlink' arg %}"
+
+			$.ajax({
+				url : requrl,
+				type : 'get',
+				dataType:'json',
+				data : {date:date, pk_list: JSON.stringify(checked_list)},
+				success: function(rsp){
+					for (var i = 0; i < rsp.length; i++) {
+						var n = rsp[i]
+						var elm = $('[nrow='+n+']')
+
+						// elm.effect( "transfer", { to: $("div") }, 1000 );
+						elm.transfer({to:$('[name=uptobuy]'), duration:100 });
+
+						elm.remove()
+					}
+				}
+			})
+		})
+
+
+    $("#id_name").autocomplete({
+    
+        source : function( request, response ) {
+             $.ajax({
+                    type: 'get',
+                    url: "{% url 'info:create_auto' %}",
+                    dataType: "json",
+                    //request.term = $("#autocomplete").val()
+                    data: { term : request.term },
+                    success: function(data) {
+                        //서버에서 json 데이터 response 후 목록에 뿌려주기 위함
+                        rsp = $.map(data, function(e){return {
+                            label:e.제품명, 
+                            value:e.제품명,
+                            edi:e.보험코드,
+                            firm:e.판매사,
+                            name_as:e.제품명,
+                            price: parseInt(e.약가)
+                        }})
+                        response(rsp.slice(0,15));
+                        if(data.length==1)
+                        {
+                            tgt = $("[name='name']");
+                            tgt.val(data[0].drug_name);
+                            tgt.focus();
+                            $("#auto_amount").attr({'min':data[0].pkg_amount, 'step':data[0].pkg_amount}).val(data[0].pkg_amount);  
+                        }
+                    }
+               });
+            },
+        //조회를 위한 최소글자수
+        minLength: 2,
+        select: function( event, ui ) {
+            // 만약 검색리스트에서 선택하였을때 선택한 데이터에 의한 이벤트발생
+                $.ajax({
+                url : "{% url 'info:create_auto' %}",
+                type : 'get',
+                dataType:'json',
+                data : {term:ui.item.edi},
+                success: function(rsp){
+                    $('[name=pkg_amount]').val(rsp.pkg_amount)
+                    $("[name=standard_unit]").val(rsp.pkg_unit)
+                    $("[name=narcotic_class]").val(rsp.narcotic_class)
+
+                    }
+                })
+    
+            
+        },
+        change : function(event, ui){
+            
+        },
+
+        focus: function( event, ui ) {
+            event.preventDefault(); 
+            $("[name='edi']").val(ui.item.edi)
+            $("[name='firm']").val(ui.item.firm)
+            $("[name='name_as']").val(ui.item.name_as)
+            $("[name='price']").val(ui.item.price)
+           
+
+            // $("#auto_amount").attr({'min':ui.item.pkg_amount, 'step':ui.item.pkg_amount}).val(ui.item.pkg_amount);
+
+        }
+    });
+    $("#id_date").datepicker({
+        dateFormat: 'yy-mm-dd'
+    });
+
+})
+</script>
+{% endblock content %}

@@ -47,6 +47,8 @@ class DICrawler:
 		for table in tables:
 			thead, *tbody = table.find_all('tr')
 			hdr = [th.text for th in thead.find_all('td')]
+			if set(hdr) != {'', '보험', '성분/함량', '약가', '대체', '제품명', '조회수', '수정', '보험코드', '판매사', '임부', '구분'}:
+				continue
 			for tr in tbody:
 				d =  dict(zip(hdr,(td.text.strip().split('\n')[0] for td in tr.find_all('td'))))
 				href = tr.select('a[href^=/detail/product.aspx?pid=]') or [{'href':''}]
@@ -102,6 +104,5 @@ class DICrawler:
 				else:
 					continue
 			return 0
-
 
 

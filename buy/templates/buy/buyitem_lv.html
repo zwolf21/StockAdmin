@@ -17,6 +17,9 @@
 {% endblock buy_header %}
 
 {% block buy_table %}
+
+
+
 	<table class="tablesorter" id="mytable">
 				<thead>
 					<tr nrow="0">
@@ -76,6 +79,7 @@
 					</tr>
 				</tbody>
 			</table>
+
 			{% if slug %}
 				<a class="btn btn-default" href="{% url 'buy:buy_detail' slug %}">수정완료</a>
 			{% endif %}
@@ -85,6 +89,7 @@
 
 {% block buy_script %}
 {# {% include "tablesorter_js.html" %} #}
+{% include "auto_scroll_js.html" %}
 {% include "ajax_autocomplete_script.html" %}
 <script>
 	$(function(){
@@ -157,5 +162,11 @@
 
 </script>
 
-{% endblock buy_script %}
 
+{% endblock buy_script %}
+{% block footer %}
+<div id="footer" style="display: block; height: 1200px;">
+	&nbsp;
+</div>
+
+{% endblock footer %}

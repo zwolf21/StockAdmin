@@ -38,6 +38,7 @@ def gen_buy(request):
 
 
 
+
 class BuyLV(ListView):
 	model = Buy
 	template_name = 'buy/buy_lv.html'
@@ -67,6 +68,8 @@ class BuyDV(LoginRequiredMixin, DetailView):
 
 class BuyDVprint(BuyDV):
 	template_name = 'buy/etc/buy_print.html'
+
+
 
 
 class BuyItemLV(ListView):
@@ -190,156 +193,6 @@ def roll_back2cart(request, slug):
 
 
 
-
-# class BuyDV(DetailView):
-# 	model = Buy
-
-# class BuyDV(ListView):
-# 	template_name = 'buy/buy_detail.html'
-
-# 	def get_queryset(self):
-# 		queryset = BuyItem.objects.filter(buy__slug=self.kwargs['slug']).order_by('drug__firm')
-# 		return queryset
-
-# 	def get_context_data(self, **kwargs):
-# 		context = super(BuyDV, self).get_context_data(**kwargs)
-# 		context['buy'] = Buy.objects.get(slug=self.kwargs['slug'])
-# 		return context
-
-
-@login_required
-def create_buy(request):
-	if request.method == 'POST':
-		form = CreateBuyForm(request.POST)
-		if form.is_valid():
-			date = form.cleaned_data['date']
-			cart_list = BuyItem.objects.filter(buy__isnull=True).order_by('drug__account')
-			for g, itr in groupby(cart_list, lambda x:x.drug.account):
-				buy = Buy.objects.create(date=date)
-				for item in itr:
-					buy.buyitem_set.add(item)
-			return HttpResponseRedirect(reverse_lazy('buy:buy_list'))
-
-
-
-class CartLV(ListView):
-	template_name = 'buy/cart_list.html'
-
-	def get_queryset(self):
-		return BuyItem.objects.filter(buy__isnull=True)
-
-
-class CartItemCV(LoginRequiredMixin ,CreateView):
-	# model = BuyItem
-	fields = ['amount']
-	form_class = BuyItemAddForm
-	# success_url = reverse_lazy('buy:cartitem_add')
-	template_name = 'buy/cart_list.html'
-
-	def get_success_url(self):
-		return reverse_lazy('buy:cartitem_add')
-
-
-
-	def get_context_data(self, **kwargs):
-		context = super(CartItemCV, self).get_context_data(**kwargs)
-		context['object_list'] = BuyItem.objects.filter(buy__isnull=True)
-		context['create_buy_form'] = CreateBuyForm
-		return context
-
-	def form_valid(self, form):
-
-		name = self.request.POST.get('name')
-		context = self.get_context_data()
-
-		if name == '':
-			return HttpResponseRedirect(self.get_success_url())
-
-		try:
-			drug = Info.objects.get(name=name)
-		except (KeyError, Info.DoesNotExist):
-			context['error_message'] = '해당품목이 존재 하지 않습니다(%s)' % name 
-			return self.render_to_response(context)			
-		else:
-
-			if context['object_list'].filter(drug=drug).exists():
-				return HttpResponseRedirect(self.get_success_url())
-
-			if self.kwargs.get('slug'):
-				if not context['object_list'].filter(drug__account=drug.account).exists():
-					return HttpResponseRedirect(self.get_success_url())
-				
-
-			form.instance.drug = drug
-			form.instance.by = self.request.user
-			return super(CartItemCV, self).form_valid(form)
-
-
-
-class BuyItemCV(CartItemCV):
-	template_name = 'buy/buyitem_list.html'
-	
-
-	def get_success_url(self):
-		return reverse_lazy('buy:buyitem_add', args=(self.kwargs['slug'],))
-
-	def get_context_data(self, **kwargs):
-		context = super(BuyItemCV, self).get_context_data(**kwargs)
-		context['object_list'] = BuyItem.objects.filter(buy__slug=self.kwargs['slug'])
-		return context
-
-	def form_valid(self, form):
-		form.instance.buy = Buy.objects.get(slug=self.kwargs.get('slug'))
-
-
-
-		return super(BuyItemCV, self).form_valid(form)
-
-
-
-class CartItemUV(LoginRequiredMixin ,UpdateView):
-	model = BuyItem
-	fields = ['amount']
-	success_url = reverse_lazy('buy:cartitem_add')
-	template_name = 'buy/cartitem_update_form.html'
-
-	def get_context_data(self, **kwargs):
-		context = super(CartItemUV, self).get_context_data(**kwargs)
-		context['object_list'] = BuyItem.objects.filter(buy__isnull=True)
-		return context
-
-
-
-class BuyItemUV(LoginRequiredMixin ,UpdateView):
-	model = BuyItem
-	fields = ['amount']
-	template_name = 'buy/buyitem_update_form.html'
-
-	def get_success_url(self):
-		return reverse_lazy('buy:buyitem_add', args=(self.kwargs['slug'], ))
-
-	def get_context_data(self, **kwargs):
-		context = super(BuyItemUV, self).get_context_data(**kwargs)
-		context['object_list'] = BuyItem.objects.filter(buy__slug=self.kwargs['slug'])
-		return context
-
-
-
-
-class CartItemDelV(LoginRequiredMixin, DeleteView):
-	model = BuyItem
-	success_url = reverse_lazy('buy:cartitem_add')
-	template_name = 'buy/buyitem_confirm_delete.html'
-
-
-
-
-class BuyItemDelV(LoginRequiredMixin, DeleteView):
-	model = BuyItem
-	template_name = 'buy/buyitem_confirm_delete.html'
-
-	def get_success_url(self):
-		return reverse_lazy('buy:buyitem_add', args=(self.kwargs['slug'], ))
 
 
 

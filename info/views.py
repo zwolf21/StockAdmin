@@ -8,20 +8,64 @@ from django.db.models import Q
 
 import os, sys, json, csv
 from datetime import datetime
+from json import loads, dumps
 from .models import Info
 
-from .forms import CSVForm
+from .forms import CSVForm, InfoCVForm
 from .modules.utils import xlDB2DicIter, is_xlfile, DICrawler
 
 
 from django.utils.safestring import mark_safe 
-from django.http import HttpResponse
-from StockAdmin.views import LoginRequiredMixin
+from django.http import HttpResponse, HttpResponseRedirect
+from StockAdmin.views import LoginRequiredMixin, login_required
 from .backup_utils import csv_update, dict2csv, dict2xl
 
 
 # Create your views here.
 
+
+@login_required
+def gen_drug(request):
+	if request.is_ajax():
+		pk_list = loads(request.GET['pk_list'])
+		Info.objects.filter(edi__in=pk_list).update(status='사용중')
+		return HttpResponse(dumps(pk_list), content_type='application/json')
+
+@login_required
+def ulink_drug(request):
+	if request.is_ajax():
+		pk_list = loads(request.GET['pk_list'])
+		Info.objects.filter(edi__in=pk_list).delete()
+		return HttpResponse(dumps(pk_list), content_type='application/json')
+
+
+class UpdateItemLV(ListView):
+	template_name = 'info/update_lv.html'
+
+	def get_queryset(self):
+		return Info.objects.filter(status='생성대기')
+
+	def get_context_data(self, **kwargs):
+		context = super(UpdateItemLV, self).get_context_data(**kwargs)
+		context['form'] = InfoCVForm
+		return context
+
+
+class UpdateItemCV(LoginRequiredMixin ,CreateView):
+	model = Info
+	form_class = InfoCVForm
+	
+	def get_success_url(self):
+		return self.request.META['HTTP_REFERER']
+
+	def form_valid(self, form):
+		# print('form_valid\n*10')
+		form.instance.status = '생성대기'
+		form.instance.by = self.request.user
+		return super(UpdateItemCV, self).form_valid(form)
+	
+	def form_invalid(self, form):
+		return HttpResponseRedirect(self.get_success_url())
 
 
 
@@ -52,7 +96,7 @@ def backup2csv(request):
 	filename = 'StockAdmin{}.csv'.format(str(timestamp))
 	return dict2csv(queryset, filename)
 	
-	 
+	
 def bacup2excel(request):
 	queryset = Info.objects.all()
 	timestamp = datetime.now().strftime('%Y%m%d%H%I%S')
@@ -75,12 +119,13 @@ class InfoCV(LoginRequiredMixin,CreateView):
 def autocomplete(request):
 	if request.is_ajax():
 		kw = request.GET['term']
-		iter_rsp = list(filter(None,DICrawler.iter_drug_summary(kw)))[:15]
+		iter_rsp = list(filter(None,DICrawler.iter_drug_summary(kw)))
 		if len(iter_rsp) == 1:
 			for html in DICrawler.iter_drug_detail(kw):
 				iter_rsp[0]['pkg_unit'] ,iter_rsp[0]['pkg_amount'] = DICrawler.get_pkg_unit(html)
 				iter_rsp[0]['narcotic_class'] = DICrawler.get_narcotic_class(html)
-				iter_rsp = iter_rsp[0]
+				# iter_rsp = iter_rsp[0]
+		
 		return HttpResponse(json.dumps(iter_rsp), content_type='application/json')
 
 

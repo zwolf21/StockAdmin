@@ -10,5 +10,9 @@ urlpatterns = patterns(
 	url(r'^backup/csv/$', backup2csv, name='tocsv'),
 	url(r'^backup/excel/$', bacup2excel, name='toexcel'),
 	url(r'^csvUpdate/$', CSVUpdateFV.as_view(), name='fromcsv'),
+	url(r'^update/view/$', UpdateItemLV.as_view(), name='update_lv'),
+	url(r'^update/add/$', UpdateItemCV.as_view(), name='update_cv'),
+	url(r'^gen/$', gen_drug, name='drug_gen'),
+	url(r'^unlink/$', unlink_drug, name='drug_unlink'),
 	
 )

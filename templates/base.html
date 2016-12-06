@@ -44,7 +44,7 @@
                                             <a href="{% url 'info:fromcsv' %}">파일로 업데이트</a>
                                         </li>
                                         <li>
-                                            <a href="#">개별 업데이트</a>
+                                            <a href="{% url 'info:update_lv' %}">개별 업데이트</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -125,21 +125,14 @@
     </div>
 </div>
 {% endblock menu %}
-<div id="footer" height="1200">
-<p>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</p>
 
-</div>
 {% block content %}{% endblock content %}
 {% block footer %}
+<div id="footer" style="display: block; height: 1200px;">
+</div>
 
 {% endblock footer %}
 
-<div id="footer" style="display: block; height: 1200px;">
-
-    
-</div>
 </body>
 <script type="text/javascript">
     $(document).ready(function(){

@@ -24,6 +24,14 @@ class Account(models.Model):
 status_choices = [('폐기','폐기'),('사용중','사용중'),('생성대기','생성대기')]
 etc_class_choices = [('일반','일반'),('처치약품','처치약품'),('항암제','항암제'),('직송','직송'),('수액','수액'),('영양수액','영양수액'),('인슐린주사','인슐린주사'),('백신','백신'),('조영제','조영제')]
 narcotic_class_choices = [(0,'일반'),(1,'마약'),(2,'향정')]
+standard_unit_choices = [('VIAL','VIAL'),('BTL','BTL'),('AMP','AMP'),('SYR','SYR'),('TAB','TAB'),('CAP','CAP'),('PACK','PACK'),('KIT','KIT'),('VIAL','VIAL'),('BAG','BAG'),('PEN','PEN'),('매','매'),('TUBE','TUBE'),('EA','EA'),('포','포')
+]
+
+
+
+
+
+
 class Info(models.Model):
 
 	def __str__(self):
@@ -42,7 +50,7 @@ class Info(models.Model):
 	price = models.PositiveIntegerField('단가', default=0)
 	pkg_amount = models.PositiveIntegerField('포장수량', default=1, blank=True)
 	purchase_standard = models.CharField('구매규격', max_length=50, null=True, blank=True)
-	standard_unit = models.CharField('규격단위', max_length=50, null=True)
+	standard_unit = models.CharField('규격단위', choices=standard_unit_choices, max_length=50, null=True)
 	narcotic_class = models.IntegerField('마약류구분', choices=narcotic_class_choices, default=1)
 	account = models.ForeignKey(Account, null=True, default=1, verbose_name='도매상')
 	base_amount = models.IntegerField('기초재고', default=0)
@@ -51,7 +59,7 @@ class Info(models.Model):
 	by = models.ForeignKey(User, default=1, verbose_name='정보생성인')
 	status = models.CharField('현재상태', max_length=10, choices=status_choices, default='사용중')
 	etc_class = models.CharField('기타구분', max_length=10, choices=etc_class_choices, default='일반')
-
+	
 
 	
 

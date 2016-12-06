@@ -32,7 +32,7 @@ class Staff_memberRequiredMixin(object):
 def autocomplete(request):
 	if request.is_ajax():
 		kw = request.GET['term']
-		queryset = Info.objects.filter(Q(name_as__contains=kw), status=1).iterator()
+		queryset = Info.objects.filter(Q(name_as__contains=kw)|Q(etc_class=kw), status='사용중').iterator()
 		ret = []
 		for drug in queryset:
 			ret.append({
