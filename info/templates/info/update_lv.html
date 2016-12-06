@@ -82,7 +82,7 @@ $(function(){
 			$(":checkbox[name='checklist']:checked").each(function(pi,po){
 				checked_list.push($(po).attr('id'))
 			});
-            var requrl = $(this).attr('name') == 'uptobuy' ? "{% url 'info:drug_gen' %}" : "{% url 'info:durg_unlink' arg %}"
+            var requrl = $(this).attr('name') == 'uptobuy' ? "{% url 'info:drug_gen' %}" : "{% url 'info:drug_unlink' %}"
 
 			$.ajax({
 				url : requrl,

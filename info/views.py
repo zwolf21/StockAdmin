@@ -32,7 +32,7 @@ def gen_drug(request):
 		return HttpResponse(dumps(pk_list), content_type='application/json')
 
 @login_required
-def ulink_drug(request):
+def unlink_drug(request):
 	if request.is_ajax():
 		pk_list = loads(request.GET['pk_list'])
 		Info.objects.filter(edi__in=pk_list).delete()
