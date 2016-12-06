@@ -2,9 +2,10 @@
 
 {% block content %}
 <div class="container">
-<button class="btn btn-primary" name="uptobuy">생성하기</button>
-<button class="btn btn-primary" name="unlink">삭제하기</button>
+    <h2>약품정보 생성</h2>
 
+<button class="btn btn-primary" name="uptobuy">선택항목 생성하기</button>
+<button class="btn btn-danger" name="unlink">선택항목 삭제하기</button>
 	<table class="tablesorter">
 		<thead>
 			<tr>
@@ -76,14 +77,14 @@ $(function(){
 			}
 		})
     
-    	$('[name=uptobuy] [name=unlink]').click(function(){
+    	$('[name=uptobuy], [name=unlink]').click(function(){
 			var checked_list = []
 			var date = $('#id_date').val()
 			$(":checkbox[name='checklist']:checked").each(function(pi,po){
 				checked_list.push($(po).attr('id'))
 			});
             var requrl = $(this).attr('name') == 'uptobuy' ? "{% url 'info:drug_gen' %}" : "{% url 'info:drug_unlink' %}"
-
+            console.log(requrl)
 			$.ajax({
 				url : requrl,
 				type : 'get',
