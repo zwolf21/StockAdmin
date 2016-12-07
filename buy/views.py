@@ -42,6 +42,24 @@ def gen_buy(request):
 class BuyLV(ListView):
 	model = Buy
 	template_name = 'buy/buy_lv.html'
+	paginate_by = 5
+
+	def get_context_data(self, **kwargs):
+		context = super(BuyLV, self).get_context_data(**kwargs)
+		# paginator = context['paginator']
+		paginator = self.get_paginator(self.get_queryset(), self.paginate_by, allow_empty_first_page=False)
+		curPage = int(self.request.GET.get('page',paginator.num_pages))
+		pageUnit = 10
+
+		# 10, 20,30 과같은 10배수 페이지를 선택시 다음 단계 페이지로 시프트 방지 코드
+		startPage = curPage//pageUnit if curPage%10 else curPage//pageUnit-1
+		startPage*=pageUnit
+		endPage = startPage + pageUnit
+		context['page_range'] = paginator.page_range[startPage:endPage]
+		return context
+
+	def get_paginator(self, queryset, per_page, orphans=1, allow_empty_first_page=True):
+		return self.paginator_class(queryset, per_page, orphans=per_page, allow_empty_first_page=False)
 
 
 class BuyUV(LoginRequiredMixin, UpdateView):

@@ -31,6 +31,7 @@ def gen_drug(request):
 		Info.objects.filter(edi__in=pk_list).update(status='사용중')
 		return HttpResponse(dumps(pk_list), content_type='application/json')
 
+
 @login_required
 def unlink_drug(request):
 	if request.is_ajax():

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, date
-from django.db.models import Q
+from django.db.models import Q, F
 from info.models import etc_class_choices
 
 etc_class_set = set(c[0] for c in etc_class_choices)
@@ -19,6 +19,8 @@ dates = {
 	'그끄제' : _today - oneday*4,
 	'그끄저께' : _today - oneday*4
 }
+
+
 
 def get_request_date_range(req):
 	start_date = datetime.strptime(req.get('start'), "%Y-%m-%d")
