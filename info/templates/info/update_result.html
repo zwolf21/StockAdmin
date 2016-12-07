@@ -31,6 +31,7 @@
 	<table class="tablesorter">
 		<thead>
 			<tr>
+				<th>No.</th>
 				<th>EDI 코드</th>
 				<th>약품명</th>
 				<th>약품명2</th>
@@ -46,6 +47,7 @@
 		<tbody>
 			{% for c in created %}
 			<tr>
+				<td>{{forloop.counter}}</td>
 				<td>{{ c.edi }}</td>
 				<td>{{ c.name }}</td>
 				<td>{{ c.name_as }}</td>
@@ -67,6 +69,7 @@
 	<table class="tablesorter">
 		<thead>
 			<tr>
+				<th>No.</th>
 				<th>EDI 코드</th>
 				<th>약품명</th>
 				<th>약품명2</th>
@@ -82,6 +85,7 @@
 		<tbody>
 			{% for c in updated %}
 			<tr>
+				<td>{{forloop.counter}}</td>
 				<td>{{ c.edi }}</td>
 				<td>{{ c.name }}</td>
 				<td>{{ c.name_as }}</td>
@@ -100,6 +104,7 @@
 	<table class="tablesorter">
 		<thead>
 			<tr>
+				<th>No.</th>
 				<th>EDI 코드</th>
 				<th>약품명</th>
 				<th>약품명2</th>
@@ -115,6 +120,7 @@
 		<tbody>
 			{% for c in preupdated %}
 			<tr>
+				<td>{{forloop.counter}}</td>
 				<td>{{ c.edi }}</td>
 				<td>{{ c.name }}</td>
 				<td>{{ c.name_as }}</td>
