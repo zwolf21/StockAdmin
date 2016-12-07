@@ -27,6 +27,8 @@ from StockAdmin.views import LoginRequiredMixin, PermissionRequiredMixin, Staff_
 class TestTV(TemplateView):
 	template_name = "buy/test.html"
 
+
+
 @login_required
 def gen_buy(request):
 	if request.is_ajax():
@@ -38,11 +40,10 @@ def gen_buy(request):
 
 
 
-
 class BuyLV(ListView):
 	model = Buy
 	template_name = 'buy/buy_lv.html'
-	paginate_by = 5
+	paginate_by = 15
 
 	def get_context_data(self, **kwargs):
 		context = super(BuyLV, self).get_context_data(**kwargs)
@@ -59,7 +60,7 @@ class BuyLV(ListView):
 		return context
 
 	def get_paginator(self, queryset, per_page, orphans=1, allow_empty_first_page=True):
-		return self.paginator_class(queryset, per_page, orphans=per_page, allow_empty_first_page=False)
+		return self.paginator_class(queryset, per_page, orphans=per_page/2, allow_empty_first_page=False)
 
 
 class BuyUV(LoginRequiredMixin, UpdateView):

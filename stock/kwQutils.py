@@ -9,14 +9,23 @@ _today = date.today()
 oneday = timedelta(1)
 dates = {
 	'그글피': _today + oneday*4,
+	'ㄱㄱㅍ': _today + oneday*4,
 	'글피' : _today + oneday*3,
+	'ㄱㅍ' : _today + oneday*3,
 	'모래' : _today + oneday*2,
+	'ㅁㄹ' : _today + oneday*2,
 	'내일' : _today + oneday*1,
+	'ㄴㅇ' : _today + oneday*1,
 	'오늘' : _today,
+	'ㅇㄴ' : _today,
 	'어제' : _today - oneday*1,
+	'ㅇㅈ' : _today - oneday*1,
 	'그제' : _today - oneday*2,
+	'ㄱㅈ' : _today - oneday*2,
 	'그저께' : _today - oneday*3,
+	'ㄱㅈㄲ' : _today - oneday*3,
 	'그끄제' : _today - oneday*4,
+	'ㄱㄲㅈ' : _today - oneday*4,
 	'그끄저께' : _today - oneday*4
 }
 
@@ -32,6 +41,7 @@ def gen_etc_classQ(etc_cls_kw):
 	keywords_set = set(etc_cls_kw.split())
 	pos_kw_set = keywords_set & etc_class_set
 	min_kw_set = set(kw.strip('-') for kw in keywords_set if kw.startswith('-') or kw.endswith('-')) & etc_class_set
+	min_kw_set |= set(kw.strip('빼고') for kw in keywords_set if kw.startswith('빼고') or kw.endswith('빼고')) & etc_class_set
 	qry = Q()
 	if min_kw_set:
 		return Q(drug__etc_class__in=etc_class_set-min_kw_set)
@@ -47,6 +57,7 @@ def gen_date_rangeQ(req,date_kw, mode='indate'):
 	qrydates = keywords_set & set(dates)
 
 	negative_dates = set(kw.strip('-') for kw in keywords_set if kw.startswith('-') or kw.endswith('-')) & set(dates)
+	negative_dates |= set(kw.strip('빼고') for kw in keywords_set if kw.startswith('빼고') or kw.endswith('빼고')) & set(dates)
 
 	if negative_dates:
 		date_range = get_request_date_range(req) - set(dates[kw] for kw in negative_dates)
