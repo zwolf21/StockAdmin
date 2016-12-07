@@ -16,7 +16,8 @@ dates = {
 	'어제' : _today - oneday*1,
 	'그제' : _today - oneday*2,
 	'그저께' : _today - oneday*3,
-	'그끄제' : _today - oneday*4
+	'그끄제' : _today - oneday*4,
+	'그끄저께' : _today - oneday*4
 }
 
 def get_request_date_range(req):
