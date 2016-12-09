@@ -9,9 +9,10 @@
 			<tr>
 				<th>발주번호</th>
 				<th>발주서요약</th>
-				<th>발주일자</th>
-				<th>발주승인자</th>
-				<th>승인일자</th>
+				<th style="text-align: center">입고상태</th>
+				<th style="text-align: center">발주일자</th>
+				<th style="text-align: center">발주승인자</th>
+				<th style="text-align: center">승인일자</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -23,9 +24,10 @@
 				{% else %}
 				<td><a href="{% url 'buy:buy_detail' object.slug %}">{{ object.description }}</a></td>
 				{% endif %}
-				<td>{{ object.date|date:"Y-m-d" }}</td>
-				<td>{{ object.commiter|default:"미승인" }}</td>
-				<td>{{ object.date|date:"Y-m-d" }}</td>
+				<td style="text-align: center">{{ object.complete_late }}</td>
+				<td style="text-align: center">{{ object.date|date:"Y-m-d" }}</td>
+				<td style="text-align: center">{{ object.commiter|default:"미승인" }}</td>
+				<td style="text-align: center">{{ object.date|date:"Y-m-d" }}</td>
 			</tr>	
 		{% endfor %}
 		</tbody>

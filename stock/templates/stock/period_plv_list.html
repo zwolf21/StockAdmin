@@ -12,6 +12,7 @@
 				<th>발주번호</th>
 				<th>거래처</th>
 				<th>약품명</th>
+				<th>발주수량</th>
 				<th>입고수량</th>
 				<th>입고단가</th>
 				<th>입고금액</th>
@@ -26,6 +27,7 @@
 				<td>{{ object.buyitem.buy }}</td>
 				<td>{{ object.drug.account }}</td>
 				<td>{{ object.drug }}</td>
+				<td>{{ object.buyitem.amount }}</td>
 				<td style="text-align: center">{{ object.amount }}</td>
 				<td style="text-align: center">{{ object.drug.price|intcomma }}</td>
 				<td style="text-align: center">{{ object.total_price|intcomma }}</td>

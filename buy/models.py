@@ -50,6 +50,16 @@ class Buy(models.Model):
 			ret += item.get_buy_price()
 		return ret
 
+	@property
+	def complete_late(self):
+		items = self.buyitem_set.filter(end=False)
+		nCompletes = len([item for item in items if item.is_completed])
+		nTotal = items.count()
+		if nTotal:
+			return '{:2.0%}'.format(nCompletes/nTotal)
+		else:
+			return '-'
+
 
 class BuyItemManager(models.Manager):
 	def filter_by_date(self, *args):
