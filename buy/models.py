@@ -112,6 +112,18 @@ class BuyItem(models.Model):
 	def get_buy_price(self):
 		return self.amount * self.drug.price
 
+	@property
+	def complete_amount(self):
+		stockin = self.stockrec_set.aggregate(Sum('amount'))['amount__sum'] or 0
+		return stockin
+
+	@property
+	def end_amount(self):
+		if self.end:
+			stockin = self.stockrec_set.aggregate(Sum('amount'))['amount__sum'] or 0
+			return self.amount - stockin
+		else:
+			return 0
 
 
 

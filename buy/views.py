@@ -88,6 +88,11 @@ class BuyDV(LoginRequiredMixin, DetailView):
 class BuyDVprint(BuyDV):
 	template_name = 'buy/etc/buy_print.html'
 
+	def get_context_data(self, **kwargs):
+		context = super(BuyDVprint, self).get_context_data(**kwargs)
+		context['isprint'] = True
+		return context
+
 
 
 

@@ -54,6 +54,9 @@
 					<th>구매수량</th>
 					<th>구매규격</th>
 					<th>비고</th>
+					{% if not isprint %}
+					<th>입고 현황</th>
+					{% endif %}
 					<!-- <th>구매금액(원)</th> -->
 				</tr>
 			</thead>
@@ -68,6 +71,14 @@
 					<td>{{ item.drug.purchase_standard }}</td>
 					<td>{{ item.comment }}</td>
 					<!-- <td>{{ item.get_buy_price|intcomma }}</td> -->
+					{% if not isprint %}
+						
+					 <td class="progress">
+           				 <div class="progress-bar progress-bar-success" role="progressbar" style="width: {% widthratio item.complete_amount item.amount 100 %}%;"><span class="sr-only">{% widthratio item.complete_amount item.amount 100 %}%</span></div>
+           				 <div class="progress-bar progress-bar-danger" role="progressbar" style="width:{% widthratio item.end_amount item.amount 100 %}%"><span class="sr-only">{% widthratio item.end_amount item.amount 100 %}%</span></div>
+       	 			</td>
+					{% endif %}
+					
 				</tr>
 			{% endfor %}
 				
@@ -95,5 +106,13 @@
 	</div>
 
 {% endblock buy_footer %}
+
+{% if not isprint %}
+{% block buy_script %}
+	
+{% include "tablesorter_js.html" %}
+{% endblock buy_script %}
+{% endif %}
+
 
 
