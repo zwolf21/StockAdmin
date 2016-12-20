@@ -53,6 +53,7 @@ class DICrawler:
 				d =  dict(zip(hdr,(td.text.strip().split('\n')[0] for td in tr.find_all('td'))))
 				href = tr.select('a[href^=/detail/product.aspx?pid=]') or [{'href':''}]
 				d['detail_url'] = urljoin(self.base_detail_url, href[0]['href'])
+				d['약가'] = d['약가'].replace(',','')
 				yield d
 
 	@classmethod
