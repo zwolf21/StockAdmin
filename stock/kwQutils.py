@@ -31,6 +31,7 @@ dates = {
 
 
 
+
 def get_request_date_range(req):
 	start_date = datetime.strptime(req.get('start'), "%Y-%m-%d")
 	end_date = datetime.strptime(req.get('end'), "%Y-%m-%d")
@@ -77,15 +78,21 @@ def gen_date_rangeQ(req,date_kw, mode='indate'):
 
 
 def gen_name_containQ(name_kw):
-	# name_kw_set = set(name_kw.split())
-	if name_kw in set(dates) | etc_class_set:
+	kw_set = set(name_kw.split())
+	kw_set = set(kw.replace('-','').replace('빼고','') for kw in kw_set)
+	kw_set = kw_set - (set(dates) | etc_class_set)
+	
+	if not kw_set:
 		return ~Q()
-	else:
-		return Q(drug__name__icontains=name_kw)
+	
+	q = Q()
+	for kw in kw_set:
+		q |= Q(drug__name__icontains=kw)
+	return q
 
 	
 
 def Qfilter(request, kw, mode='indate'):
 	# or mode='buydate'
-	return gen_name_containQ(kw)|gen_date_rangeQ(request, kw, mode)&gen_etc_classQ(kw)
+	return gen_name_containQ(kw)&gen_date_rangeQ(request, kw, mode)&gen_etc_classQ(kw)
 
