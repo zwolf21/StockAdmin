@@ -47,7 +47,7 @@ class Info(models.Model):
 	pkg_amount = models.PositiveIntegerField('포장수량', default=1, blank=True)
 	purchase_standard = models.CharField('구매규격', max_length=50, null=True, blank=True)
 	standard_unit = models.CharField('규격단위', choices=standard_unit_choices, max_length=50, null=True)
-	narcotic_class = models.IntegerField('마약류구분', choices=narcotic_class_choices, default=1)
+	narcotic_class = models.IntegerField('마약류구분', choices=narcotic_class_choices, default=0)
 	account = models.ForeignKey(Account, null=True, default=1, verbose_name='도매상')
 	base_amount = models.IntegerField('기초재고', default=0)
 	create_date = models.DateTimeField('생성시간', auto_now_add=True)
