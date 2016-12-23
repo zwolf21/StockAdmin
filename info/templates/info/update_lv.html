@@ -12,6 +12,7 @@
                 <th>전체선택<input type="checkbox" name="checkall" id="checkall"></th>
 				<th>도매상</th>
 				<th>기타구분</th>
+                <th>마약류구분</th>
 				<th>EDI코드</th>
 				<th>약품명</th>
 				<th>약품별명</th>
@@ -28,6 +29,7 @@
                     <td><input id="{{ object.edi }}" type="checkbox" name="checklist" /></td>
 					<td>{{ object.account }}</td>
 					<td>{{ object.etc_class }}</td>
+                    <td>{{ object.narcotic_class }}</td>
 					<td>{{ object.edi }}</td>
 					<td>{{ object.name }}</td>
 					<td>{{ object.name_as }}</td>
@@ -44,6 +46,7 @@
                         {% csrf_token %}
                         <td>{{ form.account }}</td>
                         <td>{{ form.etc_class }}</td>
+                        <td>{{ form.narcotic_class }}</td>
                         <td>{{ form.edi }}</td>
                         <td>{{ form.name }}</td>
                         <td>{{ form.name_as }}</td>
@@ -122,7 +125,7 @@ $(function(){
                             edi:e.보험코드,
                             firm:e.판매사,
                             name_as:e.제품명,
-                            price: parseInt(e.약가)
+                            price: e.약가
                         }})
                         response(rsp.slice(0,15));
                         if(data.length==1)
@@ -145,8 +148,9 @@ $(function(){
                 dataType:'json',
                 data : {term:ui.item.edi},
                 success: function(rsp){
+                    rsp = rsp[0]
                     $('[name=pkg_amount]').val(rsp.pkg_amount)
-                    $("[name=standard_unit]").val(rsp.pkg_unit)
+                    $("[name=purchase_standard]").val(rsp.포장·유통단위)
                     $("[name=narcotic_class]").val(rsp.narcotic_class)
 
                     }

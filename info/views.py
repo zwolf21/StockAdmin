@@ -13,6 +13,7 @@ from .models import Info
 
 from .forms import CSVForm, InfoCVForm
 from .modules.utils import xlDB2DicIter, is_xlfile, DICrawler
+from .modules.dicrawler import DrugInfoSearch, get_drug_info
 
 
 from django.utils.safestring import mark_safe 
@@ -117,23 +118,33 @@ class InfoCV(LoginRequiredMixin,CreateView):
 		return self.request.META['HTTP_REFERER']
 
 
+# def autocomplete(request):
+# 	if request.is_ajax():
+# 		kw = request.GET['term']
+# 		iter_rsp = list(filter(None,DICrawler.iter_drug_summary(kw)))
+# 		if len(iter_rsp) == 1:
+# 			for html in DICrawler.iter_drug_detail(kw):
+# 				iter_rsp[0]['pkg_unit'] ,iter_rsp[0]['pkg_amount'] = DICrawler.get_pkg_unit(html)
+# 				iter_rsp[0]['narcotic_class'] = DICrawler.get_narcotic_class(html)
+# 				# iter_rsp = iter_rsp[0]
+		
+# 		return HttpResponse(json.dumps(iter_rsp), content_type='application/json')
+
+
+
+
 def autocomplete(request):
 	if request.is_ajax():
 		kw = request.GET['term']
-		iter_rsp = list(filter(None,DICrawler.iter_drug_summary(kw)))
+		dg = DrugInfoSearch(kw)
+		iter_rsp = dg.get_search_list()
+		for row in iter_rsp:
+			row['약가'] = dg._norm_price(row.get('약가'))
+
 		if len(iter_rsp) == 1:
-			for html in DICrawler.iter_drug_detail(kw):
-				iter_rsp[0]['pkg_unit'] ,iter_rsp[0]['pkg_amount'] = DICrawler.get_pkg_unit(html)
-				iter_rsp[0]['narcotic_class'] = DICrawler.get_narcotic_class(html)
-				# iter_rsp = iter_rsp[0]
-		
+			iter_rsp = list(get_drug_info(kw, '포장·유통단위','주성분코드', result_limit=1))
+
 		return HttpResponse(json.dumps(iter_rsp), content_type='application/json')
-
-
-
-
-
-	
 
 
 

@@ -10,7 +10,7 @@ class InfoCVForm(forms.ModelForm):
 
 	class Meta:
 		model = Info
-		fields = ['edi','name','name_as','firm','price','pkg_amount','purchase_standard','account','etc_class','standard_unit']
+		fields = ['edi','name','name_as','firm','price','pkg_amount','purchase_standard','account','etc_class','standard_unit','narcotic_class']
 	
 	def __init__(self, *args, **kwargs):
 		super(InfoCVForm, self).__init__(*args, **kwargs)
