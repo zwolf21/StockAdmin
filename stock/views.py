@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 
 from datetime import datetime, timedelta, date
 from itertools import groupby
+from collections import OrderedDict
 
 # Create your views here.
 from .models import StockRec
@@ -15,7 +16,7 @@ from .forms import DateRangeForm, StockRecAmountForm
 from .utils import get_narcotic_classes, get_date_range
 from .kwQutils import gen_etc_classQ, gen_date_rangeQ, gen_name_containQ, Qfilter
 from StockAdmin.views import LoginRequiredMixin
-
+from StockAdmin.services.xlutils import excel_response
 
 class StockRecCV(CreateView):
 	model = StockRec
@@ -156,30 +157,20 @@ class StockInDelV(LoginRequiredMixin ,DeleteView):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def period2excel(request):
+	if request.method == 'GET':
+		name = request.GET.get('name')
+		queryset = StockRec.objects.filter(
+				Q(buyitem__buy__slug__contains=name)|Q(date__contains=name)|Qfilter(request.GET, name,'indate'),
+				date__range=get_date_range(request.GET), 
+				amount__gt=0, 
+				drug__narcotic_class__in=get_narcotic_classes(request.GET)
+			)
+		
+		xl_template = [OrderedDict((('입고일자', obj.date), ('발주번호', obj.buyitem.buy.slug), ('거래처', obj.drug.account.name),('보험코드', obj.drug.edi) ,('약품명', obj.drug.name),('발주수량',obj.buyitem.amount), ('입고단가', obj.drug.price), ('입고수량', obj.amount), ('입고금액', obj.drug.price*obj.amount))) for obj in queryset]
+		start_date = request.GET['start'].replace('-','')
+		end_date = request.GET['end'].replace('-','')
+		filename = '{}~{}Stock.xlsx'.format(start_date, end_date)
+		return excel_response(xl_template, filename)
 
 

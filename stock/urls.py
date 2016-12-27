@@ -15,5 +15,7 @@ urlpatterns = patterns('',
 	url(r'^end/rollback/(?P<pk>\d+)/$', EndRollBack.as_view(), name='rollback'),
 	url(r'^delete/(?P<pk>\d+)/$', StockInDelV.as_view(), name='delete'),
 
+	url(r'^periodExcel/$', period2excel, name='period-excel'),
+
 
 )

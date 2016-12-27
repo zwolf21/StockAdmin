@@ -20,7 +20,7 @@ from django.utils.safestring import mark_safe
 from django.http import HttpResponse, HttpResponseRedirect
 from StockAdmin.views import LoginRequiredMixin, login_required
 from .backup_utils import csv_update, dict2csv, dict2xl
-
+from StockAdmin.services.xlutils import excel_response
 
 # Create your views here.
 
@@ -102,8 +102,8 @@ def backup2csv(request):
 def bacup2excel(request):
 	queryset = Info.objects.all()
 	timestamp = datetime.now().strftime('%Y%m%d%H%I%S')
-	filename = 'StockAdmin{}.xls'.format(str(timestamp))
-	return dict2xl(queryset,filename)
+	filename = 'StockAdmin{}.xlsx'.format(str(timestamp))
+	return excel_response(queryset, filename)
 
 class IndexTV(TemplateView):
 	template_name = "info/drug_info.html"

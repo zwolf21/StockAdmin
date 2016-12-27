@@ -40,6 +40,8 @@ def gen_buy(request):
 
 
 
+
+
 class BuyLV(ListView):
 	model = Buy
 	template_name = 'buy/buy_lv.html'

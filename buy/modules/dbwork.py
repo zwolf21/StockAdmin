@@ -13,3 +13,15 @@ def generate_buy(date, pk_list):
 			success.append(item.id)
 	return success
 
+
+
+
+# account_set = BuyItem.objects.values('drug__account').distinct()
+
+
+# #[{'drug__account': 1}, {'drug__account': 2}]
+
+# for account in account_set:
+# 	buyitem_group = incart.filter(drug__account__id=account['drug__account'])
+# 	buyitem_group.update(buy=Buy.objects.create(date=date))
+
