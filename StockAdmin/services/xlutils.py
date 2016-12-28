@@ -10,9 +10,9 @@ def excel_response(queryset, response_file_name='backup.xlsx', index=False):
         records = queryset.values()
   
     pd = pandas.DataFrame.from_records(records)
-    pd.to_excel(response_file_name, index=index)
-    fp = open(response_file_name, 'rb')
+    pd.to_excel('backup.xlsx', index=index)
+    fp = open('backup.xlsx', 'rb')
     response = StreamingHttpResponse(fp, content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename='+response_file_name
-    os.unlink(response_file_name)
+    # os.unlink(response_file_name)
     return response

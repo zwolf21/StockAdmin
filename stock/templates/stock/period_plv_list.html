@@ -36,9 +36,9 @@
 					<form width="100%" name="delete" action="{% url 'stock:delete' object.pk %}" method="post">
 						{% csrf_token %}
 						{% if not user.is_staff %}
-				        <button width="100%" class="btn btn-warning btn-xs" disabled><i class="glyphicon glyphicon-repeat gly-spin"></i></button>
+				        <button width="100%" class="btn btn-warning btn-xs" disabled><i class="glyphicon glyphicon-repeat"></i></button>
 						{% else %}
-				        <button width="100%" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-repeat gly-spin"></i></button>
+				        <button width="100%" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-repeat"></i></button>
 						{% endif %}
 					</form>
 				</td>

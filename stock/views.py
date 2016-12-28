@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect
 from datetime import datetime, timedelta, date
 from itertools import groupby
 from collections import OrderedDict
+import os
 
 # Create your views here.
 from .models import StockRec
@@ -171,6 +172,7 @@ def period2excel(request):
 		start_date = request.GET['start'].replace('-','')
 		end_date = request.GET['end'].replace('-','')
 		filename = '{}~{}Stock.xlsx'.format(start_date, end_date)
-		return excel_response(xl_template, filename)
+		rsp = excel_response(xl_template, filename)
+		return rsp
 
 
