@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DetailView, FormView, TemplateView, UpdateView, DeleteView
 from django.views.generic.dates import MonthArchiveView
 from django.db.models import F, Sum, Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 
 from datetime import datetime, timedelta, date
 from itertools import groupby
@@ -172,7 +172,9 @@ def period2excel(request):
 		start_date = request.GET['start'].replace('-','')
 		end_date = request.GET['end'].replace('-','')
 		filename = '{}~{}Stock.xlsx'.format(start_date, end_date)
-		rsp = excel_response(xl_template, filename)
-		return rsp
+		data = excel_response(xl_template)
+		response = HttpResponse(data, content_type='application/vnd.ms-excel')
+		response['Content-Disposition'] = 'attachment; filename='+filename
+		return response
 
 

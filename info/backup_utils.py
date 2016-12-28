@@ -38,7 +38,7 @@ def dict2xl(queryset, szfile):
     for r, query in enumerate(queryset):
         for c, val in enumerate(query.values()):
             sht.write(r+1, c, str(val))
-
+    
     wb.save(response)
     return response
 

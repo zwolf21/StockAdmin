@@ -1,18 +1,13 @@
-import os
-import pandas
-from django.http import HttpResponse, StreamingHttpResponse
+from io import BytesIO
+import xlsxwriter
 
-def excel_response(queryset, response_file_name='backup.xlsx', index=False):
-
-    if type(queryset) == list:
-        records = queryset
-    else:
-        records = queryset.values()
-  
-    pd = pandas.DataFrame.from_records(records)
-    pd.to_excel('backup.xlsx', index=index)
-    fp = open('backup.xlsx', 'rb')
-    response = StreamingHttpResponse(fp, content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename='+response_file_name
-    # os.unlink(response_file_name)
-    return response
+def excel_response(records):
+    output = BytesIO()
+    wb = xlsxwriter.Workbook(output, {'inmemory': True, 'remove_timezone': True})
+    ws = wb.add_worksheet()
+    hdr = records[0].keys()
+    ws.write_row(0,0, hdr)
+    for i, row in enumerate(records):
+        ws.write_row(i+1, 0, map(str, row.values()))
+    wb.close()
+    return output.getvalue()

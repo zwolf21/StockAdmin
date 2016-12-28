@@ -103,7 +103,10 @@ def bacup2excel(request):
 	queryset = Info.objects.all()
 	timestamp = datetime.now().strftime('%Y%m%d%H%I%S')
 	filename = 'StockAdmin{}.xlsx'.format(str(timestamp))
-	return excel_response(queryset, filename)
+	data = excel_response(queryset.values())
+	response = HttpResponse(data, content_type='application/vnd.ms-excel')
+	response['Content-Disposition'] = 'attachment; filename='+filename
+	return response
 
 class IndexTV(TemplateView):
 	template_name = "info/drug_info.html"
