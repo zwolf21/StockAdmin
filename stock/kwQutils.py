@@ -79,8 +79,6 @@ def gen_date_rangeQ(req,date_kw, mode='indate'):
 
 def gen_name_containQ(name_kw):
 	kw_set = set(name_kw.split())
-	# kw_set =  set(kw.replace('-','').replace('빼고','') for kw in kw_set)
-	# kw_set = kw_set - (set(dates) | etc_class_set)
 
 	ng_keySet = set(kw.replace('-','').replace('빼고','') for kw in kw_set if kw.startswith('-') or kw.startswith('빼고')) - (set(dates)|etc_class_set)
 	ps_keySet = set(kw for kw in kw_set if not kw.startswith('-') and not kw.startswith('빼고')) - (set(dates)|etc_class_set)
