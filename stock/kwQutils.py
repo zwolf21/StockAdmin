@@ -81,7 +81,7 @@ def gen_name_containQ(name_kw):
 	kw_set = set(name_kw.split())
 
 	ng_keySet = set(kw.replace('-','').replace('빼고','') for kw in kw_set if kw.startswith('-') or kw.startswith('빼고')) - (set(dates)|etc_class_set)
-	ps_keySet = set(kw for kw in kw_set if not kw.startswith('-') and not kw.startswith('빼고')) - (set(dates)|etc_class_set)
+	ps_keySet = set(kw for kw in kw_set if not kw.startswith('-') and not kw.startswith('빼고') and not kw.endswith('-') and not kw.endswith('빼고')) - (set(dates)|etc_class_set)
 
 	if not (ng_keySet | ps_keySet):
 		return ~Q()
