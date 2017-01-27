@@ -39,6 +39,12 @@
       form.attr('action',"{% url 'stock:end' %}")
       form.submit()
   });
+
+  $('.buyNum').click(function(){
+
+    $('#search_window').val(this.innerText)
+    form.submit()
+   })
     var start = $("#id_start")
     var end = $("#id_end")
     $("#id_start").change(function(){

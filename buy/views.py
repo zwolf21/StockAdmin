@@ -45,13 +45,13 @@ def gen_buy(request):
 class BuyLV(ListView):
 	model = Buy
 	template_name = 'buy/buy_lv.html'
-	paginate_by = 15
+	paginate_by = 20
 
 	def get_context_data(self, **kwargs):
 		context = super(BuyLV, self).get_context_data(**kwargs)
 		# paginator = context['paginator']
 		paginator = self.get_paginator(self.get_queryset(), self.paginate_by, allow_empty_first_page=False)
-		curPage = int(self.request.GET.get('page',paginator.num_pages))
+		curPage = int(self.request.GET.get('page',1)) 
 		pageUnit = 10
 
 		# 10, 20,30 과같은 10배수 페이지를 선택시 다음 단계 페이지로 시프트 방지 코드

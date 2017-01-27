@@ -4,11 +4,12 @@ from django.views.generic import ListView, CreateView, DetailView, FormView, Tem
 from django.views.generic.dates import MonthArchiveView
 from django.db.models import F, Sum, Q
 from django.http import HttpResponseRedirect, HttpResponse
+from django.template import RequestContext
 
 from datetime import datetime, timedelta, date
-from itertools import groupby
+from itertools import groupby, filterfalse
 from collections import OrderedDict
-import os
+import os, re
 
 # Create your views here.
 from .models import StockRec
@@ -117,24 +118,46 @@ class StockInPTV(TemplateView):
 class StockInPLV(ListView):
 	model = StockRec
 	template_name = 'stock/period_plv_list.html'
+	paginate_by = 25
 
 	def get_queryset(self):
 		name = self.request.GET.get('name')
+
 		queryset = StockRec.objects.filter(
 				Q(buyitem__buy__slug__contains=name)|Q(date__contains=name)|Qfilter(self.request.GET, name,'indate'),
 				date__range=get_date_range(self.request.GET), 
 				amount__gt=0, 
 				drug__narcotic_class__in=get_narcotic_classes(self.request.GET)
 			)
+		self.queryset = queryset
 		return queryset
 
 	def get_context_data(self, **kwargs):
 		context = super(StockInPLV, self).get_context_data(**kwargs)
 		context['form'] = DateRangeForm(self.request.GET)
 		total_price = 0
-		for s in self.get_queryset():
+
+		for s in self.queryset:
 			total_price+=s.total_price
 		context['total_price'] = total_price
+		context['total_count'] = self.queryset.count()
+
+		paginator = self.get_paginator(self.get_queryset(), self.paginate_by, allow_empty_first_page=False)
+		curPage = int(self.request.GET.get('page', 1))
+		pageUnit = 10
+
+		# 10, 20,30 과같은 10배수 페이지를 선택시 다음 단계 페이지로 시프트 방지 코드
+		startPage = curPage//pageUnit if curPage%10 else curPage//pageUnit-1
+		startPage*=pageUnit
+		endPage = startPage + pageUnit
+		context['page_range'] = paginator.page_range[startPage:endPage]
+
+		
+		get_full_path = self.request.get_full_path()
+		reg_pgprm = re.compile('&*page=\d*')
+		get_full_path = reg_pgprm.sub('', get_full_path)
+		context['request'] = {'get_full_path':get_full_path}
+
 		return context
 
 

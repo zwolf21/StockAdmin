@@ -25,7 +25,7 @@
 		{% for object in object_list %}
 			<tr>
 				<td>{{ object.date|date:"Y-m-d" }}</td>
-				<td>{{ object.buyitem.buy }}</td>
+				<td><a class="buyNum">{{ object.buyitem.buy }}</a></td>
 				<td>{{ object.drug.account }}</td>
 				<td>{{ object.drug }}</td>
 				<td>{{ object.buyitem.amount }}</td>
@@ -47,5 +47,14 @@
 		{% endfor %}
 		</tbody>
 	</table>
-
+{% include "pagination.html" %}
 {% endblock stock_content %}
+{% block summary %}
+	
+<div style="text-align: right;">
+	<td colspan="6" > 종합:</td>
+	<td>{{ total_count }}건: </td>
+	<td colspan="1">{{ total_price|intcomma }}</td>
+			
+</div>
+{% endblock summary %}

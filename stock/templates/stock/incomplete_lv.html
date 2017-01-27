@@ -31,7 +31,7 @@
 		{% for buyitem in object_list %}
 			<tr>
 				<td>{{ forloop.counter }}</td>
-				<td>{{ buyitem.buy }}</td>
+				<td><a class="buyNum">{{ buyitem.buy }}</a></td>
 				<td>{{ buyitem.drug.account }}</td>
 				<td>{{ buyitem.drug.firm }}</td>
 				<td>{{ buyitem.drug }}</td>
@@ -57,7 +57,6 @@
 	})
 
 	  $('table input[type=number]').keydown(function(event){
-
 
 
 	  		// alert(event.keyCode)

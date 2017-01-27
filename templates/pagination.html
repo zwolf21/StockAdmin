@@ -3,20 +3,42 @@
 	{% if is_paginated %}
 	<div class="pagination" style="text-align:center;">
 		<ul class="pagination pagination-sm">
+
 			{% if page_obj.has_previous %}
-			<li><a href="?page={{ page_obj.previous_page_number }}">이전 페이지</a></li>
+				{% if request.get_full_path %}
+				<li><a href="{{ request.get_full_path }}&page={{ page_obj.previous_page_number }}">이전 페이지</a></li>
+				{% else %}
+				<li><a href="?page={{ page_obj.previous_page_number }}">이전 페이지</a></li>	
+				{% endif %}
 			{% else %}
-			<li><a href="?page=1" disabled="disabled">이전 페이지</a></li>
+				{% if request.get_full_path %}
+				<li><a href="{{ request.get_full_path }}&page=1" disabled="disabled">이전 페이지</a></li>
+				{% else %}	
+				<li><a href="?page=1" disabled="disabled">이전 페이지</a></li>
+				{% endif %}
 			{% endif %} 
 			{% for i in page_range %} 
 				{% if page_obj.has_next %}
-				<li {% if i == page_obj.number %}class="active"{% endif %}><a href="?page={{i}}">{{i}}</a></li>
+				
+					{% if request.get_full_path %}
+					<li {% if i == page_obj.number %}class="active"{% endif %}><a href="{{ request.get_full_path }}&page={{i}}">{{i}}</a></li>
+					{% else %}
+					<li {% if i == page_obj.number %}class="active"{% endif %}><a href="?page={{i}}">{{i}}</a></li>	
+					{% endif %}
 				{% endif %} 
 			{% endfor %} 
 			{% if page_obj.has_next %}
-			<li><a href="?page={{ page_obj.next_page_number }}">다음페이지</a></li>
+				{% if request.get_full_path %}
+				<li><a href="{{ request.get_full_path }}&page={{ page_obj.next_page_number }}">다음페이지</a></li>	
+				{% else %}
+				<li><a href="?page={{ page_obj.next_page_number }}">다음페이지</a></li>	
+				{% endif %}
 			{% else %}
-			<li><a href="?page={{ paginator.num_pages }}" disabled="disabled">다음페이지</a></li>
+				{% if request.get_full_path %}
+				<li><a href="{{ request.get_full_path }}&page={{ paginator.num_pages }}" disabled="disabled">다음페이지</a></li>
+				{% else %}
+				<li><a href="?page={{ paginator.num_pages }}" disabled="disabled">다음페이지</a></li>	
+				{% endif %}
 			{% endif %}
 		</ul>
 	</div>
