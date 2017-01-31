@@ -14,5 +14,6 @@ urlpatterns = patterns(
 	url(r'^update/add/$', UpdateItemCV.as_view(), name='update_cv'),
 	url(r'^gen/$', gen_drug, name='drug_gen'),
 	url(r'^unlink/$', unlink_drug, name='drug_unlink'),
+	url(r'^predict_week', PredictWeekLV.as_view(), name='predict_week')
 	
 )

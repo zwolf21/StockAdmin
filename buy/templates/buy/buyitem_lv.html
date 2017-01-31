@@ -13,6 +13,7 @@
 {% block buy_header %}
 	{{ uptodate_form.date }}
 	<button class="btn btn-primary" name="uptobuy">발주서로 올리기</button>
+	<a class="btn btn-warning" href="{% url 'info:predict_week' %}" name="predict">구매누락주의산출</a>
 	
 {% endblock buy_header %}
 

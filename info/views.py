@@ -41,6 +41,13 @@ def unlink_drug(request):
 		return HttpResponse(dumps(pk_list), content_type='application/json')
 
 
+class PredictWeekLV(ListView):
+	template_name = 'info/predict_week.html'
+
+	def get_queryset(self):
+		return Info.objects.weekly_predict_set()
+
+
 class UpdateItemLV(ListView):
 	template_name = 'info/update_lv.html'
 

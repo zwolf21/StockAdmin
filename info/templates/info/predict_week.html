@@ -1,0 +1,36 @@
+{% extends "home.html" %}
+
+
+{% block content %}
+	
+
+<div class="container">
+	<h2>사용 기간 한달 이상 품목 중(신약 X)</h2>
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>연번</th>
+				<th>도매상</th>
+				<th>약품명</th>
+				<th>주간평균</th>
+				<th>최종입고</th>
+				<th>주간예정량</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for object in object_list %}
+				<tr>
+					<td>{{ forloop.counter }}</td>
+					<td>{{ object.account }}</td>
+					<td>{{ object.name }}</td>
+					<td>{{ object.weekly_avg_stockin }}</td>
+					<td>{{ object.last_stockin_date|date:"Y-m-d"}}</td>
+					<td>{{ object.predict_weekly }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+</div>
+{% include "tablesorter_js.html" %}
+{% endblock content %}

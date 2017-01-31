@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Sum, Max, Q, Min
 from django.contrib.auth.models import User
-from datetime import date
+from datetime import date, timedelta
 
 # Create your models here.
 
@@ -27,11 +27,18 @@ narcotic_class_choices = [(0,'일반'),(1,'마약'),(2,'향정')]
 standard_unit_choices = [('VIAL','VIAL'),('BTL','BTL'),('AMP','AMP'),('SYR','SYR'),('TAB','TAB'),('CAP','CAP'),('PACK','PACK'),('KIT','KIT'),('VIAL','VIAL'),('BAG','BAG'),('PEN','PEN'),('매','매'),('TUBE','TUBE'),('EA','EA'),('포','포'),('BOX','BOX')]
 
 
+class InfoManager(models.Manager):
+	def weekly_predict_set(self):
+		queryset = Info.objects.all()
+		return (inst for inst in queryset if inst.predict_weekly)
+
 
 class Info(models.Model):
 
 	def __str__(self):
 		return self.name
+
+	objects = InfoManager()
 
 	class Meta:
 		verbose_name='약품정보'
@@ -73,6 +80,13 @@ class Info(models.Model):
 		return incomplete
 
 	@property
+	def total_incomplete_amount_all(self):
+		incomplete = 0
+		for item in self.buyitem_set.all():
+			incomplete += item.incomplete_amount
+		return incomplete
+
+	@property
 	def total_stockin_amount(self):
 		return self.stockrec_set.aggregate(Sum('amount'))['amount__sum'] or 0
 
@@ -90,11 +104,33 @@ class Info(models.Model):
 		return self.stockrec_set.values('amount').annotate(Max('date')).first()['amount']
 
 
-	@property
-	def last_buy_date(self):
-		return self.buyitem_set.aggregate(Max('buy__date'))['buy__date__max']
 
+
+	@property
+	def predict_weekly(self):
+		incomplete = self.total_incomplete_amount_all
 		
+		if incomplete:
+			last_date =  date.today()
+		else:
+			last_date = self.last_stockin_date
+
+		if not last_date:
+			return 0
+
+		if self.first_stockin_date and self.first_stockin_date > date.today() - timedelta(30):
+			return 0
+		
+		stock_amount = self.stockrec_set.filter(date__range=[last_date-timedelta(7), last_date]).aggregate(Sum('amount'))['amount__sum'] or 0	
+
+		nWeek_elapsed = (date.today() - last_date).days // 7
+		weekly_avg = self.weekly_avg_stockin
+			
+		if (incomplete + stock_amount - nWeek_elapsed*weekly_avg) < weekly_avg /2:
+			return (weekly_avg // self.pkg_amount) * self.pkg_amount or self.pkg_amount
+		return 0
+
+
 
 
 	@property
@@ -108,6 +144,8 @@ class Info(models.Model):
 	@property
 	def weekly_avg_stockin(self):
 		first_stockin_date = self.first_stockin_date
+		if not first_stockin_date:
+			return 0
 		cur_date = date.today()
 		period = round((cur_date-first_stockin_date).days/7) or 1
 		total_stockin_amount = self.total_stockin_amount
