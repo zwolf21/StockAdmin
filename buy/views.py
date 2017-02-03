@@ -102,7 +102,7 @@ class BuyDVprint(BuyDV):
 
 
 
-class BuyItemLV(ListView):
+class BuyItemLV(LoginRequiredMixin ,ListView):
 	template_name = 'buy/buyitem_lv.html'
 
 	def get_queryset(self):
