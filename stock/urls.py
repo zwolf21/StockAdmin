@@ -18,4 +18,11 @@ urlpatterns = patterns('',
 	url(r'^periodExcel/$', period2excel, name='period-excel'),
 
 
+	# api-modules
+	url(r'^showIncomplete/api/index/$', BuyItemIncompleteAPITV.as_view(), name='show_incomplete_tv-api'),
+	url(r'^showIncomplete/api/$', BuyItemIncompleteAPILV.as_view(), name='show_incomplete-api'),
+
+	url(r'^showStockin/api/index/$', StockRecStockinAPITV.as_view(), name='show_stockin_tv-api'),
+	url(r'^showStockin/api/$', StockRecStockinAPVLV.as_view(), name='show_stockin-api'),
+
 )

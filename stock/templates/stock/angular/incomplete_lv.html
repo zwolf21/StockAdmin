@@ -1,0 +1,214 @@
+{% extends "home.html" %}
+
+{# {% block style %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+{% endblock style %} #}
+
+
+{% block content %}
+<div class="container" ng-app="incompApp" ng-controller="incompCtrl">
+	<div class="row">
+		<h3>입고되어야 할 품목들</h3>
+	</div>
+	<form name="show" method="get" class="form-inline">
+		<div class="form-group">
+			<div class="col-xs-2">
+				<input class="form-control input-sm hasDatepicker" id="id_start" name="start" readonly="readonly" tabindex="-1" type="text" ng-model="start">
+			</div>
+		</div>
+		<div class="form-group">
+			~
+		</div>
+		<div class="form-group">
+			<div class="col-xs-2">
+				<input class="form-control input-sm hasDatepicker" id="id_end" name="end" readonly="readonly" tabindex="-1" type="text" ng-model="end">
+			</div>
+		</div>
+
+		<div class="form-group">
+			<input class="form-control input-sm" id="search_window" name="name" placeholder="퀵필터" type="text" ng-model="keyword">
+			<input type="submit" hidden="hidden">                          
+			<script>document.getElementById('search_window').select();</script>  
+		</div>
+
+		<div class="form-group" style="display: inline;">
+			<div class="col-xs-8">
+				<label for="id_general" class="btn btn-success btn-xs">일반 <input ng-model="general" class="badgebox" id="id_general" name="general" tabindex="-1" type="checkbox"><span class="badge">✓</span></label>
+				<label for="id_psychotic" class="btn btn-warning btn-xs">향정 <input ng-model="psychotic" class="badgebox" id="id_psychotic" name="psychotic" tabindex="-1" type="checkbox"><span class="badge">✓</span></label>
+				<label for="id_narcotic" class="btn btn-danger btn-xs">마약 <input ng-model="narcotic" class="badgebox" id="id_narcotic" name="narcotic" tabindex="-1" type="checkbox"><span class="badge">✓</span></label>
+			</div>
+		</div>
+		
+		{# <label class="control-label" hidden="">입고일자 지정<input class="form-control input-sm hasDatepicker" id="id_indate" name="indate" readonly="readonly" tabindex="-1" type="text" ng-model="indate"></label> #}
+		<label class="control-label" hidden="">입고일자 지정<input class="form-control input-sm hasDatepicker" id="id_indate" name="indate" readonly="readonly" tabindex="-1" type="text" ng-model="indate"></label>
+			
+	</form>
+
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>연번</th>
+				<th>발주번호</th>
+				<th>거래처</th>
+				<th>제약회사</th>
+				<th>약품명</th>
+				<th>발주수량</th>
+				<th>기입고수량</th>
+				<th>입고수량</th>
+				<th>기타구분</th>
+				<th>마감</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="object in object_list">
+				<td><span ng-bind="$index+1"></span></td>
+				<td><span ng-bind="object.buy.slug"></span></td>
+				<td><span ng-bind="object.drug.account"></span></td>
+				<td><span ng-bind="object.drug.firm"></span></td>
+				<td><span ng-bind="object.drug.name"></span></td>
+				<td><span ng-bind="object.amount"></span></td>
+				<td><span ng-bind="object.stockin_amount"></span></td>
+				<td><input type="number" name="amount" ng-model="object.amount"></td>
+				<td><span ng-bind="object.drug.etc_class"></span></td>
+				<td><input type="checkbox" name="end" ng-model="object.end"></span></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+{# {% include "tablesorter_js.html" %}
+{% include "datepicker_js.html" %} #}
+
+<script type="text/javascript">
+	$(document).ready(function() 
+    { 
+    	console.log('tablesorter initate')
+        $(".tablesorter").tablesorter(); 
+    } 
+); 
+</script>
+<script >
+	$(function(){
+		
+        console.log('datepicker initate')
+		$.datepicker.setDefaults({
+        dateFormat: 'yy-mm-dd',
+        prevText: '이전 달',
+        nextText: '다음 달',
+        monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+        monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+        dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+        dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+        dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+        showMonthAfterYear: true,
+        yearSuffix: '년'
+    });
+
+		$('#id_start, #id_end, #id_indate').datepicker({
+				dateFormat: 'yy-mm-dd',
+				local:'euc-kr'
+			});
+		
+
+	})
+</script>
+<script>
+	var app = angular.module('incompApp', [])
+	app.config(['$httpProvider', function($httpProvider) 
+	{
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    }]);
+
+    app.controller('incompCtrl', function($scope, $http){
+
+    	$http(
+    		{
+    			method: 'GET',
+    			url: "{% url 'stock:show_incomplete-api' %}",
+    		}
+    	).then(function(response, error)
+    	{
+    		$scope.object_list = response.data
+    	})
+
+    })
+</script>
+
+
+
+
+<script type="text/javascript">
+  $('table input[type=number]').keydown(function(event){
+
+
+	  		// alert(event.keyCode)
+			var cur_val = $(this).val()
+			var step = $(this).attr('step')
+			var max = $(this).attr('max')
+	  		
+     		if(event.keyCode===32 ){
+     			$(this).val(max)
+     		}else if(event.keyCode===87){
+     			var new_val = cur_val*1 + step*1
+     			if(new_val <= max){
+	     			$(this).val(new_val)
+     			}
+     		}else if(event.keyCode===83){
+     			var new_val = cur_val*1 - step*1
+     			if(new_val >= 0){
+     				$(this).val(new_val)
+     			}
+     		}
+     		else{
+     			return true
+     		}
+	  })
+	  $('[name$=end]').click(function(){
+			
+  			var id_end= $(this).attr('name')
+  			var backup = $(this).attr('togle')
+  			var id = parseInt(id_end)
+
+	  		if($(this).is(':checked')){
+	  			$('input[name='+id+']').attr('step',1)
+	  		}else{
+	  			$('input[name='+id+']').attr('step', backup)
+	  		}
+	  })
+	
+</script>
+<script type="text/javascript">
+  $(function(){
+
+  		var start = $("#id_start")
+		var end = $("#id_end")
+		$("#id_start").change(function(){
+
+			if(start.val() > end.val()){
+				end.val(start.val());
+			}
+		});
+		$("#id_end").change(function(){
+
+			if(start.val() > end.val()){
+				start.val(end.val());
+			}
+		});
+	  
+	  $('#btn_excel').click(function(){
+
+		  form.attr('action',"{% url 'stock:period-excel' %}")
+		  form.submit()
+	  })
+});
+</script>
+
+{% endblock content %}
+
+
+
+
+
+
+

@@ -31,7 +31,7 @@ class InfoManager(models.Manager):
 	def weekly_predict_set(self):
 		queryset = Info.objects.all()
 		return (inst for inst in queryset if inst.predict_weekly)
-
+		
 
 class Info(models.Model):
 
@@ -62,8 +62,6 @@ class Info(models.Model):
 	by = models.ForeignKey(User, default=1, verbose_name='정보생성인')
 	status = models.CharField('현재상태', max_length=10, choices=status_choices, default='사용중')
 	etc_class = models.CharField('기타구분', max_length=10, choices=etc_class_choices, default='일반')
-	
-
 	
 
 
@@ -97,12 +95,15 @@ class Info(models.Model):
 
 	@property
 	def first_stockin_date(self):
-		return self.stockrec_set.aggregate(Min('date'))['date__min']
+		if self.stockrec_set.exists():
+			return self.stockrec_set.aggregate(Min('date'))['date__min']
+		return 0
 
 	@property
 	def last_stockin_amount(self):
-		return self.stockrec_set.values('amount').annotate(Max('date')).first()['amount']
-
+		if self.stockrec_set.exists():
+			return self.stockrec_set.values('amount').annotate(Max('date')).first()['amount']
+		return 0
 
 
 

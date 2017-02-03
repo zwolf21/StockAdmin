@@ -39,8 +39,12 @@ def gen_buy(request):
 		return HttpResponse(dumps(success_list), content_type='application/json')
 
 
-
-
+def gen_from_predict(request):
+	if request.is_ajax():
+		item_list = loads(request.GET['item_list'])
+		for item, amount in item_list:
+			BuyItem.objects.create(drug=item, amount=amount)
+		return HttpResponse(dumps(item_list), content_type='application/json')
 
 class BuyLV(ListView):
 	model = Buy

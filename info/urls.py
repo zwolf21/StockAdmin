@@ -14,6 +14,10 @@ urlpatterns = patterns(
 	url(r'^update/add/$', UpdateItemCV.as_view(), name='update_cv'),
 	url(r'^gen/$', gen_drug, name='drug_gen'),
 	url(r'^unlink/$', unlink_drug, name='drug_unlink'),
-	url(r'^predict_week', PredictWeekLV.as_view(), name='predict_week')
+
+	# API
+	url(r'^predict_week/$', InfoPredictTV.as_view(), name='predict_week_tv'),
+	url(r'^predict_week/api/$', InfoPredictAPILV.as_view(), name='predict_week-api'),
+	url(r'^predict_week/api/from-predict/$', gen_from_predict, name='from_predict-api')
 	
 )

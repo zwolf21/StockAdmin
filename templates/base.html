@@ -17,6 +17,11 @@
 <script src="{% static "bootstrap-3.3.7-dist/js/bootstrap.min.js" %}"></script>
 <script src="{% static "jquery-ui-1.12.1.custom/jquery-ui.js" %}"></script>
 <script src="{% static "tablesorter/jquery.tablesorter.min.js" %}"></script>
+<script src="{% static "angular/angular.min.js" %}"></script>
+
+{% block style %}
+    
+{% endblock style %}
 
 
 </head>
@@ -140,18 +145,18 @@
 </body>
 <script type="text/javascript">
     $(document).ready(function(){
-        $("#mytable #checkall").click(function () {
-        if ($("#mytable #checkall").is(':checked')) {
-            $("#mytable input[type=checkbox]").each(function () {
-                $(this).prop("checked", true);
-            });
+    //     $("#mytable #checkall").click(function () {
+    //     if ($("#mytable #checkall").is(':checked')) {
+    //         $("#mytable input[type=checkbox]").each(function () {
+    //             $(this).prop("checked", true);
+    //         });
 
-        } else {
-            $("#mytable input[type=checkbox]").each(function () {
-                $(this).prop("checked", false);
-            });
-        }
-    });
+    //     } else {
+    //         $("#mytable input[type=checkbox]").each(function () {
+    //             $(this).prop("checked", false);
+    //         });
+    //     }
+    // });
     
     $("[data-toggle=tooltip]").tooltip();
  var agent = navigator.userAgent.toLowerCase();

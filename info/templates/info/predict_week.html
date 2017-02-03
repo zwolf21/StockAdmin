@@ -2,35 +2,128 @@
 
 
 {% block content %}
-	
 
-<div class="container">
-	<h2>사용 기간 한달 이상 품목 중(신약 X)</h2>
-	<table class="tablesorter">
+
+<div class="container" ng-app="prdApp" ng-controller="prdCtrl">
+	<h2 style="display: inline-block">사용 기간 한달 이상 품목 중(신약 X)</h2>
+	<div class="form-group">
+		<div class="row col-xs-2">
+			<input class="form-control input-sm" type="text" ng-model="keyword" placeholder="생필터">
+		</div>
+		<div class="row col-xs-10">
+			<button class="btn btn-danger pull-right" ng-click="uptoBuy()"><span class="glyphicon glyphicon-plus"></span> 선택항목 반영</button>
+		</div>
+	</div>
+	
+	<table class="table table-hover table-bordred table-striped table-filter">
 		<thead>
 			<tr>
+				<th><input type="checkbox" ng-model="selectAll" ng-click="checkAll(selectAll)"></th>
 				<th>연번</th>
 				<th>도매상</th>
 				<th>약품명</th>
+				<th>기타구분</th>
 				<th>주간평균</th>
 				<th>최종입고</th>
 				<th>주간예정량</th>
 			</tr>
 		</thead>
 		<tbody>
-			{% for object in object_list %}
-				<tr>
-					<td>{{ forloop.counter }}</td>
-					<td>{{ object.account }}</td>
-					<td>{{ object.name }}</td>
-					<td>{{ object.weekly_avg_stockin }}</td>
-					<td>{{ object.last_stockin_date|date:"Y-m-d"}}</td>
-					<td>{{ object.predict_weekly }}</td>
-				</tr>
-			{% endfor %}
+			{% verbatim %}
+			<tr ng-repeat="object in object_list|filter:keyword">
+				<td><input ng-model="object.checked"  type="checkbox" ng-change="object.checked=object.checked" tabindex="-1"></td>
+				<td><span ng-bind="$index+1"></span></td>
+				<td><span ng-bind="object.account.name"></span></td>
+				<td><span ng-bind="object.name"></span></td>
+				<td><span ng-bind="object.etc_class"></span></td>
+				<td><span ng-bind="object.weekly_avg_stockin"></span></td>
+				<td><span ng-bind="object.last_stockin_date"></span></td>
+				<td><input type="number" name="amount" ng-model="object.predict_weekly" min="{{ object.pkg_amount }}" step="{{ object.pkg_amount }}"></td>
+			</tr>
+			{% endverbatim %}
 		</tbody>
 	</table>
+	<div ng-show="loading">
+		<h1>Loading...</h1> 
+	</div>
 
 </div>
 {% include "tablesorter_js.html" %}
+{% block script %}
+<script type="text/javascript">
+	var app = angular.module('prdApp', [])
+
+	app.config(['$httpProvider', function($httpProvider) 
+	{
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    }]);
+
+	app.controller('prdCtrl', function($scope, $http)
+	{
+
+		// 자료를 로딩 합니다.
+		$scope.loading = true
+		$http(
+				{
+					method: "GET",
+					url: "{% url 'info:predict_week-api' %}"
+				}
+		).then(function(response, error)
+		{
+			$scope.object_list = response.data
+			$scope.loading = false
+		})
+
+		// 체크박스 전체선택/해제
+		$scope.checkAll = function(selectAll)
+		{
+			angular.forEach($scope.object_list, function(item){
+				item.checked = selectAll
+			})	
+		}
+
+		// 선택한 항목 장바구니에 추가
+		$scope.uptoBuy = function()
+		{
+			
+			var item_list = []
+
+			angular.forEach($scope.object_list, function(item){
+				if(item.checked)
+				{
+					item_list.push({drug: item.edi, amount: item.predict_weekly})
+				}
+			})
+			
+			$http(
+					{
+						method: "POST",
+						url: "{% url 'info:from_predict-api' %}",
+						data: item_list
+					}
+			).then(function(response, error)
+			{
+				if(error){
+					return
+				}
+				var remove_list = response.data
+				for(var i = 0; i < remove_list.length; i++)
+				{
+					var object = remove_list[i]
+			
+					var rm_idx = $scope.object_list.findIndex(function(item){
+						
+						return item.edi==object.drug
+					})
+					console.log(rm_idx)
+					$scope.object_list.splice(rm_idx, 1)
+				}
+
+			})
+		}
+
+	})
+</script>
+{% endblock script %}
 {% endblock content %}

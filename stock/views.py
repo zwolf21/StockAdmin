@@ -5,6 +5,8 @@ from django.views.generic.dates import MonthArchiveView
 from django.db.models import F, Sum, Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
 
 from datetime import datetime, timedelta, date
 from itertools import groupby, filterfalse
@@ -14,11 +16,13 @@ import os, re
 # Create your views here.
 from .models import StockRec
 from buy.models import BuyItem
+from StockAdmin.serializers import *
 from .forms import DateRangeForm, StockRecAmountForm
 from .utils import get_narcotic_classes, get_date_range
 from .kwQutils import gen_etc_classQ, gen_date_rangeQ, gen_name_containQ, Qfilter
 from StockAdmin.views import LoginRequiredMixin
 from StockAdmin.services.xlutils import excel_response
+
 
 class StockRecCV(CreateView):
 	model = StockRec
@@ -199,5 +203,73 @@ def period2excel(request):
 		response = HttpResponse(data, content_type='application/vnd.ms-excel')
 		response['Content-Disposition'] = 'attachment; filename='+filename
 		return response
+
+
+
+
+
+# ________________________________________________API Modules________________________________________________
+
+
+class BuyItemIncompleteAPITV(TemplateView):
+    template_name = "stock/angular/incomplete_lv.html"
+
+
+
+class BuyItemIncompleteAPILV(ListAPIView):
+	serializer_class = ListBuyItemIncomplete
+
+	def list(self, request, *args, **kwargs):
+		# req = request.query_params
+		# name = req.get('name')
+		queryset = BuyItem.objects.all()[:500]
+		# serializer = self.get_serializer(filter(lambda item: not item.is_completed, queryset), many=True)
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)	
+
+
+
+class StockRecStockinAPITV(TemplateView):
+	template_name = 'stock/angular/period_plv_list.html'
+
+	def get_context_data(self, **kwargs):
+		context = super(self.__class__, self).get_context_data(**kwargs)
+		context['form'] = DateRangeForm
+		return context
+
+
+class StockRecStockinAPVLV(ListAPIView):
+	serializer_class = ListStockRecSerializer
+
+	def list(self, request, *args, **kwargs):
+		queryset = StockRec.objects.all()[:500]
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

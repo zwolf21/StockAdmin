@@ -1,0 +1,171 @@
+{% extends "home.html" %}
+{% load humanize %}
+{% block content %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+
+<div class="container" ng-app="stockinApp" ng-controller="stockinCtrl">
+	<div class="row">
+
+		{% block stock_title %} <h3 style="display:inline-block">입고현황 조회</h3> {% endblock stock_title %}
+
+		<form name="show" method="get" class="form-inline">
+			
+			<div class="form-group">
+				<div class="col-xs-2">
+					{# {{ form.start }} #}
+					<input type="date" ng-model="start" id="id_start" class="form-control input-sm">	
+				</div>
+			</div>
+			<div class="form-group">
+				~
+			</div>
+			<div class="form-group">
+				<div class="col-xs-2">
+					{# {{ form.end }} #}
+					<input type="date" ng-model="end" name="end" id="id_end" class="form-control input-sm">
+				</div>
+			</div>
+
+			<div class="form-group">
+			    {% comment %}<input id="search_window" type="text" placeholder="퀵필터" class="form-control input-sm" name="name">{% endcomment %}
+				<input class="form-control input-sm" id="search_window" name="name" placeholder="퀵필터" type="text" ng-model="keyword" style="ime-mode:active">
+				<input type="submit" hidden>                          
+				<script>document.getElementById('search_window').select();</script>  
+			</div>
+
+			<div class="form-group" style="display: inline;">
+				<div class="col-xs-8">
+					<label for="{{ form.general.auto_id }}" class="btn btn-success btn-xs">일반 {{ form.general }}<span class="badge">&check;</span></label>
+					<label for="{{ form.psychotic.auto_id }}" class="btn btn-warning btn-xs">향정 {{ form.psychotic }}<span class="badge">&check;</span></label>
+					<label for="{{ form.narcotic.auto_id }}" class="btn btn-danger btn-xs">마약 {{ form.narcotic }}<span class="badge">&check;</span></label>
+				</div>
+			</div>
+			
+			<label class="control-label" hidden>입고일자 지정{{ form.indate }}</label>
+				{% comment %}페이지 재로딩시 입고 날짜 세션유지를 위한 필드{% endcomment %}
+		</form>
+	</div>
+
+<ul class="nav nav-tabs">
+ 
+  <li id='list' {% block tablistclass %}{% endblock tablistclass %} tabindex="-1"><a class="list" href="#" >내역별보기</a></li>
+  <li id='ano' {% block tabanoclass %}{% endblock tabanoclass %}><a class="ano" href="#">품목별집계</a></li>
+</ul>
+
+<a id="btn_excel" class="pull-right btn btn-success" style="align: left;"><span class="glyphicon glyphicon-floppy-disk">엑셀파일</span></a>
+	<table class="tablesorter">
+		<thead>
+			<tr>
+				<th>연번</th>
+				<th>입고일자</th>
+				<th>발주번호</th>
+				<th>거래처</th>
+				<th>약품명</th>
+				<th>발주수량</th>
+				<th>입고수량</th>
+				<th>입고단가</th>
+				<th>입고금액</th>
+				<th>기타구분</th>
+				<th>입고취소</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="object in object_list|filter:keyword">
+				<td><span ng-bind="$index+1"></span></td>
+				<td><span ng-bind="object.date"></span></td>
+				<td><span ng-bind="object.buyitem.buy.slug"></span></td>
+				<td><span ng-bind="object.drug.account.name"></span></td>
+				<td><span ng-bind="object.drug.name_as"></span></td>
+				<td><span ng-bind="object.buyitem.amount"></span></td>
+				<td><span ng-bind="object.amount"></span></td>
+				<td><span ng-bind="object.drug.price"></span></td>
+				<td><span ng-bind="object.total_price"></span></td>
+				<td><span ng-bind="object.drug.etc_class"></span></td>
+				<td>
+				{% if not user.is_staff %}
+			        <button width="100%" class="btn btn-warning btn-xs" disabled><i class="glyphicon glyphicon-repeat"></i></button>
+				{% else %}
+			        <button width="100%" class="btn btn-warning btn-xs"><i class="glyphicon glyphicon-repeat"></i></button>
+				{% endif %}
+				</td>
+			</tr>
+		</tbody>
+	</table>	
+	<div style="text-align: right;">
+		<td colspan="6" > 종합:</td>
+		<td>{{ object_list|length }}건: </td>
+		<td colspan="1">{{ total_price|intcomma }}</td>
+				
+	</div>
+</div>
+
+<script>
+
+	
+
+	var app = angular.module('stockinApp', [])
+
+	app.config(['$httpProvider', function($httpProvider) 
+	{
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    }]);
+
+    app.controller('stockinCtrl', function($scope, $http)
+    {
+		var today = new Date()
+        var start_date = new Date()
+        var end_date = new Date()
+        start_date.setDate(today.getDate()-14)
+
+        $scope.start = start_date
+        $scope.end = end_date
+        
+    	$http(
+    		{
+    			method: "GET",
+    			url: "{% url 'stock:show_stockin-api' %}"	
+    		}
+    	).then(function(response, error)
+    	{
+    		$scope.object_list = response.data
+    	})
+
+    })
+</script>
+
+
+
+	
+
+
+<script type="text/javascript">
+  $(function(){
+	 	
+  		var start = $("#id_start")
+		var end = $("#id_end")
+		$("#id_start").change(function(){
+
+			if(start.val() > end.val()){
+				end.val(start.val());
+			}
+		});
+		$("#id_end").change(function(){
+
+			if(start.val() > end.val()){
+				start.val(end.val());
+			}
+		});
+	  
+	  $('#btn_excel').click(function(){
+
+		  form.attr('action',"{% url 'stock:period-excel' %}")
+		  form.submit()
+	  })
+});
+  </script>
+{% include "tablesorter_js.html" %}
+{% include "datepicker_js.html" %}
+{# {% include "ajax_autocomplete_script.html" %} #}
+{% endblock content %}

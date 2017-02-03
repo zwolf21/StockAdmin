@@ -5,15 +5,18 @@ from django.views.generic import ListView, DetailView, CreateView, TemplateView
 from django.conf import settings
 from django.db.models import Q
 
+from rest_framework.generics import ListAPIView
 
 import os, sys, json, csv
 from datetime import datetime
 from json import loads, dumps
 from .models import Info
+from buy.models import BuyItem
 
 from .forms import CSVForm, InfoCVForm
 from .modules.utils import xlDB2DicIter, is_xlfile, DICrawler
 from .modules.dicrawler import DrugInfoSearch, get_drug_info
+from StockAdmin.serializers import *
 
 
 from django.utils.safestring import mark_safe 
@@ -159,10 +162,28 @@ def autocomplete(request):
 
 
 
+# ---------------------------------------------------------------API Center---------------------------------------------------------------
+
+class InfoPredictTV(TemplateView):
+	template_name = 'info/predict_week.html'
 
 
+class InfoPredictAPILV(ListAPIView):
+	serializer_class = ListInfoSerializer
+
+	def get_queryset(self):
+		return Info.objects.weekly_predict_set()
 
 
+def gen_from_predict(request):
+	if request.method == "POST":
+
+		item_list = loads(request.body.decode())
+		for item in item_list:
+			drug = Info.objects.get(pk = item['drug'])
+			BuyItem.objects.create(drug=drug, amount=item['amount'])
+
+		return HttpResponse(json.dumps(item_list), content_type='application/json')
 
 
 
