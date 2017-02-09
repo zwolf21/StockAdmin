@@ -28,6 +28,18 @@ class StockRecCV(CreateView):
 	model = StockRec
 
 	def post(self, request):
+		# print(request.POST)
+		for key in filter(lambda x: x.endswith('price'), request.POST):
+			buyitem_pk = int(key[:-5])
+			price = int(request.POST[key])
+			# print(buyitem_pk, price)
+			buyitem = BuyItem.objects.get(pk=buyitem_pk)
+			if buyitem.drug.price != price:
+				drug_pk = buyitem.drug.pk
+				Info.objects.filter(pk=drug_pk).update(price=price)
+				
+
+
 		for key in filter(lambda key:key.isdigit(), request.POST):
 			amount = request.POST[key]
 			end = True if request.POST.get(key+'end')=='on' else False

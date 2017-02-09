@@ -1,4 +1,6 @@
 {% extends "stock/incomplete_tv.html" %}
+{% load humanize %}
+
 
 {% block tablistclass %}class="active"{% endblock tablistclass %}
 
@@ -23,6 +25,7 @@
 				<th>발주수량</th>
 				<th>기입고수량</th>
 				<th>입고수량</th>
+				<th>단가</th>
 				<th>기타구분</th>
 				<th>마감</th>
 			</tr>
@@ -39,6 +42,9 @@
 				<td>{{ buyitem.stockin_amount }}</td>
 				<td>
 					<input type="number" name="{{ buyitem.pk }}" min="0" max="{{ buyitem.incomplete_amount }}" step="{{ buyitem.drug.pkg_amount }}" togle="{{ buyitem.drug.pkg_amount }}">
+				</td>
+				<td>
+					<input type="number" name="{{ buyitem.pk }}price", value="{{ buyitem.drug.price }}" tabindex="-1">
 				</td>
 				<td>{{ buyitem.drug.etc_class }}</td>
 				<td><input type="checkbox" name="{{ buyitem.pk }}end" tabindex="-1"></td>
