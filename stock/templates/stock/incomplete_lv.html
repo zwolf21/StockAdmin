@@ -26,7 +26,7 @@
 				<th>기입고수량</th>
 				<th>입고수량</th>
 				<th>기타구분</th>
-				<th>단가</th>
+				<th width="20px;">단가</th>
 				
 				<th>마감</th>
 			</tr>
@@ -45,11 +45,11 @@
 					<input type="number" name="{{ buyitem.pk }}" min="0" max="{{ buyitem.incomplete_amount }}" step="{{ buyitem.drug.pkg_amount }}" togle="{{ buyitem.drug.pkg_amount }}">
 				</td>
 				<td>{{ buyitem.drug.etc_class }}</td>
-				<td style="background-color: #CCC;">
+				<td style="background-color: #f3e8c0;">
 					{% if buyitem.drug.price == 0 %}
 					<input type="number" name="{{ buyitem.pk }}price", value="{{ buyitem.drug.price }}" tabindex="-1">
 					{% else %}
-					{{ buyitem.drug.price }}
+					{{ buyitem.drug.price|intcomma }}
 					{% endif %}
 				</td>
 				
