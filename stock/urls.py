@@ -10,12 +10,14 @@ urlpatterns = patterns('',
 	url(r'^showIncomplete/$', StockIncompleteTV.as_view(), name='show_incomplete'),
 	url(r'^showIncomplete/result/$', StockIncompleteLV.as_view(), name='show_incomplete_list'),
 	url(r'^showIncomplete/print/$', StockIncompleteLVprint.as_view(), name='show_incomplete_print'),
+	url(r'^showIncomplete/mail/$', StockIncompleteLVmail.as_view(), name='sho_incomplete_mail'),
 	url(r'^in/$', StockRecCV.as_view(), name='stockin'),
 	url(r'^end/$', StockInEndLV.as_view(), name='end'),
 	url(r'^end/rollback/(?P<pk>\d+)/$', EndRollBack.as_view(), name='rollback'),
 	url(r'^delete/(?P<pk>\d+)/$', StockInDelV.as_view(), name='delete'),
 
 	url(r'^periodExcel/$', period2excel, name='period-excel'),
+	
 
 
 	# api-modules

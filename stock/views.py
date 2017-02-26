@@ -4,7 +4,7 @@ from django.views.generic import ListView, CreateView, DetailView, FormView, Tem
 from django.views.generic.dates import MonthArchiveView
 from django.db.models import F, Sum, Q
 from django.http import HttpResponseRedirect, HttpResponse
-from django.template import RequestContext
+from django.core.mail import EmailMessage
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
@@ -14,6 +14,8 @@ from collections import OrderedDict
 import os, re
 
 # Create your views here.
+from django.conf import settings
+from info.forms import InfoCVForm
 from .models import StockRec
 from buy.models import BuyItem
 from StockAdmin.serializers import *
@@ -21,7 +23,7 @@ from .forms import DateRangeForm, StockRecAmountForm
 from .utils import get_narcotic_classes, get_date_range
 from .kwQutils import gen_etc_classQ, gen_date_rangeQ, gen_name_containQ, Qfilter
 from StockAdmin.views import LoginRequiredMixin
-from StockAdmin.services.xlutils import excel_response
+from StockAdmin.services.xlutils import excel_output, excel_gmail_send
 
 
 class StockRecCV(CreateView):
@@ -76,13 +78,13 @@ class StockIncompleteLV(ListView):
 			drug__narcotic_class__in=get_narcotic_classes(self.request.GET),
 			buy__commiter__isnull=False
 		).order_by('drug__firm')
-	
 		return filter(lambda item: not item.is_completed, queryset)
 
 	def get_context_data(self, **kwargs):
 		context = super(StockIncompleteLV, self).get_context_data(**kwargs)
 		context['form'] = DateRangeForm(self.request.GET)
 		context['amount_form'] = StockRecAmountForm
+		context['info_form'] = InfoCVForm
 		return context
 
 class StockIncompleteLVprint(StockIncompleteLV):
@@ -91,6 +93,47 @@ class StockIncompleteLVprint(StockIncompleteLV):
 	def get_queryset(self):
 		qryset = super(StockIncompleteLVprint, self).get_queryset()
 		return sorted(qryset, key=lambda item: item.buy.slug)
+
+
+class StockIncompleteLVmail(LoginRequiredMixin, StockIncompleteLV):
+	template_name = 'etc/incomplete_print.html'
+
+	def get(self, request, *args, **kwargs):
+		
+		start_date = request.GET['start'].replace('-','')
+		end_date = request.GET['end'].replace('-','')
+		account_id = int(request.GET.get('account'))
+		object_list = list(filter(lambda obj: obj.drug.account.id == account_id, self.get_queryset()))
+
+		xl_template = [
+			OrderedDict((
+				('발주번호', obj.buy), ('보험코드', obj.drug.edi), ('제약회사', obj.drug.firm), ('약품명', obj.drug), 
+				('발주수량', obj.amount), ('기입고수량', obj.stockin_amount), ('미입고분', obj.incomplete_amount)
+			)) 
+			for obj in object_list
+		]
+		
+		if not xl_template:
+			return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+		
+		mail_to = object_list[0].drug.account.email
+		account_name = object_list[0].drug.account.name
+		mail_content = request.GET.get('content', '미입고현황(발주일기준)')
+		now = datetime.now().strftime("%Y-%m-%d %H:%I")
+		filename = '{} {}~{}미입고현황.xlsx'.format(account_name, start_date, end_date)
+		data = excel_output(xl_template)
+		subject = '{} {} 미입고현황'.format(account_name, now)
+		# excel_gmail_send(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD, [mail_to], subject, mail_content, {filename: data})
+		email = EmailMessage('{} {} 미입고현황'.format(account_name, now), mail_content, to=[mail_to])
+		email.attach(filename, data, 'application/vnd.ms-excel')
+		try:
+			email.send(fail_silently=False)
+		except SMTPAuthenticationError:
+			HttpResponse('<h2>메일전송 실패</h2>')
+		else:		
+			return HttpResponseRedirect(request.META['HTTP_REFERER'])
+		
 
 
 class StockInEndLV(ListView):
@@ -168,7 +211,6 @@ class StockInPLV(ListView):
 		endPage = startPage + pageUnit
 		context['page_range'] = paginator.page_range[startPage:endPage]
 
-		
 		get_full_path = self.request.get_full_path()
 		reg_pgprm = re.compile('&*page=\d*')
 		get_full_path = reg_pgprm.sub('', get_full_path)
@@ -211,7 +253,7 @@ def period2excel(request):
 		start_date = request.GET['start'].replace('-','')
 		end_date = request.GET['end'].replace('-','')
 		filename = '{}~{}Stock.xlsx'.format(start_date, end_date)
-		data = excel_response(xl_template)
+		data = excel_output(xl_template)
 		response = HttpResponse(data, content_type='application/vnd.ms-excel')
 		response['Content-Disposition'] = 'attachment; filename='+filename
 		return response

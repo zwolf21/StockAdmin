@@ -23,7 +23,7 @@ from django.utils.safestring import mark_safe
 from django.http import HttpResponse, HttpResponseRedirect
 from StockAdmin.views import LoginRequiredMixin, login_required
 from .backup_utils import csv_update, dict2csv, dict2xl
-from StockAdmin.services.xlutils import excel_response
+from StockAdmin.services.xlutils import excel_output
 
 # Create your views here.
 
@@ -113,7 +113,7 @@ def bacup2excel(request):
 	queryset = Info.objects.all()
 	timestamp = datetime.now().strftime('%Y%m%d%H%I%S')
 	filename = 'StockAdmin{}.xlsx'.format(str(timestamp))
-	data = excel_response(queryset.values())
+	data = excel_output(queryset.values())
 	response = HttpResponse(data, content_type='application/vnd.ms-excel')
 	response['Content-Disposition'] = 'attachment; filename='+filename
 	return response
@@ -129,21 +129,6 @@ class InfoCV(LoginRequiredMixin,CreateView):
 	template_name = 'info/info_cv.html'
 	def get_success_url(self):
 		return self.request.META['HTTP_REFERER']
-
-
-# def autocomplete(request):
-# 	if request.is_ajax():
-# 		kw = request.GET['term']
-# 		iter_rsp = list(filter(None,DICrawler.iter_drug_summary(kw)))
-# 		if len(iter_rsp) == 1:
-# 			for html in DICrawler.iter_drug_detail(kw):
-# 				iter_rsp[0]['pkg_unit'] ,iter_rsp[0]['pkg_amount'] = DICrawler.get_pkg_unit(html)
-# 				iter_rsp[0]['narcotic_class'] = DICrawler.get_narcotic_class(html)
-# 				# iter_rsp = iter_rsp[0]
-		
-# 		return HttpResponse(json.dumps(iter_rsp), content_type='application/json')
-
-
 
 
 def autocomplete(request):

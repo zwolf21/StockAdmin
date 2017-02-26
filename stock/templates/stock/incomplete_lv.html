@@ -10,10 +10,32 @@
 	{% block indate %}
 	<div class="form-group" style="display: inline;">
 		<label class="control-label">입고일자 지정:{{ form.indate }}</label>
-<a id="btn-print" class="btn btn-success btn-sm">미입고리스트 출력</a>
-	
+		<a id="btn-print" class="btn btn-default btn-sm">출력<span class="glyphicon glyphicon-print"></span></a>
+		<a class="btn btn-default btn-sm" data-target="#updateModal" data-toggle="modal">메일<span class="glyphicon glyphicon-envelope"></span></a>
 	</div>
 	{% endblock indate %}
+	
+	<div class="modal fade" id="updateModal">
+		<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">×</button>
+				<h3>미입고 항목 메일로 보내기</h3>
+			</div>
+				
+			<div class="modal-body">
+				<h4 class="modal-title">받는 도매상</h4>
+				<p>{{ info_form.account }}</p>
+				<p><textarea id="mail-content" maxlength="50" placeholder="전달사항"></textarea>
+				
+			</div>
+			<div class="modal-footer">
+				<button id="btn-mail" type="button" class="btn btn-default" data-dismiss="modal">보내기</button>
+			</div>
+		</div>
+		</div>
+	</div>
+
 	<table class="tablesorter">
 		<thead>
 			<tr>
@@ -67,9 +89,12 @@
 		popurl = window.location.href.replace('result','print')
 		window.open(popurl, 'pop1', 'width=700, height=1000, left=100, top=100, scrollbars=no, toolbars=no, location=no')
 	})
+	$('#btn-mail').click(function(){
+		red_url = window.location.href.replace('result','mail')
+		window.location.href = red_url + "&account=" + $('#id_account').val() +"&content=" + $('#mail-content').val()
+	})
 
 	  $('table input[type=number]').keydown(function(event){
-
 
 	  		// alert(event.keyCode)
 			var cur_val = $(this).val()
