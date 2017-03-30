@@ -40,7 +40,8 @@ INSTALLED_APPS = (
     'rest_framework',
     'info',
     'stock',
-    'buy'
+    'buy',
+    'narcotic'
 )
 
 TEMPLATES = [

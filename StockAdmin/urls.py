@@ -15,6 +15,8 @@ urlpatterns = patterns('',
     url(r'^$', Home.as_view(), name='home'),
     url(r'^info/', include('info.urls','info')),
     url(r'^stock/', include('stock.urls','stock')),
-    url(r'^buy/', include('buy.urls','buy'))
+    url(r'^buy/', include('buy.urls','buy')),
+    url(r'^narcotic/', include('narcotic.urls','narcotic')),
+
 
 )

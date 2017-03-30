@@ -45,7 +45,11 @@
 							<input  type="number" name="amount" value="{{ buyitem.amount }}" min="{{ buyitem.drug.pkg_amount }}" step="{{ buyitem.drug.pkg_amount }}">
 					</td>
 					<td>{{ buyitem.drug.pkg_amount }}</td>
+					{% if buyitem.drug.total_incomplete_amount > 0 %}
+					<td style="background-color: #f3e8c0">{{ buyitem.drug.total_incomplete_amount }}</td>
+					{% else %}
 					<td>{{ buyitem.drug.total_incomplete_amount }}</td>
+					{% endif %}
 					<td>{{ buyitem.drug.weekly_avg_stockin }}</td>
 					<td>{{ buyitem.drug.last_stockin_date|date:"Y-m-d" }}{% if buyitem.drug.last_stockin_date %}/{% endif %}{{ buyitem.drug.last_stockin_amount }}</td>
 					<td><input type="text" name="comment" value="{{ buyitem.comment }}" maxlength="30"></td>

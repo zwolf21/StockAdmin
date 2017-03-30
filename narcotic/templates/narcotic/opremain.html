@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+	<h3>마약류 폐기량 정리</h3>
+	<form name="show" method="post" class="form-inline" action="{% url 'narcotic:opremain' %}">
+		{% csrf_token %}
+		기간설정
+		<div class="form-group">
+			<div class="col-xs-2">
+				{{ form.start }}
+			</div>
+		</div>
+		<div class="form-group">
+			~
+		</div>
+		<div class="form-group">
+			<div class="col-xs-2">
+				{{ form.end }}
+			</div>
+		</div>
+		<button>다운로드</button>
+	</form>
+
+
+</div>
+{% include "tablesorter_js.html" %}
+{% include "datepicker_js.html" %}
+{% endblock content %}
