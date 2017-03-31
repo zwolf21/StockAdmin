@@ -35,6 +35,7 @@ def get_narc_query(start_date, end_date, qry_path):
 				cs.close()
 				break
 		contents = content_pat.findall(rsp)
+		# print(contents[0])
 
 		return contents if contents else []
 
@@ -445,9 +446,14 @@ def get_exl_contents(raw_record, n=0):
 
 
 def get_opremain_contents(start_date, end_date):
+	start_date = start_date.replace('-', '')
+	end_date = end_date.replace('-', '')
 	BASE_DIR = os.path.dirname(__file__)
 	raw_datas = []
-	raw_datas += get_narc_query(start_date, end_date, os.path.join(BASE_DIR, 'nar_qry'))
 	raw_datas += get_narc_query(start_date, end_date, os.path.join(BASE_DIR, 'psy_qry'))
-	content = parse_narc_content(raw_datas)
-	return get_exl_contents(content)
+	raw_datas += get_narc_query(start_date, end_date, os.path.join(BASE_DIR, 'nar_qry'))
+	content = []
+	for data in raw_datas:
+		content += parse_narc_content(data)
+	output =  get_exl_contents(content)
+	return output

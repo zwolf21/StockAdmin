@@ -15,8 +15,11 @@ class OpRemainFV(FormView):
 	def form_valid(self, form):
 		start = self.request.POST.get('start')
 		end = self.request.POST.get('end')
+		print(start, end)
 		content = get_opremain_contents(start, end)
-		fname = '{}~{} 마약류 폐기현황.xlsx'.format(start, end)
+		fname = '{}~{}OpRemain.xlsx'.format(str(start), str(end))
+		print(fname)
 		response = HttpResponse(content, content_type='application/vnd.ms-excel')
 		response['Content-Disposition'] = 'attachment; filename='+fname
+		# response['Content-Disposition'] = 'attachment; filename='+'aaa.xls'
 		return response
