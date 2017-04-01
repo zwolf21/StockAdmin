@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>미입고현황</title>
+	<meta charset="utf-8">
+	{% load staticfiles %}
+	<link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap.min.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "jquery-ui-1.12.1.custom/jquery-ui.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
+
+	<link rel="stylesheet" type="text/css" href="{% static "tablesorter/themes/blue/style.css" %}">
+	<script src="{% static "jquery-3.1.1.min.js" %}"></script>
+	<script src="{% static "bootstrap-3.3.7-dist/js/bootstrap.min.js" %}"></script>
+	<script src="{% static "jquery-ui-1.12.1.custom/jquery-ui.js" %}"></script>
+	<script src="{% static "tablesorter/jquery.tablesorter.min.js" %}"></script>
+
+	<style type="text/css">
+		th {
+			font-size: 700;
+		}
+		td {
+			font-size: 50;
+		}
+	</style>
+
+</head>
+<body>
+	<div class="container-fluid" id="print">
+	<h2>마약류재고현황</h2>
+	<h4>{% now "Y-m-d H:i:s" %}</h4>
+	<table id="print1">
+		<thead>
+			<tr>
+				<th>연번</th>
+				<th>약품코드</th>
+				<th>약품명</th>
+				<th>재고</th>
+				<th>규격단위</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for object in object_list %}
+			<tr>
+				<td style="text-align: center;">{{ forloop.counter }}</td>
+				<td>{{ object.약품코드 }}</td>
+				<td>{{ object.재고약품명 }}</td>
+				<td>{{ object.재고__str_digit_sum }}</td>
+				<td>{{ object.규격단위 }}</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	</div>
+</body>
+<script>
+
+$(function(){
+// window.print();
+// window.close();
+	
+	function info_print() {
+
+		var initBody = document.body.innerHTML;
+		window.onbeforeprint = function () {
+
+			document.body.innerHTML = document.getElementById("print1").innerHTML;
+		}
+		window.onafterprint = function () {
+
+			document.body.innerHTML = initBody;
+
+		}
+		window.print();
+	}
+
+	info_print();
+})
+</script>
+</html>

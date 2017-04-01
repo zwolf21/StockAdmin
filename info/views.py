@@ -84,6 +84,7 @@ class UpdateItemCV(LoginRequiredMixin ,CreateView):
 class CSVUpdateFV(LoginRequiredMixin ,FormView):
 	form_class = CSVForm
 	template_name = 'info/csv_update.html'
+	
 	def form_valid(self, form):
 		context = csv_update(self.request)
 		prepudates =context['preupdated']
