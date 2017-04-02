@@ -8,8 +8,8 @@ from django.http import HttpResponse
 # Create your views here.
 from dateutil import parser
 
-from .modules.FKHIS.narc_parser import get_opremain_contents
-from .modules.FKHIS.opstock_parser import get_opstock_object_list
+from .modules.FKHIS.opremain import get_opremain_contents
+from .modules.FKHIS.opstock import get_opstock_object_list
 from .forms import DataRangeForm, OpSelectForm
 
 
@@ -74,15 +74,7 @@ class OpStockLV(ListView):
 class OpStockPrintTV(OpStockLV):
 	template_name = 'narcotic/etc/opstock_print.html'
 
-	# def get_context_data(self, **kwargs):
-	# 	context = super(OpStockPrintTV, self).get_context_data(**kwargs)
-	# 	today = date.today().strftime('%Y-%m-%d')
-	# 	now = datetime.now().strftime('%H:%I:%S')
-	# 	object_list = get_opstock_object_list(today)
-	# 	context['today'] = today
-	# 	context['now'] = now
-	# 	context['object_list'] = object_list
-	# 	return context
+
 	def get_queryset(self):
 		queryset = super(OpStockPrintTV, self).get_queryset()
 		return queryset

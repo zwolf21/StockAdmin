@@ -43,10 +43,10 @@
 		{% for object in object_list %}
 			<tr>
 				<td style="text-align: center;">{{ forloop.counter }}</td>
-				<td>{{ object.약품코드 }}</td>
-				<td>{{ object.재고약품명 }}</td>
-				<td>{{ object.재고__str_digit_sum }}</td>
-				<td>{{ object.규격단위 }}</td>
+				<td>{{ object.drug_cd }}</td>
+				<td>{{ object.drug_nm }}</td>
+				<td>{{ object.stock }}</td>
+				<td>{{ object.stock_unit }}</td>
 			</tr>
 		{% endfor %}
 		</tbody>
