@@ -7,6 +7,10 @@ from .db import *
 
 BASE_DIR = os.path.dirname(__file__)
 
+
+host = '192.168.8.8'
+port = 7501
+
 def get_opstock(date_str, req_file):
 	with open(os.path.join(BASE_DIR, req_file), 'rb') as fp:
 		data = fp.read()
@@ -17,7 +21,7 @@ def get_opstock(date_str, req_file):
 
 	cs = socket(AF_INET, SOCK_STREAM)
 	cs.connect((host, port))
-	cs.send(req)
+	cs.send(data)
 
 	response = b''
 
