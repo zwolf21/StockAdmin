@@ -3,11 +3,11 @@
 {% block content %}
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
-<div class="container">
+<div class="container"  style="padding-bottom: 200px;">
 	<div class="content">
 		
 	<h2>마약류재고현황</h2>
-	<h4>{{ today }} {{ now }}</h4>
+	<h4>{% now "Y-m-d H:i:s" %}</h4>
 	<form style="display: inline;" method="get" action="{% url 'narcotic:opstock' %}">
 		{% csrf_token %}
 		<div class="form-group" style="display: inline;">
@@ -37,8 +37,8 @@
 				<td style="text-align: center;">{{ forloop.counter }}</td>
 				<td>{{ object.drug_cd }}</td>
 				<td>{{ object.drug_nm }}</td>
-				<td>{{ object.stock }}</td>
-				<td>{{ object.stock_unit }}</td>
+				<td align="right">{{ object.stock }}</td>
+				<td align="center">{{ object.stock_unit }}</td>
 			</tr>
 		{% endfor %}
 		</tbody>
@@ -54,3 +54,9 @@ $('#btn-print').click(function(){
 
 {% include "datepicker_js.html" %}
 {% endblock content %}
+{% block footer %}
+<div id="footer" style="display: block; height: 1200px;">
+	&nbsp;
+</div>
+
+{% endblock footer %}

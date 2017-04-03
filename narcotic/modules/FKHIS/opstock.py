@@ -54,9 +54,22 @@ def code_with_count(row):
 	else:
 		return code
 
+def selective_int(row, column):
+	before = row[column]
+	after = 0
+	try:
+		after = int(row[column])
+	except:
+		return val
+	else:
+		return 
+
 def parse_opstock_content(content):
 	soup = BeautifulSoup(content, 'html.parser')
-	recs = RecordParser(records = [OrderedDict((child.name, child.text) for child in table.children) for table in soup.find_all('table1')])
+	recs = RecordParser(
+		records = [OrderedDict((child.name, child.text) for child in table.children) for table in soup.find_all('table1')],
+		drop_if = lambda row: row['drug_cd'] in EXCEPT_CODES
+	)
 	recs.format([('stock_qty', 0.0)])
 	recs.update([('drug_nm', get_std_name), ('drug_cd', code_with_count)])
 	recs.group_by(
@@ -64,33 +77,48 @@ def parse_opstock_content(content):
 		aggset = [('stock_qty', sum, 'stock')], 
 		selects = ['drug_cd', 'drug_nm', 'stock', 'stock_unit']
 	)
+	recs.update([('stock', lambda row: row['stock'] if int(row['stock'])!=row['stock'] else int(row['stock']) )])
 	return recs.records
 
 
 
 
-def get_opstock_object_list (date, psy=False, narc=False):
-	# response = get_opstock(date)
+def get_opstock_object_list(date, psy=False, narc=False):
 
-	'''test code'''
-	
-	''''''
 	psy_records, narc_records = [], []
-	if psy:
-		pass
-		# psy_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/PsyStock.req'))
-		# psy_records = parse_opstock_content(psy_response)
-
+	
 	if narc:
 		narc_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/NarcStock.req'))
-		# with open(os.path.join(BASE_DIR, 'response_samples/OpStock.sample.rsp'), 'rb') as fp:
-		# 	data = fp.read()
-		# 	content_pat = re.compile(b'<NewDataSet>.+<\/NewDataSet>')
-		# 	narc_response = content_pat.findall(data)[1]
 		narc_records = parse_opstock_content(narc_response)
 
-	return psy_records + narc_records
 
+	if psy:
+		psy_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/PsyStock.req'))
+		psy_records = parse_opstock_content(psy_response)
+
+	return narc_records + psy_records
+
+
+def get_opstock_object_list_test(date, psy=False, narc=False):
+
+	psy_records, narc_records = [], []
+	
+	if narc:
+		with open(os.path.join(BASE_DIR, 'response_samples/NarcStock.sample.rsp'), 'rb') as fp:
+			data = fp.read()
+			content_pat = re.compile(b'<NewDataSet>.+<\/NewDataSet>')
+			narc_response = content_pat.findall(data)[1]
+		narc_records = parse_opstock_content(narc_response)
+
+
+	if psy:
+		with open(os.path.join(BASE_DIR, 'response_samples/PsyStock.sample.rsp'), 'rb') as fp:
+			data = fp.read()
+			content_pat = re.compile(b'<NewDataSet>.+<\/NewDataSet>')
+			psy_response = content_pat.findall(data)[1]
+		psy_records = parse_opstock_content(psy_response)
+
+	return narc_records + psy_records
 
 
 

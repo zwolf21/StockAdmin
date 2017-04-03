@@ -8,8 +8,8 @@ from django.http import HttpResponse
 # Create your views here.
 from dateutil import parser
 
-from .modules.FKHIS.opremain import get_opremain_contents
-from .modules.FKHIS.opstock import get_opstock_object_list
+from .modules.FKHIS.opremain import get_opremain_contents, get_opremain_contents_test
+from .modules.FKHIS.opstock import get_opstock_object_list, get_opstock_object_list_test
 from .forms import DataRangeForm, OpSelectForm
 
 
@@ -24,7 +24,6 @@ class OpRemainFV(FormView):
 		fname = '{}~{}OpRemain.xlsx'.format(str(start), str(end))
 		response = HttpResponse(content, content_type='application/vnd.ms-excel')
 		response['Content-Disposition'] = 'attachment; filename='+fname
-		# response['Content-Disposition'] = 'attachment; filename='+'aaa.xls'
 		return response
 
 
@@ -49,7 +48,6 @@ class OpStockFV(FormView):
 		narc = self.request.POST.get('narcotic')
 		date = self.request.POST.get('date')
 		today = date.today().strftime('%Y-%m-%d')
-		print('today:', today)
 		object_list = get_opstock_object_list(today, psy, narc)
 		context = self.get_context_data()
 		context['object_list'] = object_list
@@ -61,14 +59,14 @@ class OpStockLV(ListView):
 
 	def get_context_data(self, **kwargs):
 		context = super(OpStockLV, self).get_context_data(**kwargs)
-		context['form'] = OpSelectForm()
+		context['form'] = OpSelectForm(self.request.GET) if self.request.GET else OpSelectForm()
+		# context['today'] = date.today().strftime('%Y-%m-%d')
 		return context
 
 	def get_queryset(self):
 		psy = self.request.GET.get('psychotic', False)
 		narc = self.request.GET.get('narcotic', False)
 		today = self.request.GET.get('date', date.today().strftime('%Y-%m-%d'))
-		print('today', today)
 		return get_opstock_object_list(today, psy, narc)
 
 

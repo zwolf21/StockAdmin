@@ -10,11 +10,11 @@ import xlsxwriter
 from bs4 import BeautifulSoup
 
 try:
-	from .db import drugDB, reportElm
+	from .db import *
 	from .settings import *
 	from .recordlib import RecordParser
 except:
-	from db import drugDB, reportElm
+	from db import *
 	from settings import *
 	from recordlib import RecordParser
 
@@ -52,7 +52,7 @@ def parse_narc_content(content, n=0):
 		drop_if = lambda row: not row.get('narct_owarh_ymd') or row['drug_cd']  not in drugDB or not row.get('ptnt_no')
 	)
 	recs.select(['narct_owarh_ymd', 'ward', 'ori_ord_ymd', 'ord_no', 'ptnt_no', 'ptnt_nm', 'drug_cd', 'drug_nm', 'ord_qty_std', 'tot_qty'], 
-		where = lambda row: row['ret_gb'] not in ['D/C', '반납']
+		where = lambda row: row['ret_gb'] not in ['D/C', '반납', '수납취소']
 	)
 	recs.vlookup(drugDB.values(), 'drug_cd', 'code', [('amount', 0), ('amount_unit', ''), ('name', ""), ('std_unit', "")])
 	recs.format([('tot_qty', 0.0), ('ord_qty_std', 0.0)])
@@ -313,6 +313,22 @@ def get_opremain_contents(start_date, end_date):
 
 
 
+def get_opremain_contents_test(start_date, end_date):
+
+	
+	with open(os.path.join(BASE_DIR, 'response_samples/OpRemain.sample.rsp'), 'rb') as fp:
+		content = fp.read()
+	content_pat = re.compile(b'<NewDataSet>.+<\/NewDataSet>')
+	xmls = content_pat.findall(content)	
+
+	table, grp = [], []
+	for i, xml in enumerate(xmls):
+		t, g = parse_narc_content(xml, 0 if i==0 else 1)
+		table+=t
+		grp+=g
+
+	return excel_output(table, grp)
+
 	# ret = parse_narc_content(content)
 	# print(ret)
 
@@ -320,8 +336,7 @@ def get_opremain_contents(start_date, end_date):
 
 
 '''testcode'''
-# with open(os.path.join(BASE_DIR, 'response_samples/OpRemain.sample.rsp'), 'rb') as fp:
-# 	content = fp.read()
+
 
 # tbl, grp = parse_narc_content(content)
 
