@@ -20,7 +20,6 @@ class OpRemainFV(FormView):
 	def form_valid(self, form):
 		start = self.request.POST.get('start')
 		end = self.request.POST.get('end')
-		print(start, end)
 		content = get_opremain_contents(start, end)
 		fname = '{}~{}OpRemain.xlsx'.format(str(start), str(end))
 		response = HttpResponse(content, content_type='application/vnd.ms-excel')
@@ -36,8 +35,9 @@ class OpStockFV(FormView):
 	def get_context_data(self, **kwargs):
 		context = super(OpStockFV, self).get_context_data(**kwargs)
 		today = date.today().strftime('%Y-%m-%d')
+		today0 = date.today().strftime('%Y%m%d')
 		now = datetime.now().strftime('%H:%I:%S')
-		object_list = get_opstock_object_list(today)
+		object_list = get_opstock_object_list(today0)
 		context['today'] = today
 		context['now'] = now
 		context['object_list'] = object_list
@@ -48,8 +48,9 @@ class OpStockFV(FormView):
 		psy = self.request.POST.get('psychotic')
 		narc = self.request.POST.get('narcotic')
 		date = self.request.POST.get('date')
-
-		object_list = get_opstock_object_list(date, psy, narc)
+		today = date.today().strftime('%Y-%m-%d')
+		print('today:', today)
+		object_list = get_opstock_object_list(today, psy, narc)
 		context = self.get_context_data()
 		context['object_list'] = object_list
 		return render_to_response('narcotic/opstock.html', context)
@@ -60,14 +61,15 @@ class OpStockLV(ListView):
 
 	def get_context_data(self, **kwargs):
 		context = super(OpStockLV, self).get_context_data(**kwargs)
-		context['form'] = OpSelectForm(self.request.GET)
+		context['form'] = OpSelectForm()
 		return context
 
 	def get_queryset(self):
 		psy = self.request.GET.get('psychotic', False)
 		narc = self.request.GET.get('narcotic', False)
-		date = self.request.GET.get('date')
-		return get_opstock_object_list(date, psy, narc)
+		today = self.request.GET.get('date', date.today().strftime('%Y-%m-%d'))
+		print('today', today)
+		return get_opstock_object_list(today, psy, narc)
 
 
 

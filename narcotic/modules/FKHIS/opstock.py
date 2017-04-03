@@ -1,6 +1,7 @@
 import re, os
 from socket import *
 from collections import OrderedDict
+from datetime import date
 
 from bs4 import BeautifulSoup
 try:
@@ -68,24 +69,24 @@ def parse_opstock_content(content):
 
 
 
-def get_opstock_object_list(date, psy=False, narc=False):
+def get_opstock_object_list (date, psy=False, narc=False):
 	# response = get_opstock(date)
 
 	'''test code'''
 	
 	''''''
 	psy_records, narc_records = [], []
-
 	if psy:
-		psy_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/PsyStock.req'))
-		psy_records = parse_opstock_content(psy_response)
+		pass
+		# psy_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/PsyStock.req'))
+		# psy_records = parse_opstock_content(psy_response)
 
 	if narc:
+		narc_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/NarcStock.req'))
 		# with open(os.path.join(BASE_DIR, 'response_samples/OpStock.sample.rsp'), 'rb') as fp:
 		# 	data = fp.read()
 		# 	content_pat = re.compile(b'<NewDataSet>.+<\/NewDataSet>')
 		# 	narc_response = content_pat.findall(data)[1]
-		narc_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/NarcStock.req'))
 		narc_records = parse_opstock_content(narc_response)
 
 	return psy_records + narc_records
@@ -106,3 +107,5 @@ def get_opstock_object_list(date, psy=False, narc=False):
 # 	print(r)
 
 
+# narc_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/NarcStock.req'))
+# print(narc_response)

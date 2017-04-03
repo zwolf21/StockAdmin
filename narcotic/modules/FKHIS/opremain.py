@@ -49,7 +49,7 @@ def parse_narc_content(content, n=0):
 	soup = BeautifulSoup(content, 'html.parser')
 	recs = RecordParser(
 		records = [OrderedDict((child.name, child.text) for child in table.children) for table in soup.find_all('table1')],
-		drop_if = lambda row: not row.get('narct_owarh_ymd') or row['drug_cd']  not in drugDB
+		drop_if = lambda row: not row.get('narct_owarh_ymd') or row['drug_cd']  not in drugDB or not row.get('ptnt_no')
 	)
 	recs.select(['narct_owarh_ymd', 'ward', 'ori_ord_ymd', 'ord_no', 'ptnt_no', 'ptnt_nm', 'drug_cd', 'drug_nm', 'ord_qty_std', 'tot_qty'], 
 		where = lambda row: row['ret_gb'] not in ['D/C', '반납']
@@ -60,7 +60,7 @@ def parse_narc_content(content, n=0):
 	recs.select('*', where= lambda row: row['잔량'] > 0).order_by(['name', 'narct_owarh_ymd', 'ward'])
 	recs.rename([
 		('narct_owarh_ymd', '불출일자'), ('ori_ord_ymd', '원처방일자'), ('ord_no', '처방번호[묶음]'), ('tot_qty', '집계량'), 
-		('name', '폐기약품명'), ('drug_cd', '약품코드'), ('amount', '집계량'), ('ord_qty_std', '처방량(규격단위)'), ('drug_nm', '폐기약품명'), 
+		('name', '폐기약품명'), ('drug_cd', '약품코드'), ('amount', '집계량'), ('ord_qty_std', '처방량(규격단위)'), ('drug_nm', '약품명'), 
 		('amount_unit', '폐기단위'), ('ptnt_nm', '환자명'), ('ptnt_no', '환자번호'), ('std_unit', '규격단위'), ('ward', '병동')
 	])
 	table = recs.select(['불출일자', '병동', '환자번호', '환자명', '폐기약품명','약품코드', '처방량(규격단위)', '잔량', '규격단위', '폐기량', '폐기단위' ]).to2darry()

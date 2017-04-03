@@ -80,17 +80,19 @@ class RecordParser:
 		fmt_funcs = list(map(lambda fmt:(fmt[0] ,type(fmt[1])) , fmts))
 		ret = []
 		for row in self.records:
+			fail = False
 			for i, (colname, func) in enumerate(fmt_funcs):
 				try:
 					val = func(row[colname])
 				except:
+					fail = True
 					val = fmts[i][1]
-				else:
-					pass
-				finally:
 					row[colname] = val
-					if not drop_if_fail:
-						ret.append(row)
+				else:
+					row[colname] = val
+			if drop_if_fail and fail:
+				continue
+			ret.append(row)
 		self.records = ret
 		return self
 
