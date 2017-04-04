@@ -17,6 +17,5 @@ urlpatterns = patterns('',
     url(r'^stock/', include('stock.urls','stock')),
     url(r'^buy/', include('buy.urls','buy')),
     url(r'^narcotic/', include('narcotic.urls','narcotic')),
-
-
+    url(r'^orderutils/', include('orderutils.urls','orderutils')),
 )

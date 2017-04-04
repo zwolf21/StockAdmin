@@ -1,0 +1,32 @@
+{% extends "home.html" %}
+
+{% block content %}	
+<div class="container">
+<h4>미접수 리스트</h4>
+<table class="table-hover table-striped">
+	<thead>
+		<th>환자번호</th>
+		<th>환자명</th>
+		<th>병동</th>
+		<th>진료과</th>
+		<th>투약NO</th>
+		<th>구분</th>
+		<th>픽업여부?</th>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+		<tr>
+			<td>{{ object.ptnt_no }}</td>
+			<td>{{ object.ptnt_nm }}</td>
+			<td>{{ object.ward_disp }}</td>
+			<td>{{ object.cln_dept_cd }}</td>
+			<td>{{ object.chos_no }}</td>
+			<td>{{ object.rcpt_ord_tp_nm }}</td>
+			<td>{{ object.rcpt_drug_gb }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	
+</table>
+</div>
+{% endblock content %}

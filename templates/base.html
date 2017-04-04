@@ -106,7 +106,7 @@
                                 </li>
                             </ul>
                         </li>
-                            <li class="dropdown">
+                        <li class="dropdown">
                             <a data-toggle="dropdown" href="#">
                                 마약류
                                 <b class="caret"></b>
@@ -118,7 +118,23 @@
                                 <li>
                                     <a href="{% url 'narcotic:opstock' %}">재고현황</a>
                                 </li>
-            
+                            </ul>
+                        </li>
+                         <li class="dropdown">
+                            <a data-toggle="dropdown" href="#">
+                                조제도우미
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="{% url 'orderutils:yetrcpts' %}">픽업현황보기(개발이에요)</a>
+                                </li>
+                                <li>
+                                    <a href="">항암제집계(개발)</a>
+                                </li>
+                                <li>
+                                    <a href="">따챙이집계(개발)</a>
+                                </li>
                             </ul>
                         </li>
                        
