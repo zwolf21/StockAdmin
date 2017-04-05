@@ -91,7 +91,6 @@ def get_opstock_object_list(date, psy=False, narc=False):
 		narc_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/NarcStock.req'))
 		narc_records = parse_opstock_content(narc_response)
 
-
 	if psy:
 		psy_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/PsyStock.req'))
 		psy_records = parse_opstock_content(psy_response)
