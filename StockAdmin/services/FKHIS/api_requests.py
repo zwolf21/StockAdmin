@@ -33,7 +33,7 @@ class ApiRequest:
 		cs = socket(AF_INET, SOCK_STREAM)
 		cs.settimeout(timeout)
 		cs.connect((host, port))
-		cs.send(self.request)
+		cs.send(self.reqeust)
 		response = b''
 		while True:
 			data = cs.recv(1024)
@@ -95,7 +95,7 @@ class OrdMonApiRequest(ApiRequest):
 
 	def api_call(self, ord_date):
 		super(OrdMonApiRequest, self).api_call()
-		date = date_str.replace('-', '').encode()
+		date = ord_date.replace('-', '').encode()
 		pat = re.compile(b'\d{8}')
 		self.raw = pat.sub(date, self.raw)
 		

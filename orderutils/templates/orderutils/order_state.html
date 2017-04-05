@@ -11,7 +11,13 @@
 		<th>진료과</th>
 		<th>투약NO</th>
 		<th>구분</th>
-		<th>픽업여부?</th>
+		<th>주사여부?</th>
+		<th>drgst_prog_stus</th>
+		<th>rcpt_ord_tp</th>
+		<th>drgst_prog_stus_hosi</th>
+		<th>접수여부</th>
+		<th>rcpt_yn</th>
+		<th>chos_gb</th>
 	</thead>
 	<tbody>
 		{% for object in object_list %}
@@ -23,6 +29,12 @@
 			<td>{{ object.chos_no }}</td>
 			<td>{{ object.rcpt_ord_tp_nm }}</td>
 			<td>{{ object.rcpt_drug_gb }}</td>
+			<td>{{ object.drgst_prog_stus }}</td>
+			<td>{{ object.rcpt_ord_tp }}</td>
+			<td>{{ object.drgst_prog_stus_hosi }}</td>
+			<td>{{ object.rcpt_seq }}</td>
+			<td>{{ object.rcpt_yn }}</td>
+			<td>{{ object.chos_gb }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>

@@ -18,3 +18,5 @@ def get_order_object_list_test(order_date):
 	records = ordmon.get_records()
 	return records
 
+# for ret in get_order_object_list('2017-04-05'):
+# 	print(ret)

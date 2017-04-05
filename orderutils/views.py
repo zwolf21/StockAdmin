@@ -18,7 +18,7 @@ class OrderStateLV(ListView):
 	def get_queryset(self):
 		default_date = date.today() + timedelta(1)
 		order_date = self.request.GET.get('date', default_date.strftime('%Y%m%d'))
-		queryset = get_order_object_list_test(order_date)
+		queryset = get_order_object_list(order_date)
 		# print(queryset)
 		return queryset
 
