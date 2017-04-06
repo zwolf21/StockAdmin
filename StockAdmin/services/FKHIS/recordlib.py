@@ -18,12 +18,15 @@ def read_excel(file_name=None, file_contents=None, drop_if=lambda row:False, she
 
 
 class RecordParser:
+
 	def __init__(self, records=None, drop_if=lambda row: False):
 		'''dict_list 형태의 데이터셋 전달 drop_if- 제외할 조건전달
 			RecordParse(record=[{},{},{}...{}], drop_if=lambda row:bool(row[col])) 
 		'''
 		if records:
 			self.records = [row for row in records if not drop_if(row)]
+		else:
+			self.records = []
 
 	def __getitem__(self, index):
 		if self.records:
