@@ -1,0 +1,58 @@
+{% extends "home.html" %}
+{% block content %}
+
+<div class="container">
+<h4>라벨 집계</h4>
+<form name="show" method="get" class="form-inline" action="{% url 'orderutils:labelcollect' %}">
+		날짜
+		<div class="form-group">
+			<div class="col-xs-2">
+				{{ form.date }}
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-xs-2">
+				{{ form.start_t }}
+			</div>
+		</div>
+		<div class="form-group">
+			~
+		</div>
+		<div class="form-group">
+			<div class="col-xs-2">
+				{{ form.end_t }}
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-xs-2">
+				{{ form.words }}
+			</div>
+		</div>
+		<button>검색</button>
+	</form>
+<table class="table-hover table-striped">
+	<thead>
+		<th>약품코드</th>
+		<th>약품명</th>
+		<th>집계량</th>
+		<th>단위</th>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+		<tr>
+			<td>{{ object.ord_cd }}</td>
+			<td>{{ object.drug_nm }}</td>
+			<td>{{ object.ord_qty_sum }}</td>
+			<td>{{ object.ord_unit_nm }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+집계항목이 접수된 시간의 범위
+{{ object_list.0.rcpt_dt_min }} ~ {{ object_list.0.rcpt_dt_max }}
+	
+</div>
+
+{% endblock content %}
+
+

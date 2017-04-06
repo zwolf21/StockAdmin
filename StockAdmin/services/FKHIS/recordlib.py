@@ -24,7 +24,11 @@ class RecordParser:
 			RecordParse(record=[{},{},{}...{}], drop_if=lambda row:bool(row[col])) 
 		'''
 		if records:
-			self.records = [row for row in records if not drop_if(row)]
+			fields_set = set()
+			for row in records:
+				fields_set |= set(row.keys())
+
+			self.records = [OrderedDict((key, row.get(key, '')) for key in fields_set) for row in records if not drop_if(row)]
 		else:
 			self.records = []
 
@@ -226,7 +230,7 @@ class RecordParser:
 				row[alias] = aggfunc([row[aggcol] for row in grouped])
 
 			select = selects if selects else columns+[e[2] for e in aggset]
-			ret.append(OrderedDict((key, val) for key, val in row.items() if key in select))
+			ret.append(OrderedDict((key, row[key]) for key in select))
 
 		if inplace:
 			self.records = ret
@@ -237,3 +241,12 @@ class RecordParser:
 		header = [list(self.records[0].keys())]
 		body = [list(row.values()) for row in self.records]
 		return header + body if header else body
+
+	def unique(self, column):
+		return {row[column] for row in self.records}
+
+	def max(self, column):
+		return max(row[column] for row in self.records)
+
+	def min(self, column):
+		return min(row[column] for row in self.records)	
