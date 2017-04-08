@@ -30,20 +30,25 @@ class LabelCollectLV(ListView):
 
 	def get_context_data(self, **kwargs):
 		context = super(LabelCollectLV, self).get_context_data(**kwargs)
-		context['form'] = LabelDateTimeform()
+		context['form'] = LabelDateTimeform(self.request.GET)
 		return context
 
 	def get_queryset(self):
-		collect_date = self.request.GET.get('date')
-		start_time = self.request.GET.get('start_t')
-		end_time = self.request.GET.get('end_t')
-		words = self.request.GET.get('words', '51')
-		words = words.split(' ,')
-		print(collect_date)
-		print(start_time)
-		print(end_time)
-		print(words)
-		queryset = get_label_objet_test(['S', 'P'], words, collect_date, start_time, end_time)
+		default_today = date.today() + timedelta(0)
+		default_tommorow = date.today() + timedelta(1)
+		ord_start_date = self.request.GET.get('ord_start_date', default_tommorow.strftime('%Y-%m-%d'))
+		ord_end_date = self.request.GET.get('ord_end_date', default_tommorow.strftime('%Y-%m-%d'))
+		start_time = self.request.GET.get('start_t', str(default_today))
+		end_time = self.request.GET.get('end_t', str(default_tommorow))
+		ward = self.request.GET.get('ward', '51')
+		print(start_time, end_time)
+		print(ord_start_date, ord_end_date)
+
+		print(ward)
+		ward = ward.split(", ")
+		print(ward)
+
+		queryset = get_label_object(['S','P'], ward, ord_start_date, ord_end_date, start_time, end_time)
 		return queryset
 	
 	

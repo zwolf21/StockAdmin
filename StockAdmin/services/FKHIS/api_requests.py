@@ -159,17 +159,23 @@ class LabelCollectingApiRequest(ApiRequest):
 class OrderSelectApiRequest(ApiRequest):
 	raws = []
 
-	def __init__(self, date_str, wards):
+	def __init__(self, ord_start_date, ord_end_date, wards):
 		self.requests = []
-		date = date_str.replace('-', '').encode()
+		self.raws = []
+		ord_start_date = ord_start_date.replace('-', '').encode()
+		ord_end_date = ord_end_date.replace('-', '').encode()
 		date_pat = re.compile(b'\d{8}')
 
 		for word in wards:
-			self.requests.append(date_pat.sub(date, API_REQ['ordSelect'][word]))
+			req = API_REQ['ordSelect'][word]
+			req = date_pat.sub(ord_end_date, req)
+			req = date_pat.sub(ord_start_date, req, 1)
+			self.requests.append(req)
 
 	def api_calls(self):
-		for reqeust in self.reqeusts:
-			self.raws.append(super(OrderSelectApiRequest, self).api_call(reqeust=reqeust))
+
+		for reqeust in self.requests:
+			self.raws.append(super(OrderSelectApiRequest, self).api_call(request=reqeust))
 		return self.raws
 
 	def get_records(self):

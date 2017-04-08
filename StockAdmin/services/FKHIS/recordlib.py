@@ -27,7 +27,6 @@ class RecordParser:
 			fields_set = set()
 			for row in records:
 				fields_set |= set(row.keys())
-
 			self.records = [OrderedDict((key, row.get(key, '')) for key in fields_set) for row in records if not drop_if(row)]
 		else:
 			self.records = []
@@ -246,7 +245,9 @@ class RecordParser:
 		return {row[column] for row in self.records}
 
 	def max(self, column):
-		return max(row[column] for row in self.records)
+		if self.records:
+			return max(row[column] for row in self.records)
 
 	def min(self, column):
-		return min(row[column] for row in self.records)	
+		if self.records:
+			return min(row[column] for row in self.records)	
