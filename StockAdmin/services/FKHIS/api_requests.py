@@ -1,6 +1,7 @@
 import re, os
 from datetime import date
 from socket import *
+from abc import abstractmethod
 
 from bs4 import BeautifulSoup
 
@@ -157,7 +158,7 @@ class LabelCollectingApiRequest(ApiRequest):
 
 
 class OrderSelectApiRequest(ApiRequest):
-	raws = []
+	# raws = []
 
 	def __init__(self, ord_start_date, ord_end_date, wards):
 		self.requests = []
@@ -184,7 +185,6 @@ class OrderSelectApiRequest(ApiRequest):
 			records += super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
 		return records
 
-	@classmethod
 	def set_test_response(self, response_sample_path):
 		self.raws.append(super(OrderSelectApiRequest, self).set_test_response(response_sample_path))
 		return self
