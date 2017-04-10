@@ -4,33 +4,38 @@
 <div class="container">
 <h4>라벨 집계</h4>
 <form name="show" method="get" class="form-inline" action="{% url 'orderutils:labelcollect' %}">
-		처방날짜
-		<div class="form-group">
-			<div class="col-xs-2">
-				{{ form.ord_start_date }}~
+		<div class="row">
+			처방일자
+			<div class="form-group">
+				<div class="col-xs-2">
+					{{ form.ord_start_date }}
+				</div>
+			</div>~
+			<div class="form-group">
+				<div class="col-xs-2">
+					{{ form.ord_end_date }}
+				</div>
 			</div>
 		</div>
-		<div class="form-group">
-			<div class="col-xs-2">
-				{{ form.ord_end_date }}
+		<div class="row">
+			접수시간
+			<div class="form-group">
+				<div class="col-xs-2">
+					{{ form.start_t }}
+				</div>
+			</div>~
+			<div class="form-group">
+				<div class="col-xs-2">
+					{{ form.end_t }}
+				</div>
 			</div>
 		</div>
-		<div class="form-group">
-			<div class="col-xs-2">
-				{{ form.start_t }}
-			</div>
-		</div>
-		<div class="form-group">
-			~
-		</div>
-		<div class="form-group">
-			<div class="col-xs-2">
-				{{ form.end_t }}
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="col-xs-2">
-				{{ form.ward }}
+		<div class="row">
+			집계병동
+			<div class="form-group">
+				<div class="col-xs-2">
+					{{ form.ward }}
+				</div>
 			</div>
 		</div>
 		<button>검색</button>

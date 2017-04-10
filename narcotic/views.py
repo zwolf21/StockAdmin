@@ -74,7 +74,6 @@ class OpStockLV(ListView):
 class OpStockPrintTV(OpStockLV):
 	template_name = 'narcotic/etc/opstock_print.html'
 
-
 	def get_queryset(self):
 		queryset = super(OpStockPrintTV, self).get_queryset()
 		return queryset
