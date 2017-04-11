@@ -1,5 +1,10 @@
 {% extends "home.html" %}
 {% block content %}
+<style type="text/css">
+	table > * {
+		font-size: 20px;
+	}
+</style>
 
 <div class="container">
 <h4>라벨 집계</h4>
@@ -40,7 +45,7 @@
 		</div>
 		<button>검색</button>
 	</form>
-<table class="table-hover table-striped">
+<table border="1">
 	<thead>
 		<th>약품코드</th>
 		<th>약품명</th>
