@@ -1,0 +1,26 @@
+{% extends "home.html" %}
+{% load humanize %}
+
+{% load staticfiles %}
+
+{% block content %}
+
+{% block invest_style %} {% endblock %}
+
+<div class="container" style="padding-bottom: 300px;">
+	
+{% block invest_title %} {% endblock invest_title %}
+
+{% block invest_header %} {% endblock invest_header %}
+
+{% block invest_table %} {% endblock invest_table %}
+{% block invest_form %} {% endblock invest_form %}
+
+{% block invest_footer %} {% endblock invest_footer %}
+
+</div>
+
+{% block invest_script %} {% endblock invest_script %}
+
+
+{% endblock content %}

@@ -25,6 +25,7 @@ status_choices = [('폐기','폐기'),('사용중','사용중'),('생성대기',
 etc_class_choices = [('일반','일반'),('처치약품','처치약품'),('항암제','항암제'),('직송','직송'),('수액','수액'),('영양수액','영양수액'),('인슐린주사','인슐린주사'),('백신','백신'),('조영제','조영제'),('마약','마약'),('향정','향정'),('소모품', '소모품')]
 narcotic_class_choices = [(0,'일반'),(1,'마약'),(2,'향정')]
 standard_unit_choices = [('VIAL','VIAL'),('BTL','BTL'),('AMP','AMP'),('SYR','SYR'),('TAB','TAB'),('CAP','CAP'),('PACK','PACK'),('KIT','KIT'),('VIAL','VIAL'),('BAG','BAG'),('PEN','PEN'),('매','매'),('TUBE','TUBE'),('EA','EA'),('포','포'),('BOX','BOX')]
+invest_class_choices = [('경구', '경구'), ('주사', '주사'), ('외용', '외용'), ('냉장', '냉장'), ('마약류', '마약류'), ('해당없음', '해당없음')]
 
 
 class InfoManager(models.Manager):
@@ -62,6 +63,7 @@ class Info(models.Model):
 	by = models.ForeignKey(User, default=1, verbose_name='정보생성인')
 	status = models.CharField('현재상태', max_length=10, choices=status_choices, default='사용중')
 	etc_class = models.CharField('기타구분', max_length=10, choices=etc_class_choices, default='일반')
+	invest_class = models.CharField('재고분류', choices=invest_class_choices, max_length=10, default='해당없음')
 	
 
 

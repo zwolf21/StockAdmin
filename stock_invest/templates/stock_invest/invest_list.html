@@ -1,0 +1,37 @@
+{% extends "stock_invest/base.html" %}
+
+{% block invest_title %} <h4>재고조사 항목</h4> {% endblock invest_title %}
+
+
+{% block invest_table %}
+	<table border="1" class="tablesorter">
+		<thead>
+			<tr>
+				<th>재고조사번호</th>
+				<th>재고조사요약</th>
+				<th style="text-align: center">완료상태</th>
+				<th style="text-align: center">담당자</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for object in object_list %}
+			<tr>
+				<td>{{ object.slug }}</td>
+				<td>{{ object.description }}</td>
+				<td>{{ object.complete_late }}</td>
+				<td>{{ object.commiter }}</td>
+			</tr>	
+		{% endfor %}
+		</tbody>
+	</table>
+
+{% include "pagination.html" %}
+
+
+{% endblock invest_table %}
+
+{% block invest_script %}
+	
+{% include "tablesorter_js.html" %}
+{% endblock invest_script %}
+

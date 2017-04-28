@@ -18,6 +18,7 @@ class StockRec(models.Model):
 	buyitem = models.ForeignKey(BuyItem, verbose_name='구매품목', null=True, blank=True)
 	drug = models.ForeignKey(Info, verbose_name='약품명', blank=True)
 	amount = models.PositiveIntegerField('수량')
+	in_price = models.IntegerField('입고가격', default=0)
 	date = models.DateField('발생일자')
 	frozen = models.BooleanField('재고마감여부', default=False)
 	inout = models.IntegerField('구분', choices=[(1,'구매입고'),(2,'불출')], default=1)
@@ -37,11 +38,13 @@ class StockRec(models.Model):
 		if not self.id:
 			if self.buyitem:
 				self.drug = self.buyitem.drug
+				self.in_price = self.drug.price
 		
 		return super(StockRec, self).save(*args, **kwargs)
+
 	@property
 	def total_price(self):
-		return self.amount * self.drug.price
+		return self.amount * self.in_price
 
 	
 

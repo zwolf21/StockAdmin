@@ -15,8 +15,9 @@ class InfoAdmin(admin.ModelAdmin):
     '''
         Admin View for Info
     '''
-    list_display = ('firm','edi','name','standard_unit','purchase_standard','pkg_amount','total_stockin_amount','price','predict_weekly')
-    list_filter = ('narcotic_class','create_date','etc_class','status','account',)
+    list_display = ('edi','firm','name', 'name_as','standard_unit','purchase_standard','pkg_amount', 'invest_class','price',)
+    list_filter = ('narcotic_class','create_date','etc_class','status','account', 'standard_unit')
+    list_editable = ('firm', 'name','name_as', 'pkg_amount', 'price', 'standard_unit', 'invest_class', )
     search_fields = ('name','edi',)
 admin.site.register(Info, InfoAdmin)
 

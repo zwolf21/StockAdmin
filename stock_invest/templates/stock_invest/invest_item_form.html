@@ -1,0 +1,37 @@
+{% extends "stock_invest/base.html" %}
+
+{% block invest_title %} <h4>재고조사표</h4> {% endblock invest_title %}
+
+{% block invest_form %}
+	
+<form class="form-inline" method="post" action=".">
+	{% csrf_token %}
+	<div class="row">
+		<div class="form-control">
+			{{ form.date.label_tag }} {{ form.date }}
+		</div>
+	</div>
+	{{ formset.management_form }}
+	{% for form in formset %}
+		{{ form.id }}
+	<div class="row">
+		{{ form.drug }}
+		{{ form.pkg }}
+		{{ form.rest1 }}
+		{{ form.rest2 }}
+		{{ form.rest3 }}
+		{{ form.total }}
+		{{ form.expire }}
+		{{ form.complete }}
+
+	</div>
+	{% endfor %}
+	<input type="submit" class="btn btn-default">
+</form>
+{% endblock invest_form %}
+
+{% block invest_script %}
+	
+{% include "datepicker_js.html" %}
+{% endblock invest_script %}
+

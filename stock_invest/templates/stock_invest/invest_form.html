@@ -1,0 +1,18 @@
+{% extends "stock_invest/base.html" %}
+
+{% block invest_title %} <h4>재고조사 생성</h4> {% endblock invest_title %}
+
+{% block invest_form %}
+	
+<form class="form-inline" method="post" action="{% url 'stock_invest:invest-create' %}">
+	{% csrf_token %}
+	{{ form.date }}
+	<input type="submit" class="btn btn-default">
+</form>
+{% endblock invest_form %}
+
+{% block invest_script %}
+	
+{% include "datepicker_js.html" %}
+{% endblock invest_script %}
+

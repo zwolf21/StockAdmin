@@ -42,7 +42,8 @@ INSTALLED_APPS = (
     'stock',
     'buy',
     'narcotic',
-    'orderutils'
+    'orderutils',
+    'stock_invest',
 )
 
 TEMPLATES = [
