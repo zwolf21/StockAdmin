@@ -7,5 +7,6 @@ urlpatterns = patterns('',
 	url(r'^create/$', InvestCV.as_view(), name='invest-create'),
 	url(r'^update/(?P<slug>[-\w]+)/$', InvsetItemUV.as_view(), name='invest-update'),
 
-	url(r'^get-excel-report/', excel_invest_report, name='invest-excel-report')
+	url(r'^get-excel-report/', excel_invest_report, name='invest-excel-report'),
+	url(r'^sync-system-opstock/', sync_system_opstock, name='invest-system-opsync')
 )

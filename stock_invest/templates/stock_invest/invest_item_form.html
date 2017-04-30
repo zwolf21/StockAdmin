@@ -38,7 +38,7 @@
 			</div>
 		</div>
 		<div align="right" class="col-xs-6">
-			<button class="btn btn-success">변경사항 저장</button>
+			<input type="submit" value="변경사항저장" class="btn btn-success">
 		</div>
 	</div>
 	<hr>
@@ -84,6 +84,13 @@
 		</table>
 	</div>
 </form>
+	<div class="row" align="right">
+		<form method="post" action="{% url 'stock_invest:invest-system-opsync' %}" id="form-sync-opstock">
+			{% csrf_token %}
+			<input type="hidden" name="syncSlug" value="{{ formset.instance.slug }}">
+			<button class="btn btn-success" id="btn-sync-opstock">전산재고부르기</button>
+		</form>
+	</div>
 </div>
 {% endblock invest_form %}
 
@@ -115,6 +122,10 @@ $(function()
 	// pkg 컨트롤 step 속성에 포장단위 동기화
 	$('.temp-pkg').each(function(){
 		$(this).next().attr('step', $(this).val())
+	})
+
+	$('#btn-sync-opstock').click(function(){
+		$('#form-sync-opstock').submit()
 	})
 })
 

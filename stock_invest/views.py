@@ -5,14 +5,23 @@ from django.http import HttpResponseRedirect
 
 from .models import Invest, InvestItem
 from .forms import InvestInlineFormSet, InvestCreateForm
-from .modules import gen_invest_list, report_excel_response
+from .modules import gen_invest_list, report_excel_response, sync_op_stock
 # Create your views here.
 
 
+def sync_system_opstock(request):
+	if request.method == "POST":
+		slug = request.POST['syncSlug']
+		# sync_op_stock(slug)
+		print(slug)
+		return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
 def excel_invest_report(request):
-	if request.method == 'POST':
-		data = request.POST['reportList']
-		return report_excel_response(data.split(','))
+	if request.method == "POST":
+		slugs = request.POST['reportList']
+		return report_excel_response(slugs.split(','))
+
 
 class InvestCV(CreateView):
 	model = Invest
