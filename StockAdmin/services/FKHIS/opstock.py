@@ -64,11 +64,11 @@ def selective_int(row, column):
 	else:
 		return 
 
-def parse_opstock_content(content):
+def parse_opstock_content(content, drop_if=lambda row: False):
 	soup = BeautifulSoup(content, 'html.parser')
 	recs = RecordParser(
 		records = [OrderedDict((child.name, child.text) for child in table.children) for table in soup.find_all('table1')],
-		drop_if = lambda row: row['drug_cd'] in EXCEPT_CODES
+		drop_if = drop_if
 	)
 	recs.format([('stock_qty', 0.0)])
 	recs.update([('drug_nm', get_std_name), ('drug_cd', code_with_count)])
@@ -83,18 +83,18 @@ def parse_opstock_content(content):
 
 
 
-def get_opstock_object_list(date, psy=False, narc=False):
+def get_opstock_object_list(date, psy=False, narc=False, drop_if = lambda row: row['drug_cd'] in EXCEPT_CODES):
 
 	psy_records, narc_records = [], []
 	
 	if narc:
 		narc_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/NarcStock.req'))
-		narc_records = parse_opstock_content(narc_response)
+		narc_records = parse_opstock_content(narc_response, drop_if=drop_if)
 
 
 	if psy:
 		psy_response = optstock_query(date, os.path.join(BASE_DIR, 'requests/PsyStock.req'))
-		psy_records = parse_opstock_content(psy_response)
+		psy_records = parse_opstock_content(psy_response, drop_if=drop_if)
 
 	return narc_records + psy_records
 

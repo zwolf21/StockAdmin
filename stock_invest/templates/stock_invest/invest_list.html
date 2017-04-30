@@ -1,12 +1,16 @@
 {% extends "stock_invest/base.html" %}
-
+{% load widget_tweaks %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
 {% block invest_title %} <h4>재고조사 항목</h4> {% endblock invest_title %}
 
 
 {% block invest_table %}
-	<table border="1" class="tablesorter">
+<div class="row">
+	<table border="1" class="table table-hover">
 		<thead>
 			<tr>
+				<th><input type="checkbox" id="select-all"></th>
 				<th>재고조사번호</th>
 				<th>재고조사요약</th>
 				<th style="text-align: center">완료상태</th>
@@ -16,21 +20,64 @@
 		<tbody>
 		{% for object in object_list %}
 			<tr>
+				<td><input class="invest-select" type="checkbox" value="{{ object.slug }}"></td>
 				<td>{{ object.slug }}</td>
-				<td>{{ object.description }}</td>
+				<td><a href="{{ object.get_absolute_url }}">{{ object.description }}</a></td>
 				<td>{{ object.complete_late }}</td>
 				<td>{{ object.commiter }}</td>
 			</tr>	
 		{% endfor %}
 		</tbody>
 	</table>
+</div>
+<div class="row">
+	<div class="btn-group">
+	{% include "stock_invest/invest_create_modal.html" %}
+	<button class="btn btn-default" id="btn-report">선택항목정리</button>		
+	</div>
+	<form method="post" action="{% url 'stock_invest:invest-excel-report' %}" id="form-report">
+		{% csrf_token %}
+		<input type="text" name="reportList" id="report-list" hidden>
+		
+	</form>
+</div>
+
 
 {% include "pagination.html" %}
-
-
 {% endblock invest_table %}
-
 {% block invest_script %}
+<script>
+$(function(){
+	// 완료 체크박스 전체 선택 
+	$('#select-all').click(function(){
+		if($('#select-all').is(':checked'))
+		{
+			$('.invest-select').each(function(){
+				$(this).prop('checked',true);
+			});
+		}
+		else
+		{
+			$('.invest-select').each(function(){
+				$(this).prop('checked',false);
+			});
+		}
+	})
+
+	// 보고서 만들기 위한 선택항목 slug 전송
+	$('#btn-report').click(function(){
+		var reportList = []
+		var selected = $('.invest-select:checked')
+
+		for (var i = 0; i < selected.length; i++) {
+			reportList.push(selected[i].value)
+		}
+		$('#report-list').val(reportList)
+		$('#form-report').submit()
+	})
+
+})
+</script>
 	
 {% include "tablesorter_js.html" %}
 {% endblock invest_script %}

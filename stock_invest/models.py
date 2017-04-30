@@ -1,5 +1,7 @@
 import datetime
+from collections import Counter
 from django.db import models
+from django.db.models import Q, Count, Sum, Min, Max
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 
@@ -20,7 +22,7 @@ class Invest(models.Model):
 		return self.slug
 
 	def get_absolute_url(self):
-		return reverse('stock_invest:invest-detail', args=(self.slug, ))
+		return reverse('stock_invest:invest-update', args=(self.slug, ))
 
 	def save(self, *args, **kwargs):
 		if not self.id:
@@ -40,7 +42,9 @@ class Invest(models.Model):
 	def description(self):
 		first_item = self.investitem_set.first()
 		count = self.investitem_set.count()
-		return '{} 등 {}건'.format(first_item.drug, count) if first_item else '내역 없음'
+		count_set = self.investitem_set.values('drug__invest_class').annotate(cnt=Count('drug__invest_class'))
+		c = Counter(map(lambda d: d.get('drug__invest_class'), count_set))
+		return str(dict(c)).strip("{}").replace("'", "")
 
 	@property
 	def complete_late(self):
@@ -54,11 +58,11 @@ class Invest(models.Model):
 	
 
 
-
 class InvestItem(models.Model):
 	invest = models.ForeignKey(Invest, verbose_name='재고조사번호', null=True, blank=True)
 	drug = models.ForeignKey('info.Info', verbose_name='재고항목')
 	price = models.IntegerField('재고가격', null=True, default=0, blank=True)
+	doc_amount = models.IntegerField('전산재고', default=0, blank=True)
 	pkg = models.IntegerField('포장', null=True, blank=True)
 	rest1 = models.IntegerField('낱개1', null=True, blank=True)
 	rest2 = models.IntegerField('낱개2', null=True, blank=True)
@@ -70,11 +74,6 @@ class InvestItem(models.Model):
 	updated = models.DateTimeField('변경일시', auto_now=True)
 	completed = models.DateTimeField('완료일시', null=True, blank=True)
 	pre_updated = models.DateTimeField('이전변경일시', null=True, blank=True)
-
-
-	def __init__(self, *args, **kwargs):
-		super(InvestItem, self).__init__(*args, **kwargs)
-		self.before_updated = self.updated
 
 	class Meta:
 		verbose_name = '재고항목'
@@ -91,8 +90,7 @@ class InvestItem(models.Model):
 			self.price = self.drug.price
 
 		if self.id:
-			self.pre_updated = self.before_updated
-			self.completed = self.updated if self.complete else None
+			self.pre_updated = self.updated
+			self.completed = datetime.datetime.now() if self.complete else None
 
 		return super(InvestItem, self).save(*args, **kwargs)
-

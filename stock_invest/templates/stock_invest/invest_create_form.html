@@ -1,0 +1,41 @@
+{% extends "stock_invest/base.html" %}
+
+
+{% block invest_form %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+<div class="container">
+{% block invest_title %} <h4>재고조사 생성</h4> {% endblock invest_title %}
+	
+<form class="form-inline" method="post" action="{% url 'stock_invest:invest-create' %}">
+	{% csrf_token %}
+	<div class="row">
+		생성일자:
+		<div class="form-group">
+			<div class="col-xs-2">
+			{{ form.date }}
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="form-group" style="display: inline;">
+			<div class="col-xs-12">
+				<label for="id_po" class="btn btn-info btn-xs">경구 <input id="id_po" name="po" class="badgebox" type="checkbox"><span class="badge">&check;</span></label>
+				<label for="id_in" class="btn btn-info btn-xs">주사 <input id="id_in" name="in" class="badgebox" type="checkbox"><span class="badge">&check;</span></label>
+				<label for="id_de" class="btn btn-info btn-xs">외용 <input id="id_de" name="de" class="badgebox" type="checkbox"><span class="badge">&check;</span></label>
+				<label for="id_fr" class="btn btn-info btn-xs">냉장 <input id="id_fr" name="fr" class="badgebox" type="checkbox"><span class="badge">&check;</span></label>
+				<label for="id_op" class="btn btn-info btn-xs">마약류 <input id="id_op" name="op" class="badgebox" type="checkbox"><span class="badge">&check;</span></label>
+			</div>
+		</div>
+	</div>
+	<input type="submit" class="btn btn-default" value="생성">
+
+</form>
+</div>	
+{% endblock invest_form %}
+
+{% block invest_script %}
+	
+{% include "datepicker_js.html" %}
+{% endblock invest_script %}
+

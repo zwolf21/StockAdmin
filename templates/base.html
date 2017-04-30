@@ -5,7 +5,8 @@
         
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap.min.css" %}">
-<link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" %}">
+{# <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css"> #}
+{# <link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" %}"> #}
 <link rel="stylesheet" type="text/css" href="{% static "jquery-ui-1.12.1.custom/jquery-ui.css" %}">
 <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
 
@@ -120,20 +121,28 @@
                                 </li>
                             </ul>
                         </li>
-                         <li class="dropdown">
+                        <li class="dropdown">
                             <a data-toggle="dropdown" href="#">
                                 조제도우미
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="{% url 'orderutils:yetrcpts' %}">픽업현황보기(실패각)</a>
-                                </li>
-                                <li>
                                     <a href="">항암제집계(개발)</a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'orderutils:labelcollect' %}">따챙이집계(개발)</a>
+                                    <a href="{% url 'orderutils:labelcollect' %}">따챙이집계</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a data-toggle="dropdown" href="#">
+                                재고조사
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="{% url 'stock_invest:invest-list' %}">재고/유효기한</a>
                                 </li>
                             </ul>
                         </li>

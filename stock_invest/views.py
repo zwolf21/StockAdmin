@@ -1,26 +1,37 @@
 from django.shortcuts import render
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import ListView, TemplateView, DetailView, FormView, CreateView, UpdateView
+from django.http import HttpResponseRedirect
 
 from .models import Invest, InvestItem
-from .forms import InvestInlineFormSet
-from .modules import gen_invest_list
+from .forms import InvestInlineFormSet, InvestCreateForm
+from .modules import gen_invest_list, report_excel_response
 # Create your views here.
+
+
+def excel_invest_report(request):
+	if request.method == 'POST':
+		data = request.POST['reportList']
+		return report_excel_response(data.split(','))
 
 class InvestCV(CreateView):
 	model = Invest
 	fields = ('date', )
-	template_name = 'stock_invest/invest_form.html'
+	template_name = 'stock_invest/invest_create_form.html'
 	success_url = reverse_lazy('stock_invest:invest-list')
 
 	def form_valid(self, form):
 		invest = form.save()
-
-		gen_invest_list(form.instance)
+		gen_invest_list(form.instance, self.request.POST)
 		return super(InvestCV, self).form_valid(form)
 
 class InvestLV(ListView):
 	model = Invest
+
+	def get_context_data(self, **kwargs):
+	    context = super(InvestLV, self).get_context_data(**kwargs)
+	    context['form'] = InvestCreateForm()
+	    return context
 
 
 class InvsetItemUV(UpdateView):
@@ -33,8 +44,9 @@ class InvsetItemUV(UpdateView):
 
 	def get_context_data(self, **kwargs):
 		context = super(InvsetItemUV, self).get_context_data(**kwargs)
+		# context['formset']  = InvestInlineFormSet(self.request.POST, instance=self.object)
 		if self.request.POST:
-			context['formset'] = InvestInlineFormSet(self.request.POST, instance=self.object)
+			context['formset'] = InvestInlineFormSet(self.request.POST or None, instance=self.object)
 		else:
 			context['formset'] = InvestInlineFormSet(instance=self.object)
 		return context
@@ -43,5 +55,9 @@ class InvsetItemUV(UpdateView):
 		context = self.get_context_data()
 		formset = context['formset']
 		if formset.is_valid():
-			formset.save()
+			for f in formset:
+				if f.has_changed():
+					f.save()
 		return super(InvsetItemUV, self).form_valid(form)
+
+

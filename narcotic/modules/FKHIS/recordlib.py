@@ -62,6 +62,7 @@ class RecordParser:
 		output = BytesIO()
 		wb = xlsxwriter.Workbook(output)
 		ws = wb.add_worksheet()
+		print(self.records[0].keys())
 		ws.write_row(0,0, self.records[0].keys())
 		for r, row in enumerate(self.records, 1):
 			ws.write_row(r,0, row.values())
