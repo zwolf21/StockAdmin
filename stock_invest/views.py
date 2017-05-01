@@ -55,7 +55,7 @@ class InvsetItemUV(UpdateView):
 		context = super(InvsetItemUV, self).get_context_data(**kwargs)
 		# context['formset']  = InvestInlineFormSet(self.request.POST, instance=self.object)
 		if self.request.POST:
-			context['formset'] = InvestInlineFormSet(self.request.POST or None, instance=self.object)
+			context['formset'] = InvestInlineFormSet(self.request.POST, instance=self.object)
 		else:
 			context['formset'] = InvestInlineFormSet(instance=self.object)
 		return context
