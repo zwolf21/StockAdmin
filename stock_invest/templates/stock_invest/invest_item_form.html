@@ -8,7 +8,6 @@
 	table, td input {
 		width: 100%;
 	}
-
 	table {
 		border-collapse: collapse;
 	}
@@ -38,7 +37,12 @@
 			</div>
 		</div>
 		<div align="right" class="col-xs-6">
+			<div class="btn-group">
+				{% if formset.0.instance.drug.invest_class == '마약류' %}	
+				<button type="button" class="btn btn-success" id="btn-sync-opstock">재고동기화</button>
+				{% endif %}
 			<input type="submit" value="변경사항저장" class="btn btn-success">
+			</div>
 		</div>
 	</div>
 	<hr>
@@ -53,11 +57,15 @@
 					<th width="80">낱개1</th>
 					<th width="80">낱개2</th>
 					<th width="80">반티</th>
-					<th width="80">실사량</th>
-					<th width="80">전산</th>
-					<th>유효기한</th>
-					<th>최종수정일</th>
-					<th>완료일시</th>
+					<th width="50">실사량</th>
+					{% if formset.0.instance.drug.invest_class == '마약류' %}	
+					<th width="50">전산</th>
+					<th width="50">차이</th>
+					{% endif %}
+					<th width="100">유효기한</th>
+					<th width="150">최종수정일</th>
+					<th width="150">완료일시</th>
+					<th>삭제</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -71,13 +79,17 @@
 						{{ form.pkg|attr:"min:0" }}
 					</td>
 					<td>{{ form.rest1|attr:"min:0" }}</td>
-					<td>{{ form.rest2|attr:"min:0" }}</td>
+					<td>{{ form.rest2|attr:"min:0"|attr:"tabindex:-1" }}</td>
 					<td>{{ form.rest3|attr:"min:0" }}</td>
 					<td style="text-align: right;">{{ form.instance.total }}</td>
+					{% if formset.0.instance.drug.invest_class == '마약류' %}	
 					<td style="text-align: right;">{{ form.instance.doc_amount }}</td>
+					<td style="text-align: right;">{{ form.instance.stock_diff }}</td>
+					{% endif %}
 					<td>{{ form.expire|attr:"tabindex:-1" }}</td>
 					<td>{{ form.instance.updated|date:"Y-m-d h:i:s" }}</td>
 					<td>{{ form.instance.completed|date:"Y-m-d h:i:s" }}</td>
+					<td>{{ form.DELETE }}</td>
 				</tr>
 			{% endfor %}	
 			</tbody>
@@ -88,7 +100,6 @@
 		<form method="post" action="{% url 'stock_invest:invest-system-opsync' %}" id="form-sync-opstock">
 			{% csrf_token %}
 			<input type="hidden" name="syncSlug" value="{{ formset.instance.slug }}">
-			<button class="btn btn-success" id="btn-sync-opstock">전산재고부르기</button>
 		</form>
 	</div>
 </div>
@@ -127,6 +138,7 @@ $(function()
 	$('#btn-sync-opstock').click(function(){
 		$('#form-sync-opstock').submit()
 	})
+
 })
 
 </script>

@@ -20,14 +20,14 @@ $(function(){
                         	stocklast:e.stockin_last
                         }})
                         response(rsp);
-                        if(data.length==1)
-                        {
-                            tgt = $("[name='name']");
-                            tgt.val(data[0].drug_name);
-                            tgt.focus();
-                            $("#auto_amount").attr({'min':data[0].pkg_amount, 'step':data[0].pkg_amount}).val(data[0].pkg_amount);
+                        // if(data.length==1)
+                        // {
+                        //     tgt = $("[name='name']");
+                        //     tgt.val(data[0].drug_name);
+                        //     tgt.focus();
+                        //     $("#auto_amount").attr({'min':data[0].pkg_amount, 'step':data[0].pkg_amount}).val(data[0].pkg_amount);
                             
-                        }
+                        // }
                     }
                });
             },

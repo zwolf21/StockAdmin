@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import ListView, TemplateView, DetailView, FormView, CreateView, UpdateView
+from django.views.generic import ListView, TemplateView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
 
 from .models import Invest, InvestItem
@@ -30,7 +30,7 @@ class InvestCV(CreateView):
 
 	def form_valid(self, form):
 		invest = form.save()
-		gen_invest_list(form.instance, self.request.POST)
+		invest = gen_invest_list(invest, self.request.POST)
 		return super(InvestCV, self).form_valid(form)
 
 class InvestLV(ListView):
@@ -56,16 +56,22 @@ class InvsetItemUV(UpdateView):
 		if self.request.POST:
 			context['formset'] = InvestInlineFormSet(self.request.POST, instance=self.object)
 		else:
-			context['formset'] = InvestInlineFormSet(instance=self.object)
+			context['formset'] = InvestInlineFormSet(instance=self.object, queryset=self.object.investitem_set.order_by('drug__invest_class', 'drug__name_as'))
 		return context
 
 	def form_valid(self, form):
 		context = self.get_context_data()
 		formset = context['formset']
-		if formset.is_valid():
-			for f in formset:
-				if f.has_changed():
-					f.save()
+		# if formset.is_valid():
+		# 	for f in formset:
+		# 		if f.has_changed():
+		# 			f.save()
+		formset.save()
+			
 		return super(InvsetItemUV, self).form_valid(form)
 
+class InvestItemDelV(DeleteView):
+	model = InvestItem
 
+	def get_success_url(self):
+		return self.request.META('HTTP_REFERER')

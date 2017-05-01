@@ -6,6 +6,8 @@
 
 
 {% block invest_table %}
+
+<hr>
 <div class="row">
 	<table border="1" class="table table-hover">
 		<thead>
@@ -30,10 +32,11 @@
 		</tbody>
 	</table>
 </div>
-<div class="row">
+<div class="row" align="right">
 	<div class="btn-group">
 	{% include "stock_invest/invest_create_modal.html" %}
-	<button class="btn btn-default" id="btn-report">선택항목정리</button>		
+	<button class="btn btn-success" data-target="#modal" data-toggle="modal">실사항목생성<span class="glyphicon glyphicon-wrench"></span></button>
+	<button class="btn btn-success" id="btn-report">선택항목취합<span class="glyphicon glyphicon-floppy-save"></span></button>		
 	</div>
 	<form method="post" action="{% url 'stock_invest:invest-excel-report' %}" id="form-report">
 		{% csrf_token %}

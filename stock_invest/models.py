@@ -94,3 +94,7 @@ class InvestItem(models.Model):
 			self.completed = datetime.datetime.now() if self.complete else None
 
 		return super(InvestItem, self).save(*args, **kwargs)
+
+	@property
+	def stock_diff(self):
+		return self.total - self.doc_amount
