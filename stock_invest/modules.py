@@ -41,11 +41,11 @@ def report_excel_response(invset_slugs):
 
 def sync_op_stock(invest_slug):
 	today = date.today().strftime('%Y-%m-%d')
-	records = get_opstock_object_list(today, True, False)
+	records = get_opstock_object_list(today, True, False, drop_if = lambda row: row['drug_cd'] not in EXCEPT_CODES)
 	invest = Invest.objects.get(slug=invest_slug)
 	for item in invest.investitem_set.all():
 		for row in records:
-			if item.code == row['drug_cd']:
+			if item.drug.code == row['drug_cd']:
 				item.doc_amount = row['stock']
 				item.save()
 				break

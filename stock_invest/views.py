@@ -12,8 +12,7 @@ from .modules import gen_invest_list, report_excel_response, sync_op_stock
 def sync_system_opstock(request):
 	if request.method == "POST":
 		slug = request.POST['syncSlug']
-		# sync_op_stock(slug)
-		print(slug)
+		sync_op_stock(slug)
 		return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
