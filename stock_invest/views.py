@@ -44,7 +44,7 @@ class InvestLV(ListView):
 
 class InvsetItemUV(UpdateView):
 	model = Invest
-	fields = ('date', )
+	fields = ('date', 'commiter', )
 	template_name = 'stock_invest/invest_item_form.html'
 
 	def get_success_url(self):
@@ -56,22 +56,39 @@ class InvsetItemUV(UpdateView):
 		if self.request.POST:
 			context['formset'] = InvestInlineFormSet(self.request.POST, instance=self.object)
 		else:
-			context['formset'] = InvestInlineFormSet(instance=self.object, queryset=self.object.investitem_set.order_by('drug__invest_class', 'drug__name_as'))
+			context['formset'] = InvestInlineFormSet(instance=self.object)
 		return context
 
 	def form_valid(self, form):
 		context = self.get_context_data()
 		formset = context['formset']
-		# if formset.is_valid():
-		# 	for f in formset:
-		# 		if f.has_changed():
-		# 			f.save()
-		formset.save()
-			
+		if formset.is_valid():
+			for f in formset:
+				if f.has_changed():
+					if 'DELETE' in f.changed_data:
+						f.instance.delete()
+					elif ['ORDER'] != f.changed_data:
+						f.save()
 		return super(InvsetItemUV, self).form_valid(form)
+
+
+class InvestItemPrintDV(DetailView):
+	model = Invest
+	template_name = 'stock_invest/invest_item_print.html'
 
 class InvestItemDelV(DeleteView):
 	model = InvestItem
 
 	def get_success_url(self):
 		return self.request.META('HTTP_REFERER')
+
+class InvestDelV(DeleteView):
+	model = Invest
+	success_url = reverse_lazy('stock_invest:invest-list')
+
+
+class InvestConfirmUV(UpdateView):
+	model = Invest
+	success_url = reverse_lazy('stock_invest:invest-list')
+	fields = ('commiter', )
+

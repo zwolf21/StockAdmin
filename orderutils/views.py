@@ -42,11 +42,12 @@ class LabelCollectLV(ListView):
 		end_time = self.request.GET.get('end_t', str(default_tommorow))
 		ward = self.request.GET.get('ward')
 
+
 		if not ward:
 			return []
 		ward = ward.split(", ")
 
-		queryset = get_label_object(['S','P'], ward, ord_start_date, ord_end_date, start_time, end_time)
+		queryset = get_label_object_test(['S','P'], ward, ord_start_date, ord_end_date, start_time, end_time)
 		return queryset
 
 

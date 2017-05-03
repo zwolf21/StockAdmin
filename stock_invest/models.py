@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Q, Count, Sum, Min, Max
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from django.contrib.auth.models import User
 # Create your models here.
@@ -11,18 +12,19 @@ from django.contrib.auth.models import User
 class Invest(models.Model):
 	slug = models.SlugField('재고조사번호', unique=True, editable=False)
 	date = models.DateField('재고조사일자', default=datetime.date.today())
-	commiter = models.ForeignKey(User, verbose_name='확인자', null=True, blank=True)
-
+	commiter = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='담당자', null=True, blank=True)
+	created = models.DateTimeField(auto_now_add=True)
 	class Meta:
 		verbose_name = '재고조사'
 		verbose_name_plural = '재고조사'
-		ordering = ('-slug', )
+		ordering = ('-created', )
 
 	def __str__(self):
 		return self.slug
 
 	def get_absolute_url(self):
 		return reverse('stock_invest:invest-update', args=(self.slug, ))
+
 
 	def save(self, *args, **kwargs):
 		if not self.id:
@@ -37,6 +39,12 @@ class Invest(models.Model):
 					self.slug = slug
 					break
 		return super(Invest, self).save(*args, **kwargs)
+
+	def previous_invest(self):
+		return self.get_previous_by_created()
+
+	def next_invest(self):
+		return self.get_next_by_created()
 
 	@property
 	def description(self):
@@ -78,7 +86,7 @@ class InvestItem(models.Model):
 	class Meta:
 		verbose_name = '재고항목'
 		verbose_name_plural = '재고항목'
-		ordering = ('drug__name', )
+		ordering = ('completed', 'drug__invest_class','drug__name', )
 
 	def __str__(self):
 		return self.drug.name
@@ -95,6 +103,20 @@ class InvestItem(models.Model):
 
 		return super(InvestItem, self).save(*args, **kwargs)
 
+
+	def previous_item(self):
+		prev_dt = self.__class__.objects.filter(drug=self.drug, created__lt=self.created).aggregate(Max('created'))['created__max']
+		return self.__class__.objects.get(drug=self.drug, created=prev_dt)
+
+	def next_item(self):
+		return self.get_next_by_created()
+
 	@property
 	def stock_diff(self):
 		return self.total - self.doc_amount
+
+	@property
+	def diff_with_previous(self):
+		prev_item = self.get_previous_item()
+		if prev_item:
+			return self.stock_diff - prev_item.stock_diff

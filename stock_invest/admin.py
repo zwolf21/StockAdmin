@@ -6,7 +6,7 @@ from .models import *
 
 
 class InvestAdmin(admin.ModelAdmin):
-	list_display = ('slug', 'date', 'commiter', )
+	list_display = ('slug', 'date', 'commiter', 'created',)
 admin.site.register(Invest, InvestAdmin)
 
 

@@ -9,7 +9,7 @@ except:
 
 
 
-path = 'C:\\Users\\HS\\Desktop\\처방조회종합.xlsx'
+# path = 'C:\\Users\\HS\\Desktop\\처방조회종합.xlsx'
 
 
 def get_label_object_test(kinds, wards, ord_start_date, ord_end_date, start_dt, end_dt):

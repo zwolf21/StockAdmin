@@ -1,0 +1,38 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+{% load widget_tweaks %}
+
+<div class="modal" id="modal-invest-confirm" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header" style="text-align: center">
+				<button class="close" data-dismiss="modal">&times;</button>
+				<div style="font-size: 20px;">재고 확정 시 더이상 항목을 변경 할 수 없습니다</div>
+			</div>
+			<div class="modal-body" style="text-align: center;">
+				<form class="form-inline" method="post" action="{% url 'stock_invest:invest-confirm' formset.instance.slug %}">
+					{% csrf_token %}
+					<div class="row">
+						<div class="form-group">
+							<label>최종확인자: {{ form.commiter }}</label>
+						</div>
+					</div>
+					<div class="row" align="right">
+						<button type="submit" class="btn btn-warning">&nbsp;&nbsp;&nbsp;예&nbsp;&nbsp;&nbsp; </button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal">아니오</button>&nbsp;&nbsp;
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+
+$(function(){
+
+
+})
+</script>
+{% include "datepicker_js.html" %}
+{% include "ajax_autocomplete_script.html" %}

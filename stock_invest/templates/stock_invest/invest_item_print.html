@@ -1,0 +1,66 @@
+<style type="text/css">
+/*.print-area {
+
+}
+
+.tbl-stock {
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px gray solid;
+}
+*/
+table {
+	width: 80%;
+	border-collapse: collapse;
+}
+td, th {
+	line-height: 18px;
+	border-bottom: 1px solid #eee;
+	vertical-align: top;
+	padding-bottom: 5px 15px;
+	font-family: "Lucida Grande", Verdana, Arial, sans-serif;
+	border: 1px solid #ccc;
+}
+</style>
+
+<div class="print-area">
+	<h2>재고실사표</h2>
+	<p>
+		재고조사일자:{{ object.date|date:"Y-m-d" }}
+	<br>
+		재고종류: {{ object.description }}
+	<br>
+		출력일시: {% now "Y-m-d h:i:s" %}
+	</p>
+	<table class="tbl-stock">
+		<thead>
+			<tr>
+				<th>연번</th>
+				<th>약품명</th>
+				<th>포장단위</th>
+				<th>낱개1</th>
+				<th>낱개2</th>
+				<th>&nbsp;&nbsp;반알&nbsp;&nbsp;</th>
+				<th>전산재고</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for object in object.investitem_set.all %}
+			<tr>
+				<td align="center">{{ forloop.counter }}</td>
+				<td>{{ object.drug.name_as}}</td>
+				<td align="right">{{ object.pkg|default:"" }}</td>
+				<td align="right">{{ object.rest1|default:"" }}</td>
+				<td align="right">{{ object.rest2|default:"" }}</td>
+				<td align="right">{{ object.rest3|default:"" }}</td>
+				<td align="right">{{ object.doc_amount|default:"" }}</td>
+			<tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<script>
+window.print()
+window.close()
+</script>

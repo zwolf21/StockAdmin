@@ -16,7 +16,7 @@
 				<th>재고조사번호</th>
 				<th>재고조사요약</th>
 				<th style="text-align: center">완료상태</th>
-				<th style="text-align: center">담당자</th>
+				<th style="text-align: center">최종확인</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -26,7 +26,7 @@
 				<td>{{ object.slug }}</td>
 				<td><a href="{{ object.get_absolute_url }}">{{ object.description }}</a></td>
 				<td>{{ object.complete_late }}</td>
-				<td>{{ object.commiter }}</td>
+				<td>{{ object.commiter|default:"진행중" }}</td>
 			</tr>	
 		{% endfor %}
 		</tbody>
