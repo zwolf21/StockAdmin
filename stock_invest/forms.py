@@ -4,17 +4,29 @@ from .models import Invest, InvestItem
 from django.contrib.admin.widgets import AdminDateWidget 
 
 
+class InvsetItemForm(forms.ModelForm):
+	class Meta:
+		model = InvestItem
+		fields = ['pkg', 'rest1', 'rest2', 'rest3', 'expire', 'complete']
+
+	def __init__(self, *args, **kwargs):
+		super(InvsetItemForm, self).__init__(*args, **kwargs)
+		self.fields['pkg'].widget = forms.NumberInput(attrs={'step': self.instance.drug.pkg_amount, 'min': 0})
+		self.fields['rest1'].widget = forms.NumberInput(attrs={'step': 10, 'min': 0})
+		self.fields['rest2'].widget = forms.NumberInput(attrs={'step': 1, 'min': 0})
+		self.fields['expire'].widget = AdminDateWidget()
+
+
+
 InvestInlineFormSet = inlineformset_factory(
 	parent_model = Invest, 
+	form = InvsetItemForm,
 	model = InvestItem,
-	fields = ['pkg', 'rest1', 'rest2', 'rest3', 'expire', 'complete'],
+	# fields = ['pkg', 'rest1', 'rest2', 'rest3', 'expire', 'complete'],
 	max_num = 200,
 	extra=0,
 	can_delete = True,
 	can_order = True,
-	widgets = {
-		'pkg': forms.NumberInput(attrs={})
-	}
 )
 
 

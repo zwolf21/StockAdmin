@@ -150,13 +150,10 @@
 					<tbody>
 					{% for form in formset %}
 						{{ form.id }}
-						<tr step="{{ form.instance.drug.pkg_amount }}">
+						<tr>
 							<td>{{ form.complete|attr:"class:complete"|attr:"tabindex:-1" }}</td>
 							<td>{{ form.instance.drug.name_as }}</td>
-							<td>
-								<input type="number" class="temp-pkg" value="{{ form.instance.drug.pkg_amount }}" hidden>
-								{{ form.pkg|attr:"min:0"|attr:"class:pkg-amount" }}
-							</td>
+							<td>{{ form.pkg|attr:"min:0"|attr:"class:pkg-amount" }}</td>
 							<td>{{ form.rest1|attr:"min:0" }}</td>
 							<td>{{ form.rest2|attr:"min:0"|attr:"tabindex:-1" }}</td>
 							<td>{{ form.rest3|attr:"min:0" }}</td>
@@ -291,10 +288,7 @@ $(function()
 
 		} else if (keyCode == 109 || keyCode == 107) {
 			var cur_val = cell.val()
-			var step = row.attr('step')
-			if (cell.attr('class') != 'pkg-amount') {
-				step = 10;
-			}
+			var step = cell.attr('step') || 10
 	 
      		if(keyCode==107){
      			var new_val = cur_val*1 + step*1
