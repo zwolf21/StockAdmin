@@ -41,7 +41,7 @@ class InvestLV(ListView):
 	    context['form'] = InvestCreateForm()
 	    return context
 
-
+last_focus = None
 class InvsetItemUV(UpdateView):
 	model = Invest
 	fields = ('date', 'commiter', )
@@ -51,23 +51,29 @@ class InvsetItemUV(UpdateView):
 		return self.request.META['HTTP_REFERER']
 
 	def get_context_data(self, **kwargs):
+		global last_focus
 		context = super(InvsetItemUV, self).get_context_data(**kwargs)
-		# context['formset']  = InvestInlineFormSet(self.request.POST, instance=self.object)
 		if self.request.POST:
 			context['formset'] = InvestInlineFormSet(self.request.POST, instance=self.object)
+			last_focus = self.request.POST.get('lastFocus')
 		else:
 			context['formset'] = InvestInlineFormSet(instance=self.object)
+
+		context['lastFocus'] = last_focus if self.request.path in self.request.META['HTTP_REFERER'] else None
 		return context
 
 	def form_valid(self, form):
 		context = self.get_context_data()
 		formset = context['formset']
+		print(self.request.POST)
 		if formset.is_valid():
 			for f in formset:
 				if f.has_changed():
 					if 'DELETE' in f.changed_data:
 						f.instance.delete()
-					elif ['ORDER'] != f.changed_data:
+					elif ['ORDER'] == f.changed_data:
+						continue
+					else:
 						f.save()
 		return super(InvsetItemUV, self).form_valid(form)
 

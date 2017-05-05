@@ -94,6 +94,7 @@
 		{% else %}
 		<form class="form-inline" method="post" action=".">
 			{% csrf_token %}
+			<input type="text" name="lastFocus" id="last-focus" hidden>
 			<div class="row">
 				<div class="col-xs-6">
 					<div class="form-group">
@@ -214,7 +215,16 @@ $(function()
 	// 완료항목 비활성화상태로 초기화 작업
 	const initial_disabled_rows = $('.complete:checked').parent().parent()
 	initial_disabled_rows.addClass('disabled')
-	initial_disabled_rows.find('input[type!=checkbox]').attr('disabled', 'true')
+	// initial_disabled_rows.find('input[type!=checkbox]').attr('disabled', 'true')
+
+	{% if lastFocus %}
+	$("#"+"{{ lastFocus }}").focus()
+	{% endif %}
+
+	$('table input').focus(function(){
+		$('#last-focus').val($(this).attr('id'))
+	})
+
 
 	// 완료 체크박스 전체 선택 
 	$('#complete-all').click(function(){
