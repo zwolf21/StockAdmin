@@ -91,7 +91,7 @@
 <script>
 $(function(){
 	$('#btn-print').click(function(event){
-		var printArea = window.open('', 'pop1', 'width=900, height=500, left=400, top=200, scrollbars=no, toolbars=no, location=no')
+		var printArea = window.open('', 'pop1', 'width=900, height=500, left=200, top=200, scrollbars=no, toolbars=no, location=no')
 		printArea.document.write('<head>')
 		printArea.document.write($('head').html())
 		printArea.document.write('</head>')
