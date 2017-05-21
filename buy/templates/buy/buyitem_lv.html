@@ -14,11 +14,15 @@
 	{{ uptodate_form.date }}
 	<button class="btn btn-primary" name="uptobuy">발주서로 올리기</button>
 	<a class="btn btn-warning" href="{% url 'info:predict_week_tv' %}" name="predict">구매누락주의산출</a>
-	
+	<hr>
 {% endblock buy_header %}
 
 {% block buy_table %}
-
+	{% if pkgInc %}
+		<input type="checkbox" id="chk-pkgAmt" checked="checked">포장단위 입력
+	{% else %}
+		<input type="checkbox" id="chk-pkgAmt">포장단위 입력
+	{% endif %}
 	<table class="tablesorter" id="mytable">
 			<thead>
 				<tr nrow="0">
@@ -41,8 +45,12 @@
 					<td>{{ buyitem.drug }}</td>
 					<form class="save" action="{% url 'buy:buyitem_update' buyitem.pk %}" method="post">
 					<td >
-							{% csrf_token %}
+						{% csrf_token %}
+						{% if pkgInc %}
 							<input  type="number" name="amount" value="{{ buyitem.amount }}" min="{{ buyitem.drug.pkg_amount }}" step="{{ buyitem.drug.pkg_amount }}">
+						{% else %}
+							<input  type="number" name="amount" value="{{ buyitem.amount }}">
+						{% endif %}
 					</td>
 					<td>{{ buyitem.drug.pkg_amount }}</td>
 					{% if buyitem.drug.total_incomplete_amount > 0 %}
@@ -68,7 +76,14 @@
 						<input type="hidden" name="slug" value="{{ slug }}">
 						{% endif %}
 						<td><div class="ui-widget"><input type="text" id="id_name" name="name" onclick="this.select();"></div></td>
-						<td><input id="auto_amount" name="amount" type="number"><input type="submit" value="입력"></td>
+						<td>
+							{% if pkgInc %}
+								<input id="auto_amount" name="amount" type="number">
+							{% else %}
+								<input id="manual_amount" name="amount" type="number">
+							{% endif %}
+							<input type="submit" value="입력">
+						</td>
 						<td></td>
 						<td></td>
 						<td></td>
@@ -97,6 +112,40 @@
 <script>
 	$(function()
 	{
+
+		$('#chk-pkgAmt').click(function(){
+			if($(this).is(':checked')){
+				location.search = 'pkgInc=on'
+			}else{
+				location.search = ''
+			}
+		})
+		// if (location.search === '?pkgOn=on')
+		// {
+		// 	$('#chk-pkgAmt').prop('checked', true)
+		// }else{
+		// 	$('#chk-pkgAmt').prop('checked', false)
+		// }
+
+
+		// $('#chk-pkgAmt').click(function(){
+		// 	if($(this).is(':checked'))
+		// 	{
+		// 		$('#auto_amount, [name=amount]').each(function(){
+		// 			var pkgAmt = $(this).attr('pkg-amount')
+		// 			$(this).attr('step', pkgAmt)
+		// 			$(this).attr('min', pkgAmt)
+		// 		})
+		// 		location.search = '?pkgOn=on'
+
+		// 	}else{
+				
+		// 		$('#auto_amount, [name=amount]').attr('step', 1)
+		// 		$('#auto_amount, [name=amount]').attr('min', 1)
+		// 		location.search = ''
+		// 	}
+		// })
+
 		$('.tablesorter th input').click(function(){
 			if($('.tablesorter th input').is(':checked'))
 			{

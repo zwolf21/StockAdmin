@@ -111,6 +111,9 @@ class BuyItemLV(LoginRequiredMixin ,ListView):
 
 	def get_context_data(self, **kwargs):
 		context = super(BuyItemLV, self).get_context_data(**kwargs)
+		pkgInc = self.request.GET.get('pkgInc')
+		print(pkgInc)
+		context['pkgInc'] = pkgInc
 		context['add_form'] =BuyItemAddForm
 		context['uptodate_form'] = CreateBuyForm
 		return context
