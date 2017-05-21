@@ -160,12 +160,12 @@
 										<table class="inner tablesorter" border="1">
 											<thead>
 												<tr>
-													<th>처방일자</th>
-													<th align="center">병동</th>
-													<th>처방번호</th>
-													<th>환자번호</th>
-													<th>환자명</th>
-													<th>수량</th>
+													<th style="text-align: center;">처방일자</th>
+													<th style="text-align: center;">병동</th>
+													<th style="text-align: center;">처방번호</th>
+													<th style="text-align: center;">환자번호</th>
+													<th style="text-align: center;">환자명</th>
+													<th style="text-align: center;">수량</th>
 													{% if object.sub_object_list.0.amt_vol %}
 													<th>조제량환산</th>
 													{% endif %}
@@ -175,14 +175,14 @@
 											<tbody>
 												{% for obj in object.sub_object_list %}
 													<tr>
-														<td>{{ obj.ord_ymd }}</td>
+														<td align="center">{{ obj.ord_ymd }}</td>
 														<td align="center">{{ obj.ward|slice:"2" }}</td>
-														<td>{{ obj.medi_no }}</td>
-														<td>{{ obj.ptnt_no }}</td>
-														<td>{{ obj.ptnt_nm }}</td>
+														<td align="center">{{ obj.medi_no }}</td>
+														<td align="center">{{ obj.ptnt_no }}</td>
+														<td align="center">{{ obj.ptnt_nm }}</td>
 														<td align="center">{{ obj.ord_qty }}</td>
 														{% if obj.amt_vol %}
-														<td>{{ obj.amt_vol }}/{{ obj.함량단위1 }}</td>
+														<td align="center">{{ obj.amt_vol }} {{ obj.함량단위1 }}</td>
 														{% endif %}
 														<td align="center">{{ obj.rcpt_dt }}</td>
 													</tr>
@@ -225,22 +225,40 @@ $(function(){
 	})
 
 	// 처방구분별 마지막 집계시간
-	initial_start_t = $('#id_start_t').val()
+	const initial_start_t = $('#id_start_t').val()
+	const initial_start_date = $('#id_ord_start_date').val()
+	const initial_end_date = $('#id_ord_end_date').val()
+
 	lastCollected = {
 	{% for key, val in last_collect.items %}
 		{{ key }}:"{{ val }}",
 	{% endfor %}
 	}
 
+
 	$('[name=ord_tp]').click(function(){
-		// alert($(this).val())
+		
 		var last_collect = lastCollected[$(this).val()]
+		var date = new Date()
+
+		if($(this).val() === '항암')
+		{
+			var today = date.toISOString().slice(0,10)
+			$('#id_ord_start_date, #id_ord_end_date').val(today)
+		}else{
+			$('#id_ord_start_date').val(initial_start_date)
+			$('#id_ord_end_date').val(initial_end_date)
+		}
+		
+
+
 		if (last_collect) {
 			$('#id_start_t').val(last_collect)
 		}else{
 			$('#id_start_t').val(initial_start_t)
 		}
 	})
+
 	$('[value="정기"]').trigger('click')
 
 
@@ -257,11 +275,9 @@ $(function(){
 		if(show === 'true') {
 			$('.detail').slideDown()
 			$(this).attr('show', 'false')
-			console.log('slide down')
 		}else {
 			$('.detail').slideUp()
 			$(this).attr('show', 'true')
-			console.log('slide up')
 		}
 		return false
 	})

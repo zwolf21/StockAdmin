@@ -48,8 +48,7 @@ class LabelCollectFV(FormView):
 			context['now_history'] = True
 		else:
 			context['last_collect'] = lbl.get_last_collect()
-			print('context[]', context['last_collect'])
-	
+		
 		return context
 
 	def form_valid(self, form):
