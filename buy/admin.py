@@ -14,7 +14,7 @@ class BuyItemAdmin(admin.ModelAdmin):
     '''
         Admin View for BuyItem
     '''
-    list_display = ('drug','buy','amount','incomplete_amount','stockin_amount','is_completed','end','by')
+    list_display = ('drug_code','drug','buy','amount','incomplete_amount','stockin_amount','comment','is_completed','end','by','create_date')
     list_filter = ('end','buy',)
 
 admin.site.register(BuyItem, BuyItemAdmin)

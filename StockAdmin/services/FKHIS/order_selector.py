@@ -31,13 +31,13 @@ def get_label_object_test(kinds, types, wards, ord_start_date, ord_end_date, sta
 	ord_recs.value_map([('단일포장구분', {'S': '작은라벨', 'P': '큰라벨'}, '')])
 	return ord_recs.records, detail
 
-def get_label_object(kinds, wards, ord_start_date, ord_end_date, start_dt, end_dt):
+def get_label_object(kinds, types, wards, ord_start_date, ord_end_date, start_dt, end_dt):
 	drug_db_recs = read_excel(DRUG_DB_PATH, drop_if= lambda row: row['단일포장구분'] not in ['S', 'P'])
 	pk_set = drug_db_recs.unique('약품코드')
 	odr = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
 	odr.api_calls()
 	records = odr.get_records()
-	ord_recs = RecordParser(records = records, drop_if = lambda row: row.get('ord_cd') not in pk_set or row.get('rcpt_dt', "") == "" or row.get('rcpt_ord_tp_nm') != '정기')
+	ord_recs = RecordParser(records = records, drop_if = lambda row: row.get('ord_cd') not in pk_set or row.get('rcpt_dt', "") == "" or row.get('rcpt_ord_tp_nm') not in types)
 
 	ord_recs.vlookup(drug_db_recs, 'ord_cd', '약품코드', [('단일포장구분', 'S')])
 	ord_recs.format([('ord_qty', 0.0)])

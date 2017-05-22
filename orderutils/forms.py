@@ -11,5 +11,5 @@ class LabelDateTimeform(forms.Form):
 	start_t = forms.DateTimeField(label='접수시작', initial=date.today)
 	end_t = forms.DateTimeField(label='접수 끝시각', initial=datetime.now)
 	ward = forms.CharField(label='병동', initial='51, 52, 61, 71, 81, 92, IC')
-	ord_tp = forms.ChoiceField(label='처방구분', choices=[('정기', '정기'), ('추가', '추가'), ('응급', '응급'), ('퇴원', '퇴원'), ('항암', '항암')], initial='정기', widget=forms.RadioSelect)
+	ord_tp = forms.ChoiceField(label='처방구분', choices=[('st', '정기'), ('ex', '추가'), ('em', '응급'), ('op', '퇴원'), ('ch', '항암')], initial='정기', widget=forms.RadioSelect)
 	

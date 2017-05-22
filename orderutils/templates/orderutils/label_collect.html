@@ -241,7 +241,7 @@ $(function(){
 		var last_collect = lastCollected[$(this).val()]
 		var date = new Date()
 
-		if($(this).val() === '항암')
+		if($(this).val() === 'ch')
 		{
 			var today = date.toISOString().slice(0,10)
 			$('#id_ord_start_date, #id_ord_end_date').val(today)
@@ -249,8 +249,7 @@ $(function(){
 			$('#id_ord_start_date').val(initial_start_date)
 			$('#id_ord_end_date').val(initial_end_date)
 		}
-		
-
+	
 
 		if (last_collect) {
 			$('#id_start_t').val(last_collect)
@@ -259,7 +258,7 @@ $(function(){
 		}
 	})
 
-	$('[value="정기"]').trigger('click')
+	$('[value="st"]').trigger('click')
 
 
 	// 약품명 클릭시 자세히보기 드롭다운

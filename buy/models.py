@@ -85,6 +85,11 @@ class BuyItem(models.Model):
 
 	def __str__(self):
 		return self.drug.name
+
+	@property
+	def drug_code(self):
+		if self.drug:
+			return self.drug.code
 		
 	@property
 	def incomplete_amount(self):

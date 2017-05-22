@@ -49,7 +49,7 @@ class Info(models.Model):
 	edi = models.IntegerField('EDI 코드', primary_key=True)
 	name = models.CharField('약품명', max_length=100)
 	name_as = models.CharField('약품거래명', max_length=100, null=True)
-	code = models.CharField('약품코드', max_length=20, null=True, editable=False)
+	code = models.CharField('약품코드', max_length=20, null=True, blank=True)
 	firm = models.CharField('제약회사명', max_length=50, null=True)
 	price = models.PositiveIntegerField('단가', default=0)
 	pkg_amount = models.PositiveIntegerField('포장수량', default=1, blank=True)
