@@ -9,7 +9,7 @@ from StockAdmin.services.FKHIS.order_mon import get_order_object_list_test, get_
 from StockAdmin.services.FKHIS.order_selector import get_label_object_test, get_label_object, get_chemo_label_object_test, get_chemo_label_object
 
 from .forms import DateForm, LabelDateTimeform
-from .utils import LabelRecordParser
+from .utils import LabelRecordParser, ord_types
 
 class OrderStateLV(ListView):
 	template_name = 'orderutils/order_state.html'
@@ -46,6 +46,7 @@ class LabelCollectFV(FormView):
 			context['object_list'] = collect['records']
 			context['form'] = LabelDateTimeform(collect['form_data'])
 			context['now_history'] = True
+			context['ord_type'] = ord_types[ord_tp]
 		else:
 			context['last_collect'] = lbl.get_last_collect()
 		
@@ -61,10 +62,9 @@ class LabelCollectFV(FormView):
 		wards = ward_str.split(', ')
 		
 		if ord_tp == 'ch':
-			agg, detail = get_chemo_label_object(wards, ord_start_date, ord_end_date, start_dt, end_dt)
+			agg, detail = get_chemo_label_object_test(wards, ord_start_date, ord_end_date, start_dt, end_dt)
 		else:
-			tp = {'st': '정기', 'ex': '추가', 'op': '퇴원'}
-			agg, detail = get_label_object(['S', 'P'], [tp[ord_tp]], wards, ord_start_date, ord_end_date, start_dt, end_dt)
+			agg, detail = get_label_object_test(['S', 'P'], [ord_types[ord_tp]], wards, ord_start_date, ord_end_date, start_dt, end_dt)
 		lbl = LabelRecordParser()
 		if agg:
 			lbl.save_queryset(agg, detail, ord_tp, form.data)
@@ -72,6 +72,11 @@ class LabelCollectFV(FormView):
 		return super(LabelCollectFV, self).form_valid(form)
 
 
+def label_history_clear(request):
+	if request.method == "POST":
+		lbl = LabelRecordParser()
+		lbl.clear_history()
+	return HttpResponseRedirect(reverse('orderutils:labelcollect'))
 
 	
 	

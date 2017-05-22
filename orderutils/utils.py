@@ -9,7 +9,8 @@ from dateutil.parser import parse
 APP_BASE_DIR = os.path.dirname(__file__)
 COLLECT_LOG_FILE = os.path.join(APP_BASE_DIR, 'logs/collect.log')
 MAX_COLLECT_LENGTH = 20
-
+ord_types = {'st': '정기', 'ex': '추가', 'em': '응급', 'op': '퇴원', 'ch': '항암'}
+ord_types_reverse = {'정기': 'st', '추가': 'ex', '응급':'em', '퇴원':'op', '항암':'ch'}
 
 class LabelRecordParser:
 
@@ -24,7 +25,7 @@ class LabelRecordParser:
 
 	def save_queryset(self, agg, detail, ord_tp, form_data):
 		today = date.today().strftime('%Y-%m-%d')
-		seq_list = [row['seq'] for row in self.label_history_list if row['date'] == today and row['ord_tp'] == ord_tp]
+		seq_list = [row['seq'] for row in self.label_history_list if row['date'] == today and row['ord_tp'] == ord_types[ord_tp]]
 		seq = max(seq_list) + 1 if seq_list else 0
 		queryset = []
 		recs = RecordParser(detail)
@@ -34,7 +35,7 @@ class LabelRecordParser:
 		log = {
 			'date' : today,
 			'seq': seq,
-			'ord_tp': ord_tp,
+			'ord_tp': ord_types[ord_tp],
 			'form_data': form_data,
 			'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 			'records': queryset
@@ -57,7 +58,9 @@ class LabelRecordParser:
 		ret = []
 		for collect in self.label_history_list:
 			s = '[{}]{} {}차({}건)'.format(collect['date'], collect['ord_tp'], collect['seq']+1, len(collect['records']))
-			url = reverse('orderutils:labelcollect-history', kwargs = {'date': collect['date'], 'seq': collect['seq'], 'ord_tp': collect['ord_tp']})
+			url = reverse('orderutils:labelcollect-history',
+				 kwargs = {'date': collect['date'], 'seq': collect['seq'], 'ord_tp': ord_types_reverse[collect['ord_tp']]}
+			)
 
 			ret.append({'description': s, 'url': url})
 		return ret[::-1]
@@ -67,11 +70,11 @@ class LabelRecordParser:
 			return []
 
 		if seq == -1:
-			ord_tp_history = [collect for collect in self.label_history_list if collect['ord_tp'] == ord_tp]
+			ord_tp_history = [collect for collect in self.label_history_list if collect['ord_tp'] == ord_types[ord_tp]]
 			return ord_tp_history[seq] if ord_tp_history else []
 
 		for collect in self.label_history_list:
-			if collect['seq'] == seq and collect['date'] == date and collect['ord_tp'] == ord_tp:
+			if collect['seq'] == seq and collect['date'] == date and collect['ord_tp'] == ord_types[ord_tp]:
 				return collect
 		return []
 
@@ -81,6 +84,10 @@ class LabelRecordParser:
 			ret[collect['ord_tp']] = collect['form_data']['end_t']
 		print('ret' , ret)
 		return ret
+
+	def clear_history(self):
+		if os.path.exists(COLLECT_LOG_FILE):
+			os.unlink(COLLECT_LOG_FILE)
 
 
 # ret = load_collect_log()

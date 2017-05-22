@@ -2,7 +2,7 @@ import re, os
 from datetime import date
 from socket import *
 from abc import abstractmethod
-
+import time
 from bs4 import BeautifulSoup
 
 
@@ -177,6 +177,8 @@ class OrderSelectApiRequest(ApiRequest):
 
 		for reqeust in self.requests:
 			self.raws.append(super(OrderSelectApiRequest, self).api_call(request=reqeust))
+			time.sleep(0.3)
+
 		return self.raws
 
 	def get_records(self):
