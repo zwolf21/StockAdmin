@@ -81,7 +81,7 @@ class LabelRecordParser:
 	def get_last_collect(self, date=date.today().strftime('%Y-%m-%d')):
 		ret = {}
 		for collect in [collect for collect in self.label_history_list if collect['date'] == date]:
-			ret[collect['ord_tp']] = collect['form_data']['end_t']
+			ret[ord_types_reverse[collect['ord_tp']]] = collect['form_data']['end_t']
 		print('ret' , ret)
 		return ret
 
