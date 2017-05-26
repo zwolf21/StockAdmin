@@ -40,16 +40,20 @@ def get_label_object(kinds, types, wards, ord_start_date, ord_end_date, start_dt
 	ord_recs = RecordParser(records = records, drop_if = lambda row: row.get('ord_cd') not in pk_set or row.get('rcpt_dt', "") == "" or row.get('rcpt_ord_tp_nm') not in types)
 
 	ord_recs.vlookup(drug_db_recs, 'ord_cd', '약품코드', [('단일포장구분', 'S')])
-	ord_recs.format([('ord_qty', 0.0)])
+	ord_recs.format([('ord_qty', 0.0), ('ord_frq', 0), ('ord_day', 0)])
 
 	ord_recs.select('*', where=lambda row: start_dt <= row['rcpt_dt'] < end_dt)
+	ord_recs.add_column([
+		('once_amt', lambda row: round(row['ord_qty'] / row['ord_frq'], 2)),
+		('total_amt', lambda row: row['ord_qty'] * row['ord_day'])
+	])
 	detail = ord_recs.records.copy()
 	f, l = ord_recs.min('rcpt_dt'), ord_recs.max('rcpt_dt')
 
 	ord_recs.group_by(
 		columns=['단일포장구분','drug_nm'],
-		aggset=[('ord_qty', sum, 'ord_qty_sum'), ('drug_nm', len, 'drug_nm_count')],
-		selects=['단일포장구분','ord_cd', 'drug_nm', 'ord_qty_sum', 'ord_unit_nm', 'drug_nm_count']
+		aggset=[('ord_qty', sum, 'ord_qty_sum'), ('drug_nm', len, 'drug_nm_count'), ('total_amt', sum, 'total_amt_sum')],
+		selects=['단일포장구분','ord_cd', 'drug_nm', 'ord_qty_sum', 'ord_unit_nm', 'drug_nm_count', 'total_amt_sum']
 	)
 	ord_recs.add_column([('rcpt_dt_min', lambda x: f), ('rcpt_dt_max', lambda x:l)])
 	ord_recs.value_map([('단일포장구분', {'S': '작은라벨', 'P': '큰라벨'}, '')])
@@ -81,7 +85,7 @@ def get_chemo_label_object_test(wards, ord_start_date, ord_end_date, start_dt, e
 		columns=['ord_ymd', 'rcpt_seq', 'medi_no', 'ord_cd'], 
 		aggset=[('amt_vol', sum, 'amt_vol_sum'), ('amt_wgt', sum, 'amt_wgt_sum'), ('ord_qty', sum, 'ord_qty_sum'), ('drug_nm', len, 'drug_nm_count')],
 		selects=['ord_cd', 'drug_nm', 'ord_unit_nm', 'amt_vol_sum','amt_wgt_sum', 'ord_qty_sum', '함량단위1', '함량단위2', 'drug_nm_count'],
-		inplace=False
+		inplace=True
 	)
 	ord_recs.add_column([('rcpt_dt_min', lambda x: f), ('rcpt_dt_max', lambda x:l)])
 	return ord_recs.records, detail
@@ -111,7 +115,7 @@ def get_chemo_label_object(wards, ord_start_date, ord_end_date, start_dt, end_dt
 		columns=['ord_ymd', 'rcpt_seq', 'medi_no', 'ord_cd'], 
 		aggset=[('amt_vol', sum, 'amt_vol_sum'), ('amt_wgt', sum, 'amt_wgt_sum'), ('ord_qty', sum, 'ord_qty_sum'), ('drug_nm', len, 'drug_nm_count')],
 		selects=['ord_cd', 'drug_nm', 'ord_unit_nm', 'amt_vol_sum','amt_wgt_sum', 'ord_qty_sum','함량단위1', '함량단위2', 'drug_nm_count'],
-		inplace=False
+		inplace=True
 	)
 	ord_recs.add_column([('rcpt_dt_min', lambda x: f), ('rcpt_dt_max', lambda x:l)])
 	return ord_recs.records, detail
