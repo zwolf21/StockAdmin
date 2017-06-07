@@ -45,13 +45,13 @@ def opremain_query(start_date, end_date, qry_path):
 		
 
 
-def parse_narc_content(content, n=0):
+def parse_narc_content(content, n=0, to_queryset=False):
 	soup = BeautifulSoup(content, 'html.parser')
 	recs = RecordParser(
 		records = [OrderedDict((child.name, child.text) for child in table.children) for table in soup.find_all('table1')],
 		drop_if = lambda row: not row.get('narct_owarh_ymd') or row['drug_cd']  not in drugDB or not row.get('ptnt_no')
 	)
-	recs.select(['narct_owarh_ymd', 'ward', 'ori_ord_ymd', 'ord_no', 'ptnt_no', 'ptnt_nm', 'drug_cd', 'drug_nm', 'ord_qty_std', 'tot_qty'], 
+	recs.select(['narct_owarh_ymd', 'ward', 'ori_ord_ymd', 'ord_no', 'ptnt_no', 'ptnt_nm', 'drug_cd', 'drug_nm', 'ord_qty_std', 'tot_qty', 'get_dept_nm'], 
 		where = lambda row: row['ret_gb'] not in ['D/C', '반납', '수납취소']
 	)
 	recs.vlookup(drugDB.values(), 'drug_cd', 'code', [('amount', 0), ('amount_unit', ''), ('name', ""), ('std_unit', "")])
@@ -63,7 +63,11 @@ def parse_narc_content(content, n=0):
 		('name', '폐기약품명'), ('drug_cd', '약품코드'), ('amount', '집계량'), ('ord_qty_std', '처방량(규격단위)'), ('drug_nm', '약품명'), 
 		('amount_unit', '폐기단위'), ('ptnt_nm', '환자명'), ('ptnt_no', '환자번호'), ('std_unit', '규격단위'), ('ward', '병동')
 	])
-	table = recs.select(['불출일자', '병동', '환자번호', '환자명', '폐기약품명','약품코드', '처방량(규격단위)', '잔량', '규격단위', '폐기량', '폐기단위' ]).to2darry()
+	table = recs.select(['불출일자', '병동', '환자번호', '환자명', '폐기약품명','약품코드', '처방량(규격단위)', '잔량', '규격단위', '폐기량', '폐기단위', 'get_dept_nm'])
+	table.add_column([('ord_amt', lambda row: row['처방량(규격단위)'])])
+	if to_queryset == False:
+		table = table.to2darry()
+
 	grp = recs.group_by(
 			columns = ['폐기약품명'], 
 			aggset=[('폐기량', sum, '폐기량__sum'), ('폐기약품명', len, '폐기약품명__len')], 
@@ -297,7 +301,7 @@ def excel_output(exl_table, grp):
 	return output.getvalue()
 
 
-def get_opremain_contents(start_date, end_date):
+def get_opremain_contents(start_date, end_date, to_queryset=False):
 
 	
 	xmls = opremain_query(start_date, end_date, os.path.join(BASE_DIR, 'requests/NarcOut.req'))
@@ -305,15 +309,15 @@ def get_opremain_contents(start_date, end_date):
 
 	table, grp = [], []
 	for i, xml in enumerate(xmls):
-		t, g = parse_narc_content(xml, 0 if i==0 else 1)
+		t, g = parse_narc_content(xml, 0 if i==0 else 1, to_queryset)
 		table+=t
 		grp+=g
 
-	return excel_output(table, grp)
+	return excel_output(table, grp) if to_queryset == False else table, grp
 
 
 
-def get_opremain_contents_test(start_date, end_date):
+def get_opremain_contents_test(start_date, end_date, to_queryset=False):
 
 	
 	with open(os.path.join(BASE_DIR, 'response_samples/OpRemain.sample.rsp'), 'rb') as fp:
@@ -323,11 +327,11 @@ def get_opremain_contents_test(start_date, end_date):
 
 	table, grp = [], []
 	for i, xml in enumerate(xmls):
-		t, g = parse_narc_content(xml, 0 if i==0 else 1)
+		t, g = parse_narc_content(xml, 0 if i==0 else 1, to_queryset)
 		table+=t
 		grp+=g
 
-	return excel_output(table, grp)
+	return excel_output(table, grp) if to_queryset == False else table, grp
 
 	# ret = parse_narc_content(content)
 	# print(ret)

@@ -63,11 +63,11 @@ def parse_narc_content(content, n=0):
 		('name', '폐기약품명'), ('drug_cd', '약품코드'), ('amount', '집계량'), ('ord_qty_std', '처방량(규격단위)'), ('drug_nm', '약품명'), 
 		('amount_unit', '폐기단위'), ('ptnt_nm', '환자명'), ('ptnt_no', '환자번호'), ('std_unit', '규격단위'), ('ward', '병동')
 	])
-	table = recs.select(['불출일자', '병동', '환자번호', '환자명', '폐기약품명','약품코드', '처방량(규격단위)', '잔량', '규격단위', '폐기량', '폐기단위' ]).to2darry()
+	table = recs.select(['불출일자', '병동', '환자번호', '환자명', '폐기약품명', '처방량(규격단위)','GET_DEPT_NM', '잔량', '규격단위', '폐기량', '폐기단위' ]).to2darry()
 	grp = recs.group_by(
 			columns = ['폐기약품명'], 
 			aggset=[('폐기량', sum, '폐기량__sum'), ('폐기약품명', len, '폐기약품명__len')], 
-			selects = ['폐기약품명', '폐기약품명__len', '규격단위', '폐기량__sum', '폐기단위', '약품코드'],
+			selects = ['폐기약품명', '폐기약품명__len', '규격단위', '폐기량__sum', '폐기단위'],
 			inplace=False
 		)
 

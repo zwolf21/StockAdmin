@@ -60,6 +60,7 @@ class ApiRequest:
 		cs.settimeout(timeout)
 		cs.connect((host, port))
 		cs.send(request or self.request)
+	
 		response = b''
 		while True:
 			data = cs.recv(1024)
@@ -190,5 +191,3 @@ class OrderSelectApiRequest(ApiRequest):
 	def set_test_response(self, response_sample_path):
 		self.raws.append(super(OrderSelectApiRequest, self).set_test_response(response_sample_path))
 		return self
-
-print(API_REQ['ordSelect']['51'].decode('utf-8', errors='ignore'))

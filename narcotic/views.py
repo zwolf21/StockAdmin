@@ -13,7 +13,7 @@ from .modules.FKHIS.opstock import get_opstock_object_list, get_opstock_object_l
 from .forms import DataRangeForm, OpSelectForm
 
 
-class OpRemainFV(FormView):
+class OpRemainDownloadFV(FormView):
 	template_name = 'narcotic/opremain.html'
 	form_class = DataRangeForm
 
@@ -25,6 +25,26 @@ class OpRemainFV(FormView):
 		response = HttpResponse(content, content_type='application/vnd.ms-excel')
 		response['Content-Disposition'] = 'attachment; filename='+fname
 		return response
+
+class OpRemainFV(FormView):
+	template_name = 'narcotic/opremain.html'
+	form_class = DataRangeForm
+
+	def form_valid(self, form):
+		start = self.request.POST.get('start')
+		end = self.request.POST.get('end')
+		opremain_list, opremain_grouped = get_opremain_contents_test(start, end, to_queryset=True)
+		context = self.get_context_data()
+		context['object_list'] = opremain_list
+		context['object_grouped_list'] = opremain_grouped
+		context['form'] = DataRangeForm(self.request.POST)
+		context['start_date'] = start
+		context['end_date'] = end
+		# print(opremain_list)
+		return render_to_response(self.template_name, context)
+
+
+
 
 
 class OpStockFV(FormView):

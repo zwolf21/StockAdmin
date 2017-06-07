@@ -46,7 +46,8 @@ class Info(models.Model):
 		verbose_name_plural='약품정보'
 		ordering = ['name_as']
 
-	edi = models.IntegerField('EDI 코드', primary_key=True)
+	# edi = models.IntegerField('EDI 코드', primary_key=True)
+	edi = models.CharField('EDI 코드', max_length=20, primary_key=True)
 	name = models.CharField('약품명', max_length=100)
 	name_as = models.CharField('약품거래명', max_length=100, null=True)
 	code = models.CharField('약품코드', max_length=20, null=True, blank=True)

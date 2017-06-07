@@ -3,27 +3,120 @@
 {% block content %}
 <div class="container">
 	<h3>마약류 폐기량 정리</h3>
-	<form name="show" method="post" class="form-inline" action="{% url 'narcotic:opremain' %}">
-		{% csrf_token %}
-		기간설정
-		<div class="form-group">
-			<div class="col-xs-2">
-				{{ form.start }}
+	<div class="row">
+		{% if object_list %}
+		<button class="btn btn-success btn-sm" id="btn-print">인쇄</button>
+		<div id="print-date-info">
+			<h2>{{ start_date }} ~ {{ end_date }} 마약류 폐기 내역</h2>
+		</div>
+			
+		{% else %}
+		<form name="show" method="post" class="form-inline" action="{% url 'narcotic:opremain' %}">
+			{% csrf_token %}
+			기간설정
+			<div class="form-group">
+				<div class="col-xs-2">
+					{{ form.start }}
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			~
-		</div>
-		<div class="form-group">
-			<div class="col-xs-2">
-				{{ form.end }}
+			<div class="form-group">
+				~
 			</div>
-		</div>
-		<button>다운로드</button>
-	</form>
+			<div class="form-group">
+				<div class="col-xs-2">
+					{{ form.end }}
+				</div>
+			</div>
+			<button class="btn btn-success btn-sm">조회</button>
+		</form>			
+		{% endif %}
+	</div>
+	{% if object_list %}
+		
+	<div class="row" id="opremain-list">
+		<table class="tablesorter" >
+			<thead>
+				<tr>
+					<th style="text-align: center">불출일자</th>
+					<th style="text-align: center">병동</th>
+					<th style="text-align: center">환자번호</th>
+					<th style="text-align: center">환자명</th>
+					<th style="text-align: center">폐기약품명</th>
+					<th style="text-align: center">처방량</th>
+					<th style="text-align: center">수령부서</th>
+					<th style="text-align: center">잔량</th>
+					<th style="text-align: center">규격단위</th>
+					<th style="text-align: center">폐기량</th>
+					<th style="text-align: center">폐기단위</th>
+					<th style="text-align: center">반납확인</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for object in object_list %}
+					<tr>
+						<td style="text-align: center">{{ object.불출일자 }}</td>
+						<td style="text-align: center">{{ object.병동 }}</td>
+						<td style="text-align: center">{{ object.환자번호 }}</td>
+						<td style="text-align: center">{{ object.환자명 }}</td>
+						<td>{{ object.폐기약품명 }}</td>
+						<td style="text-align: center">{{ object.ord_amt }}</td>
+						<td style="text-align: center">{{ object.get_dept_nm }}</td>
+						<td style="text-align: center">{{ object.잔량 }}</td>
+						<td style="text-align: center">{{ object.규격단위 }}</td>
+						<td style="text-align: center">{{ object.폐기량 }}</td>
+						<td style="text-align: center">{{ object.폐기단위 }}</td>
+						<td style="text-align: center"></td>
+					</tr>
+				{% endfor %}			
+			
+			</tbody>
+		</table>
 
-
+	
+			<h4>종합</h4>
+			<table border="1">
+				<thead>
+					<tr>
+						<th style="text-align: center">폐기약품명</th>
+						<th>개수</th>
+						<th>규격단위</th>
+						<th>폐기량</th>
+						<th>폐기단위</th>
+					</tr>
+				</thead>
+					{% for object in object_grouped_list %}
+						<tr>
+							<td>{{ object.폐기약품명}}</td>
+							<td style="text-align: center">{{ object.폐기약품명__len}}</td>
+							<td style="text-align: center">{{ object.규격단위}}</td>
+							<td style="text-align: center">{{ object.폐기량__sum}}</td>
+							<td style="text-align: center">{{ object.폐기단위}}</td>
+						</tr>
+					{% endfor %}
+				<tbody>
+					
+				</tbody>
+			</table>
+		{% endif %}	
+	</div>
 </div>
+<script type="text/javascript">
+	$('#btn-print').click(function(e){
+		var printArea = window.open('', 'pop1', 'width=900, height=500, left=200, top=200, scrollbars=no, toolbars=no, location=no')
+		printArea.document.write('<head>')
+		printArea.document.write($('head').html())
+		printArea.document.write('</head>')
+		printArea.document.write('<body>')
+		printArea.document.write('<div class="container">')
+		printArea.document.write('<h2>마약류 폐기 내역</h2>')
+		printArea.document.write($('#print-date-info').html())
+		printArea.document.write($('#opremain-list').html())
+		printArea.document.write('</div>')
+		printArea.document.write('</body>')
+		printArea.document.write('<script>window.print();window.close();<\/script>')
+		return false;
+	})
+</script>
 {% include "tablesorter_js.html" %}
 {% include "datepicker_js.html" %}
 {% endblock content %}

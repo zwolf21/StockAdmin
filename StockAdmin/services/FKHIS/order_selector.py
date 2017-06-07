@@ -18,14 +18,19 @@ def get_label_object_test(kinds, types, wards, ord_start_date, ord_end_date, sta
 	ord_recs = RecordParser(records = odr.get_records(), drop_if = lambda row: row.get('ord_cd') not in pk_set or row.get('rcpt_dt', "") == "" or row.get('rcpt_ord_tp_nm') not in types)
 	ord_recs.format([('ord_qty', 0.0)])
 	ord_recs.vlookup(drug_db_recs, 'ord_cd', '약품코드', [('단일포장구분', 'S')])
+	ord_recs.format([('ord_qty', 0.0), ('ord_frq', 0), ('ord_day', 0)])
+	ord_recs.add_column([
+		('once_amt', lambda row: round(row['ord_qty'] / row['ord_frq'], 2)),
+		('total_amt', lambda row: row['ord_qty'] * row['ord_day'])
+	])
 
 	# ord_recs.select('*', where=lambda row: start_dt <= row['rcpt_dt'] < end_dt)
 	detail = ord_recs.records.copy()
 	f, l = ord_recs.min('rcpt_dt'), ord_recs.max('rcpt_dt')
 	ord_recs.group_by(
 		columns=['단일포장구분','drug_nm'], 
-		aggset=[('ord_qty', sum, 'ord_qty_sum'), ('drug_nm', len, 'drug_nm_count')], 
-		selects=['단일포장구분','ord_cd', 'drug_nm', 'ord_qty_sum', 'ord_unit_nm', 'drug_nm_count']
+		aggset=[('ord_qty', sum, 'ord_qty_sum'), ('drug_nm', len, 'drug_nm_count'), ('total_amt', sum, 'total_amt_sum')], 
+		selects=['단일포장구분','ord_cd', 'drug_nm', 'ord_qty_sum', 'ord_unit_nm', 'drug_nm_count', 'total_amt_sum']
 	)
 	ord_recs.add_column([('rcpt_dt_min', lambda x: f), ('rcpt_dt_max', lambda x:l)])
 	ord_recs.value_map([('단일포장구분', {'S': '작은라벨', 'P': '큰라벨'}, '')])
@@ -58,6 +63,43 @@ def get_label_object(kinds, types, wards, ord_start_date, ord_end_date, start_dt
 	ord_recs.add_column([('rcpt_dt_min', lambda x: f), ('rcpt_dt_max', lambda x:l)])
 	ord_recs.value_map([('단일포장구분', {'S': '작은라벨', 'P': '큰라벨'}, '')])
 	return ord_recs.records, detail
+
+def get_inj_object(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
+	drug_db_recs = read_excel(DRUG_DB_PATH, 
+		drop_if = lambda row: row['투여경로'] != '3' or row['효능코드명'] in ['혈액대용제', '당류제'] or row['항암제구분'] == '1' or row['약품법적구분'] in ['1','2'])
+	pk_set = drug_db_recs.unique('약품코드')
+	odr = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
+
+	if test:
+		odr.set_test_response('response_samples/ordSelect51.sample.rsp')
+	else:
+		odr.api_calls()
+
+	ord_recs = RecordParser(
+		records = odr.get_records(), 
+		drop_if = lambda row: row.get('ord_cd') not in pk_set or row.get('rcpt_dt', "") == "" or row.get('rcpt_ord_tp_nm') not in types
+	)
+	ord_recs.format([('ord_qty', 0.0), ('ord_frq', 0), ('ord_day', 0)])
+	if not test:
+		ord_recs.select('*', where=lambda row: start_dt <= row['rcpt_dt'] < end_dt)
+
+	ord_recs.add_column([
+		('once_amt', lambda row: round(row['ord_qty'] / row['ord_frq'], 2)),
+		('total_amt', lambda row: row['ord_qty'] * row['ord_day'])
+	])
+
+	detail = ord_recs.records.copy()
+	f, l = ord_recs.min('rcpt_dt'), ord_recs.max('rcpt_dt')
+	ord_recs.group_by(
+		columns = ['ord_cd'],
+		aggset = [('ord_qty', sum, 'ord_qty_sum'), ('drug_nm', len, 'drug_nm_count'), ('total_amt', sum, 'total_amt_sum')],
+		selects = ['ord_cd', 'drug_nm', 'ord_qty_sum', 'ord_unit_nm', 'drug_nm_count', 'total_amt_sum']
+	)
+	ord_recs.add_column([('rcpt_dt_min', lambda x: f), ('rcpt_dt_max', lambda x:l)])
+	return ord_recs.records, detail
+
+
+
 
 
 def get_chemo_label_object_test(wards, ord_start_date, ord_end_date, start_dt, end_dt):
