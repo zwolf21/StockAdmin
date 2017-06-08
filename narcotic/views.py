@@ -33,7 +33,7 @@ class OpRemainFV(FormView):
 	def form_valid(self, form):
 		start = self.request.POST.get('start')
 		end = self.request.POST.get('end')
-		opremain_list, opremain_grouped = get_opremain_contents_test(start, end, to_queryset=True)
+		opremain_list, opremain_grouped = get_opremain_contents(start, end, to_queryset=True)
 		context = self.get_context_data()
 		context['object_list'] = opremain_list
 		context['object_grouped_list'] = opremain_grouped

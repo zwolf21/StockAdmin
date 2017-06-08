@@ -65,8 +65,8 @@ class LabelCollectFV(FormView):
 		if ord_tp == 'ch':
 			agg, detail = get_chemo_label_object(wards, ord_start_date, ord_end_date, start_dt, end_dt)
 		else:
-			# agg, detail = get_label_object_test(['S', 'P'], [ord_types[ord_tp]], wards, ord_start_date, ord_end_date, start_dt, end_dt)
-			agg, detail = get_inj_object([ord_types[ord_tp]], wards, ord_start_date, ord_end_date, start_dt, end_dt, test=True)
+			agg, detail = get_label_object(['S', 'P'], [ord_types[ord_tp]], wards, ord_start_date, ord_end_date, start_dt, end_dt)
+			# agg, detail = get_inj_object([ord_types[ord_tp]], wards, ord_start_date, ord_end_date, start_dt, end_dt, test=True)
 		lbl = LabelRecordParser()
 		if agg:
 			lbl.save_queryset(agg, detail, ord_tp, form.data)

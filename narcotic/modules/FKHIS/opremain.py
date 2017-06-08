@@ -57,6 +57,8 @@ def parse_narc_content(content, n=0, to_queryset=False):
 	recs.vlookup(drugDB.values(), 'drug_cd', 'code', [('amount', 0), ('amount_unit', ''), ('name', ""), ('std_unit', "")])
 	recs.format([('tot_qty', 0.0), ('ord_qty_std', 0.0)])
 	recs.add_column([('잔량', lambda row: row['tot_qty'] - row['ord_qty_std']), ('폐기량', lambda row: row['잔량'] * row['amount'])])
+	recs.update([('잔량', lambda row: round(row['잔량'], 2)), ('폐기량', lambda row: round(row['폐기량'], 2))])
+
 	recs.select('*', where= lambda row: row['잔량'] > 0).order_by(['name', 'narct_owarh_ymd', 'ward'])
 	recs.rename([
 		('narct_owarh_ymd', '불출일자'), ('ori_ord_ymd', '원처방일자'), ('ord_no', '처방번호[묶음]'), ('tot_qty', '집계량'), 
@@ -74,7 +76,7 @@ def parse_narc_content(content, n=0, to_queryset=False):
 			selects = ['폐기약품명', '폐기약품명__len', '규격단위', '폐기량__sum', '폐기단위', '약품코드'],
 			inplace=False
 		)
-
+	# grp = map(lambda row: round(row['폐기량__sum'], 2), grp)
 	return table[n:], grp
 
 
