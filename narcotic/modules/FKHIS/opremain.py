@@ -51,6 +51,8 @@ def parse_narc_content(content, n=0, to_queryset=False):
 		records = [OrderedDict((child.name, child.text) for child in table.children) for table in soup.find_all('table1')],
 		drop_if = lambda row: not row.get('narct_owarh_ymd') or row['drug_cd']  not in drugDB or not row.get('ptnt_no')
 	)
+
+
 	recs.select(['narct_owarh_ymd', 'ward', 'ori_ord_ymd', 'ord_no', 'ptnt_no', 'ptnt_nm', 'drug_cd', 'drug_nm', 'ord_qty_std', 'tot_qty', 'get_dept_nm'], 
 		where = lambda row: row['ret_gb'] not in ['D/C', '반납', '수납취소']
 	)
@@ -77,6 +79,7 @@ def parse_narc_content(content, n=0, to_queryset=False):
 			inplace=False
 		)
 	# grp = map(lambda row: round(row['폐기량__sum'], 2), grp)
+	
 	return table[n:], grp
 
 
@@ -311,7 +314,7 @@ def get_opremain_contents(start_date, end_date, to_queryset=False):
 
 	table, grp = [], []
 	for i, xml in enumerate(xmls):
-		t, g = parse_narc_content(xml, 0 if i==0 else 1, to_queryset)
+		t, g = parse_narc_content(xml, 0, to_queryset)
 		table+=t
 		grp+=g
 
