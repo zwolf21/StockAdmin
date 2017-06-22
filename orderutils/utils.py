@@ -44,9 +44,16 @@ class LabelRecordParser:
 			for sub in item['sub_object_list']:
 				sub['duplicated'] = 0
 				for cseq, today_sub_list in today_subqueryset:
-					if sub in today_sub_list:
-						sub['duplicated'] = cseq
-						item['duplicated'] = True
+
+					for today_sub in today_sub_list:
+						sub_dup_save = sub.pop('duplicated')
+						today_sub_save = today_sub.pop('duplicated')
+						if sub == today_sub:
+							sub['duplicated'] = cseq
+							item['duplicated'] = True
+						else:	
+							sub['duplicated'] = sub_dup_save
+						today_sub['duplicated'] = today_sub_save
 
 			queryset.append(item)
 
