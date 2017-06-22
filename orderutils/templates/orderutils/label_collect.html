@@ -19,6 +19,8 @@
 		cursor: cell;
 	}
 
+	tbody tr.duplicated td { background: yellow; }
+
 </style>
 
 <div class="container-fluid">
@@ -84,6 +86,8 @@
 					</div>
 					<div class="row" align="center">
 						<button class="btn btn-success" id="btn-print" type="button">인쇄<span class="glyphicon glyphicon-print"></span></button>
+						<button class="btn btn-danger" data-target="#modal-history-delete-one" data-toggle="modal"><span class="glyphicon glyphicon-trash">폐기</span></button>
+						{% include "orderutils/label_history_delete_one_confirm.html" %}
 					</div>
 				{% else %}
 				<form name="show" method="post" class="form-inline" action="{% url 'orderutils:labelcollect' %}">
@@ -162,7 +166,11 @@
 							<tr>
 								<td></td>
 								<td colspan="3">
+									{% if object.duplicated %}
+									<div class="detail" id="detail-{{ object.ord_cd }}">
+									{% else %}
 									<div class="detail" id="detail-{{ object.ord_cd }}" style="display: none;">
+									{% endif %}
 										<table class="inner tablesorter" border="1">
 											<thead>
 												<tr>
@@ -179,17 +187,21 @@
 													<th>조제량환산</th>
 													{% endif %}
 													<th style="text-align: center;">접수일시</th>
+													{% if object.duplicated %}
+													<th>이전집계와 중복</th>
+													{% endif %}
+
 												</tr>
 											</thead>
 											<tbody>
+												
 												{% for obj in object.sub_object_list %}
-													<tr>
+													<tr style="background: yellow;" {% if obj.duplicated %} class="duplicated" {% endif %}>
 														<td align="center">{{ obj.ord_ymd }}</td>
 														<td align="center">{{ obj.ward|slice:"2" }}</td>
 														<td align="center">{{ obj.medi_no }}</td>
 														<td align="center">{{ obj.ptnt_no }}</td>
 														<td align="center">{{ obj.ptnt_nm }}</td>
-														{# <td align="center">{{ obj.ord_frq }}</td> #}
 														<td align="center">{{ obj.once_amt }}</td>
 														<td align="center">{{ obj.ord_frq }}</td>
 														<td align="center">{{ obj.ord_day }}</td>
@@ -198,6 +210,9 @@
 														<td align="center">{{ obj.amt_vol }} {{ obj.함량단위1 }}</td>
 														{% endif %}
 														<td align="center">{{ obj.rcpt_dt }}</td>
+														{% if object.duplicated %}
+														<td>{{ obj.duplicated }}차 시에 집계됨</td>
+														{% endif %}
 													</tr>
 												{% endfor %}
 											</tbody>

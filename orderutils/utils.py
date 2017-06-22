@@ -29,9 +29,27 @@ class LabelRecordParser:
 		seq = max(seq_list) + 1 if seq_list else 0
 		queryset = []
 		recs = RecordParser(detail)
+
+		today_queryset = [history for history in self.label_history_list if history['date'] == today]
+		today_subqueryset = []
+
+		for rec in today_queryset:
+			collect_seq = rec['seq'] + 1
+			for row in rec['records']:
+				today_subqueryset.append((collect_seq, row['sub_object_list']))
+
 		for item in agg:
 			item['sub_object_list'] = recs.select('*', where = lambda row: row['ord_cd'] == item['ord_cd'], inplace=False).order_by(['ord_ymd', 'rcpt_dt']).records
-			queryset.append(item)	
+			item['duplicated'] = False
+			for sub in item['sub_object_list']:
+				sub['duplicated'] = 0
+				for cseq, today_sub_list in today_subqueryset:
+					if sub in today_sub_list:
+						sub['duplicated'] = cseq
+						item['duplicated'] = True
+
+			queryset.append(item)
+
 		log = {
 			'date' : today,
 			'seq': seq,
@@ -54,10 +72,20 @@ class LabelRecordParser:
 			return queryset_list[seq]['records']
 		return queryset_list[0]['records']
 
+	def delete_queryset(self, ord_tp, date, seq):
+		for idx, history in enumerate(self.label_history_list):
+			if history['ord_tp'] == ord_types[ord_tp] and history['seq'] == int(seq) and history['date'] == date:
+				self.label_history_list.pop(idx)
+				with open(self.json_path, 'w') as fp:
+					fp.write(json.dumps(self.label_history_list[-MAX_COLLECT_LENGTH:]))
+				return 
+		return
+
 	def get_collect_object_list(self):
 		ret = []
 		for collect in self.label_history_list:
-			s = '[{}]{} {}차({}건)'.format(collect['date'], collect['ord_tp'], collect['seq']+1, len(collect['records']))
+
+			s = '[{}]{} {}차({}건)'.format(collect['date'], collect['ord_tp'], collect['seq']+1, sum(len(rec['sub_object_list']) for rec in collect['records']))
 			url = reverse('orderutils:labelcollect-history',
 				 kwargs = {'date': collect['date'], 'seq': collect['seq'], 'ord_tp': ord_types_reverse[collect['ord_tp']]}
 			)
@@ -82,7 +110,7 @@ class LabelRecordParser:
 		ret = {}
 		for collect in [collect for collect in self.label_history_list if collect['date'] == date]:
 			ret[ord_types_reverse[collect['ord_tp']]] = collect['form_data']['end_t']
-		print('ret' , ret)
+
 		return ret
 
 	def clear_history(self):

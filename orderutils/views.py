@@ -48,6 +48,9 @@ class LabelCollectFV(FormView):
 			context['form'] = LabelDateTimeform(collect['form_data'])
 			context['now_history'] = True
 			context['ord_type'] = ord_types[ord_tp]
+			context['ord_tp'] = ord_tp
+			context['collect_date'] = collect_date
+			context['seq'] = seq
 		else:
 			context['last_collect'] = lbl.get_last_collect()
 		
@@ -79,6 +82,15 @@ def label_history_clear(request):
 		lbl = LabelRecordParser()
 		lbl.clear_history()
 	return HttpResponseRedirect(reverse('orderutils:labelcollect'))
+
+def label_history_clear_one(request, ord_tp, date, seq):
+	if request.method == 'POST':
+		lbl = LabelRecordParser()
+		lbl.delete_queryset(ord_tp, date, seq)
+	return HttpResponseRedirect(reverse('orderutils:labelcollect'))
+
+
+
 
 	
 	
