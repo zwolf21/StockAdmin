@@ -12,7 +12,7 @@ class InvsetItemForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
 		super(InvsetItemForm, self).__init__(*args, **kwargs)
 		self.fields['pkg'].widget = forms.NumberInput(attrs={'step': self.instance.drug.pkg_amount, 'min': 0})
-		self.fields['rest1'].widget = forms.NumberInput(attrs={'step': 10, 'min': 0})
+		self.fields['rest1'].widget = forms.NumberInput(attrs={'step': 1, 'min': 0})
 		self.fields['rest2'].widget = forms.NumberInput(attrs={'step': 1, 'min': 0})
 		self.fields['expire'].widget = AdminDateWidget()
 
