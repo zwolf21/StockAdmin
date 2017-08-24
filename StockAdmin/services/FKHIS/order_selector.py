@@ -5,6 +5,8 @@ try:
 except:
 	from api_requests import *
 
+from .dbconn import *
+from .mapping import codes
 
 
 # path = 'C:\\Users\\HS\\Desktop\\처방조회종합.xlsx'
@@ -37,7 +39,9 @@ def get_label_object_test(kinds, types, wards, ord_start_date, ord_end_date, sta
 	return ord_recs.records, detail
 
 def get_label_object(kinds, types, wards, ord_start_date, ord_end_date, start_dt, end_dt):
-	drug_db_recs = read_excel(DRUG_DB_PATH, drop_if= lambda row: row['단일포장구분'] not in ['S', 'P'])
+	# drug_db_recs = read_excel(DRUG_DB_PATH, drop_if= lambda row: row['단일포장구분'] not in ['S', 'P'])
+	fk = FkocsAPI(server=server, user=user, password=password, database=database, charset='utf8')
+	drug_db_recs = fk.get_label_info(**codes)
 	pk_set = drug_db_recs.unique('약품코드')
 	odr = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
 	odr.api_calls()

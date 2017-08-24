@@ -1,7 +1,7 @@
 from datetime import datetime
 import pymssql
 from listorm import Listorm, read_excel
-from mapping import codes, columns
+
 
 server = '192.168.7.7'
 user = 'sa'
@@ -33,6 +33,7 @@ class FkocsAPI:
 					callback(records, table_name)
 				except:
 					return
+
 	def backup_druginfo(self, filename, columns, **renames):
 		query = "SELECT * FROM SPB_DRUG_MST"
 		self.cursor.execute(query)
@@ -42,6 +43,12 @@ class FkocsAPI:
 			lst = Listorm(records)
 			lst.rename(**renames)
 			lst.to_excel(filename, selects=columns)
+
+	def get_label_info(self, **renames):
+		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N' AND SNG_PACK_GB='S' OR SNG_PACK_GB='P'"
+		self.cursor.execute(query)
+		records = [row for row in self.cursor.fetchall()]
+		return Listorm(records).rename(**renames)
 
 	def _update_druginfo(self, code, column, value):
 		query = "UPDATE SPB_DRUG_MST SET {}='{}' WHERE DRUG_CD='{}';".format(column, value, code)
@@ -105,8 +112,8 @@ def record_to_excel(records, table_name):
 
 
 # lst = read_excel('원내약품정보상세.xlsx')
-fk = FkocsAPI(server=server, user=user, password=password, database=database, charset='utf8')
-fk.backup_druginfo('약품정보.xlsx', columns=columns, **codes)
+# fk = FkocsAPI(server=server, user=user, password=password, database=database, charset='utf8')
+# fk.backup_druginfo('약품정보.xlsx', columns=columns, **codes)
 # -- fk.cursor.execute("SELECT * FROM PIC_IPD_CALC_SLIP WHERE ORD_YMD='{}'".format('20170804'))
 # fk.cursor.execute('SELECT * FROM SPB_DRUG_MST')
 # records = [row for row in fk.cursor.fetchall()]
@@ -146,8 +153,3 @@ def drug_update(source_excel, base_excel, what):
 			elif what == 'inj_to_in':
 				fk.update_inout(code, 2)
 
-				
-
-
-			
-# drug_update('약품정보수집결과.xlsx', '2017-08-03(삭제포함).xls', 'inj_to_in')
