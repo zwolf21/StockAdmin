@@ -79,7 +79,9 @@ def parse_narc_content(content, n=0, to_queryset=False):
 			inplace=False
 		)
 	# grp = map(lambda row: round(row['폐기량__sum'], 2), grp)
-	
+	for row in grp:
+		row['폐기량__sum'] = round(row['폐기량__sum'], 2)
+
 	return table[n:], grp
 
 

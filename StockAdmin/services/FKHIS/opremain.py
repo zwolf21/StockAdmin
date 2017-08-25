@@ -70,6 +70,8 @@ def parse_narc_content(content, n=0):
 			selects = ['폐기약품명', '폐기약품명__len', '규격단위', '폐기량__sum', '폐기단위'],
 			inplace=False
 		)
+	for row in grp:
+		row['폐기량'] = round(row['폐기량1'], 2)
 
 	return table[n:], grp
 
