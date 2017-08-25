@@ -2,6 +2,7 @@ from datetime import datetime
 import pymssql
 from listorm import Listorm, read_excel
 
+from .mapping import codes
 
 server = '192.168.7.7'
 user = 'sa'
@@ -153,3 +154,6 @@ def drug_update(source_excel, base_excel, what):
 			elif what == 'inj_to_in':
 				fk.update_inout(code, 2)
 
+def get_label_list():
+	fk = FkocsAPI(server=server, user=user, password=password, database=database)
+	return fk.get_label_info(**codes)
