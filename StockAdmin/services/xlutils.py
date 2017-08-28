@@ -8,6 +8,8 @@ from email.message import Message
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+from django.http import HttpResponse
+
 
 import xlsxwriter
 
@@ -22,6 +24,10 @@ def excel_output(records):
     wb.close()
     return output.getvalue()
 
+def excel_file_response(contents, response_file_name):
+	response = HttpResponse(contents, content_type='application/vnd.ms-excel')
+	response['Content-Disposition'] = 'attachment; filename='+ response_file_name
+	return response
 
 
 #excel_chunk_map -> {result_filename: chunk}
@@ -49,5 +55,4 @@ def excel_gmail_send(_from, _passwd, to_list, subject, content, excel_chunk_map,
 	s.login(_from, _passwd)
 	s.sendmail(_from, to_list, outer.as_string())
 	return s.quit()
-
 

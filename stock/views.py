@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import EmailMessage
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from djangoslicer import SlicePaginatorMixin
 
 from datetime import datetime, timedelta, date
 from itertools import groupby, filterfalse
@@ -174,7 +175,7 @@ class StockInPTV(TemplateView):
 		return context
 
 
-class StockInPLV(ListView):
+class StockInPLV(SlicePaginatorMixin, ListView):
 	model = StockRec
 	template_name = 'stock/period_plv_list.html'
 	paginate_by = 25
@@ -200,16 +201,6 @@ class StockInPLV(ListView):
 			total_price+=s.total_price
 		context['total_price'] = total_price
 		context['total_count'] = self.queryset.count()
-
-		paginator = self.get_paginator(self.get_queryset(), self.paginate_by, allow_empty_first_page=False)
-		curPage = int(self.request.GET.get('page', 1))
-		pageUnit = 10
-
-		# 10, 20,30 과같은 10배수 페이지를 선택시 다음 단계 페이지로 시프트 방지 코드
-		startPage = curPage//pageUnit if curPage%10 else curPage//pageUnit-1
-		startPage*=pageUnit
-		endPage = startPage + pageUnit
-		context['page_range'] = paginator.page_range[startPage:endPage]
 
 		get_full_path = self.request.get_full_path()
 		reg_pgprm = re.compile('&*page=\d*')

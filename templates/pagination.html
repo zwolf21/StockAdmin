@@ -1,6 +1,6 @@
 
+{% if is_paginated %}
 <div class="text-center">
-	{% if is_paginated %}
 	<div class="pagination" style="text-align:center;">
 		<ul class="pagination pagination-sm">
 
@@ -17,7 +17,7 @@
 				<li><a href="?page=1" disabled="disabled">이전 페이지</a></li>
 				{% endif %}
 			{% endif %} 
-			{% for i in page_range %} 
+			{% for i in page_obj.paginator.page_range %} 
 				{% if page_obj.has_next %}
 				
 					{% if request.get_full_path %}
@@ -42,6 +42,6 @@
 			{% endif %}
 		</ul>
 	</div>
-	{% endif %}
 </div>
+{% endif %}
 

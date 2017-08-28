@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<style type="text/css">
+
+	table {
+		border-collapse: collapse;
+	}
+	th {
+		text-align: center;
+	}
+	tr.disabled, tr.disabled input {
+		background: #bbbbbb;
+	}
+	tbody tr:hover *{ background: #f3e8c0; }
+</style>
+
+<div class="container-fluid">
+	<h3>{{ title }}</h3>
+	<div class="text-right">
+		<form action="{% url 'ocsxl:compare-download' %}" method="post">
+			{% csrf_token %}
+			<input type="text" name="reportList" value="{{ pk_list }}" hidden>
+			<button class="btn btn-success" id="btn-compare-download">파일로받기<span class="glyphicon glyphicon-floppy-save"></span></button>
+		</form>
+	</div>
+	<div class="row">
+		<ul class="nav nav-tabs">
+			<li class="activate"><a class="btn-tab" id="added" href="#">추가된항목</a></li>
+			<li><a class="btn-tab" id="deleted" href="#">삭제된항목</a></li>
+			<li><a class="btn-tab" id="updated" href="#">변경된항목</a></li>
+		</ul>
+
+		<div class="changes" id="addedList">
+			<table class="tablesorter">
+				<thead>
+					<tr>
+						<th>약품코드</th>
+						<th>약품명(한글)</th>
+						<th>원내/원외 처방구분</th>
+						<th>시작일자</th>
+						<th>수가시작일자</th>
+						<th>보험단가</th>
+						<th>일반단가</th>
+						<th>효능코드명</th>
+						<th>EDI코드</th>
+						<th>제약회사명</th>
+						<th>효능코드명</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for change in changes.added %}
+					<tr>
+						<td>{{ change.rows.약품코드 }}</td>
+						<td>{{ change.rows.drug_name }}</td>
+						<td>{{ change.rows.inout }}</td>
+						<td>{{ change.rows.시작일자 }}</td>
+						<td>{{ change.rows.수가시작일자 }}</td>
+						<td>{{ change.rows.보험단가 }}</td>
+						<td>{{ change.rows.일반단가 }}</td>
+						<td>{{ change.rows.효능코드명 }}</td>
+						<td>{{ change.rows.EDI코드 }}</td>
+						<td>{{ change.rows.제약회사명 }}</td>
+						<td>{{ change.rows.효능코드명 }}</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<div class="changes" id="deletedList">
+			<table class="tablesorter">
+				<thead>
+					<tr>
+						<th>약품코드</th>
+						<th>약품명(한글)</th>
+						<th>원내/원외 처방구분</th>
+						<th>시작일자</th>
+						<th>수가시작일자</th>
+						<th>보험단가</th>
+						<th>일반단가</th>
+						<th>효능코드명</th>
+						<th>EDI코드</th>
+						<th>제약회사명</th>
+						<th>효능코드명</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for change in changes.deleted %}
+					<tr>
+						<td>{{ change.rows.약품코드 }}</td>
+						<td>{{ change.rows.drug_name }}</td>
+						<td>{{ change.rows.inout }}</td>
+						<td>{{ change.rows.시작일자 }}</td>
+						<td>{{ change.rows.수가시작일자 }}</td>
+						<td>{{ change.rows.보험단가 }}</td>
+						<td>{{ change.rows.일반단가 }}</td>
+						<td>{{ change.rows.효능코드명 }}</td>
+						<td>{{ change.rows.EDI코드 }}</td>
+						<td>{{ change.rows.제약회사명 }}</td>
+						<td>{{ change.rows.효능코드명 }}</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<div class="changes" id="updatedList">
+			<table class="">
+				<thead>
+					<tr>
+						<th>연번</th>
+					{% for key in updated.0.keys %}
+						{% if key == '변경전후' %}
+						<th width=4%>{{ key }}</th>
+						{% else %}
+						<th>{{ key }}</th>
+						{% endif %}
+					{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+				{% for record in updated %}
+					<tr>
+						<td>{{ forloop.counter }}</td>
+					{% for val in record.values %}
+						{% if forloop.counter > 4 %}
+							{% if val %}
+							<td style="background-color:bisque;">{{ val }}</td>
+							{% else %}
+							<td></td>	
+							{% endif %}							
+						{% else %}
+							<td>{{ val }}</td>
+						{% endif %}
+					{% endfor %}	
+					</tr>
+				{% endfor %}
+					
+				</tbody>
+			</table>
+		</div>
+	
+	
+	</div>
+</div>
+<script>
+	$('.changes').hide()
+	$('#addedList').show()
+	$('#added').parent('li').attr('class', 'activate')
+
+	$('.btn-tab').click(function(){
+		var selected = $(this).attr('id')
+		$(this).parent('li').attr('class', 'activate')
+		var toshow = $('#'+selected+"List")
+		$('.changes').hide()
+		toshow.show()
+	})
+
+	$('#btn-compare-download').click(function(){
+
+	})
+
+</script>
+
+{% include 'tablesorter_js.html' %}
+{% endblock content %}
