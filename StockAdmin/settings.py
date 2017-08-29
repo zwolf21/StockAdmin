@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'narcotic',
     'orderutils',
     'stock_invest',
+    'ocsxl'
 )
 
 TEMPLATES = [

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import ListView, TemplateView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
+from djangoslicer import SlicePaginatorMixin
 
 from .models import Invest, InvestItem
 from .forms import InvestInlineFormSet, InvestCreateForm
@@ -33,8 +34,9 @@ class InvestCV(CreateView):
 		invest = gen_invest_list(invest, self.request.POST)
 		return super(InvestCV, self).form_valid(form)
 
-class InvestLV(ListView):
+class InvestLV(SlicePaginatorMixin, ListView):
 	model = Invest
+	paginate_by = 10
 
 	def get_context_data(self, **kwargs):
 	    context = super(InvestLV, self).get_context_data(**kwargs)

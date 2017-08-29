@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from itertools import groupby, chain
 from django.forms.models import modelform_factory
-
+from djangoslicer import SlicePaginatorMixin
 from json import loads, dumps
 
 from .modules.dbwork import *
@@ -16,6 +16,7 @@ from .models import BuyItem, Buy
 from info.models import Info
 from .forms import CreateBuyForm, BuyItemAddForm
 from stock.models import StockRec
+
 # Create your views here.
 
 
@@ -46,27 +47,14 @@ def gen_from_predict(request):
 			BuyItem.objects.create(drug=item, amount=amount)
 		return HttpResponse(dumps(item_list), content_type='application/json')
 
-class BuyLV(ListView):
+
+
+class BuyLV(SlicePaginatorMixin, ListView):
 	model = Buy
 	template_name = 'buy/buy_lv.html'
 	paginate_by = 20
-
-	def get_context_data(self, **kwargs):
-		context = super(BuyLV, self).get_context_data(**kwargs)
-		# paginator = context['paginator']
-		paginator = self.get_paginator(self.get_queryset(), self.paginate_by, allow_empty_first_page=False)
-		curPage = int(self.request.GET.get('page',1)) 
-		pageUnit = 10
-
-		# 10, 20,30 과같은 10배수 페이지를 선택시 다음 단계 페이지로 시프트 방지 코드
-		startPage = curPage//pageUnit if curPage%10 else curPage//pageUnit-1
-		startPage*=pageUnit
-		endPage = startPage + pageUnit
-		context['page_range'] = paginator.page_range[startPage:endPage]
-		return context
-
-	def get_paginator(self, queryset, per_page, orphans=1, allow_empty_first_page=True):
-		return self.paginator_class(queryset, per_page, orphans=per_page/2, allow_empty_first_page=False)
+	slice_count = 10
+	
 
 
 class BuyUV(LoginRequiredMixin, UpdateView):
@@ -102,7 +90,7 @@ class BuyDVprint(BuyDV):
 
 
 
-class BuyItemLV(LoginRequiredMixin ,ListView):
+class BuyItemLV(LoginRequiredMixin, ListView):
 	template_name = 'buy/buyitem_lv.html'
 
 	def get_queryset(self):

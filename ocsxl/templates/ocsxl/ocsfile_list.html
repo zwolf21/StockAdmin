@@ -1,0 +1,96 @@
+
+{% include "home.html" %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+    <h3>후지스 약품정보 업로드 리스트</h3>
+    <hr>
+    <table border="1" class="table table-hover">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="select-all"></th>
+                <th>요약</th>
+                <th style="text-align: center">생성일</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+            <tr>
+                <td><input class="invest-select" type="checkbox" value="{{ object.id }}"></td>
+                <td>{{ object.description }}</a></td>
+                <td>{{ object.created|date:"Y-m-d h:i:s" }}</td>
+            </tr>   
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="row" align="center">
+    <div class="btn-group">
+    <button class="btn btn-success" id="btn-report">선택항목비교표출력<span class="glyphicon glyphicon-floppy-save"></span></button>
+    <a class="btn btn-success" href="{% url 'ocsxl:create' %}">약품정보업로드<span class="glyphicon glyphicon-floppy-open"></span></a>
+    <button class="btn btn-danger" id="btn-delete">선택항목삭제</button>   
+    </div>
+    <form method="post" action="" id="form-report">
+        {% csrf_token %}
+        <input type="text" name="reportList" id="report-list" hidden>   
+    </form>
+</div>
+<script>
+$(function(){
+    // 완료 체크박스 전체 선택 
+    $('#select-all').click(function(){
+        if($('#select-all').is(':checked'))
+        {
+            $('.invest-select').each(function(){
+                $(this).prop('checked',true);
+            });
+        }
+        else
+        {
+            $('.invest-select').each(function(){
+                $(this).prop('checked',false);
+            });
+        }
+    })
+
+
+    // 보고서 만들기 위한 선택항목 slug 전송
+    $('#btn-report').click(function(){
+        var reportList = []
+        var selected = $('.invest-select:checked')
+
+        for (var i = 0; i < selected.length; i++) {
+            reportList.push(selected[i].value)
+        }
+        if(reportList.length == 2) {
+            $('#report-list').val(reportList)
+            $('#form-report').attr('action', "{% url 'ocsxl:compare' %}").submit()
+        }else {
+            alert('비교표 출력시 2가지 항목을 선택하세요')
+        }
+    })
+
+      $('#btn-delete').click(function(){
+        var reportList = []
+        var selected = $('.invest-select:checked')
+
+        for (var i = 0; i < selected.length; i++) {
+            reportList.push(selected[i].value)
+        }
+        
+        if(reportList.length > 0) {
+            var isdel = confirm('선택한 항목을 삭제 하시겠습니까?')
+            if (isdel) {
+                $('#report-list').val(reportList)
+                $('#form-report').attr('action', "{% url 'ocsxl:delete' %}").submit()
+            }
+        }
+
+    })
+  
+
+})
+</script>  
+{% endblock content %}
