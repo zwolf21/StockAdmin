@@ -11,6 +11,7 @@
         <thead>
             <tr>
                 <th><input type="checkbox" id="select-all"></th>
+                <th>파일명</th>
                 <th>요약</th>
                 <th style="text-align: center">생성일</th>
             </tr>
@@ -19,6 +20,7 @@
         {% for object in object_list %}
             <tr>
                 <td><input class="invest-select" type="checkbox" value="{{ object.id }}"></td>
+                <td>{{ object.filename }}</td>
                 <td>{{ object.description }}</a></td>
                 <td>{{ object.created|date:"Y-m-d h:i:s" }}</td>
             </tr>   
