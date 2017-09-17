@@ -3,4 +3,5 @@
 *.xlsx
 *.xls
 *.csv
-
+collect.log
+*.json

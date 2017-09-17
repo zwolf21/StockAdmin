@@ -19,5 +19,6 @@ urlpatterns = patterns('',
     url(r'^narcotic/', include('narcotic.urls','narcotic')),
     url(r'^stock-invest/', include('stock_invest.urls','stock_invest')),
     url(r'^orderutils/', include('orderutils.urls','orderutils')),
-    url(r'^ocsxl/', include('ocsxl.urls', 'ocsxl'))
+    url(r'^ocsxl/', include('ocsxl.urls', 'ocsxl')),
+    url(r'^collect/', include('collect.urls', 'collect')),
 )

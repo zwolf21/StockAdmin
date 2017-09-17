@@ -168,8 +168,9 @@ class OrderSelectApiRequest(ApiRequest):
 		ord_end_date = ord_end_date.replace('-', '').encode()
 		date_pat = re.compile(b'\d{8}')
 
-		for word in wards:
-			req = API_REQ['ordSelect'][word]
+		for ward in wards:
+			req = API_REQ['ordSelect']['51']
+			req = re.sub(b'51', ward.encode(), req)
 			req = date_pat.sub(ord_end_date, req)
 			req = date_pat.sub(ord_start_date, req, 1)
 			self.requests.append(req)
@@ -191,3 +192,4 @@ class OrderSelectApiRequest(ApiRequest):
 	def set_test_response(self, response_sample_path):
 		self.raws.append(super(OrderSelectApiRequest, self).set_test_response(response_sample_path))
 		return self
+

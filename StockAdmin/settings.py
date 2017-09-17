@@ -45,7 +45,8 @@ INSTALLED_APPS = (
     'narcotic',
     'orderutils',
     'stock_invest',
-    'ocsxl'
+    'ocsxl',
+    'collect'
 )
 
 TEMPLATES = [
@@ -105,7 +106,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+# USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
