@@ -7,28 +7,31 @@ try:
 except:
 	from api_requests import *
 
-from .dbconn import *
+try:
+	from dbconn import *
+except:
+	from .dbconn import *
 
 
 # path = 'C:\\Users\\HS\\Desktop\\처방조회종합.xlsx'
 
 
 def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test):
+	# print(ord_start_date, ord_end_date, wards)
 	ord_request = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
 	if test:
 		ord_request.set_test_response('response_samples/ordSelect51.sample.rsp')
 		drug_lst = listorm.read_excel(DRUG_DB_PATH)
 		ord_lst = listorm.Listorm(ord_request.get_records())
 	else:
-		ord_request.api_call()
+		ord_request.api_calls()
 		ord_lst = listorm.Listorm(ord_request.get_records())
-		print(ord_lst)
 		try:
 			drug_lst = get_label_list()
 		except:
 			drug_lst = read_excel(DRUG_DB_PATH)
 		else:
-			ord_lst = ord_lst.filter(where=lambda row: start_dt <= row['rcpt_dt'] < end_dt)
+			ord_lst = ord_lst.filter(where=lambda row:row.rcpt_dt and start_dt <= row['rcpt_dt'] < end_dt)
 	
 	drug_lst = drug_lst.select('약품코드', '단일포장구분', '효능코드명')
 	pk_set = drug_lst.unique('약품코드')
@@ -37,8 +40,9 @@ def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, te
 	ord_lst = ord_lst.join(drug_lst, left_on='ord_cd', right_on='약품코드')
 	ord_lst = ord_lst.set_number_type(ord_qty=0.0, ord_frq=0, ord_day=0)
 	rcpt_dt_list = ord_lst.column_values('rcpt_dt')
-	f, l = min(rcpt_dt_list), max(rcpt_dt_list)
-	ord_lst = ord_lst.add_columns(rcpt_dt_min=lambda x: f, rcpt_dt_max=lambda x: l)
+	if rcpt_dt_list:
+		f, l = min(rcpt_dt_list), max(rcpt_dt_list)
+		ord_lst = ord_lst.add_columns(rcpt_dt_min=lambda x: f, rcpt_dt_max=lambda x: l)
 	return ord_lst
 
 
@@ -54,11 +58,11 @@ def get_label_records(kinds, types, wards, ord_start_date, ord_end_date, start_d
 	ord_lst = ord_lst.map(단일포장구분= lambda x: {'S': '작은라벨', 'P': '큰라벨'}.get(x,x))
 	return {'grp_by_drug_nm':ord_lst.orderby('-단일포장구분', 'drug_nm'), 'count': ord_lst_length}
 	
-# ret = get_label_records(['P', 'S'], ['정기'], ['51', '52', '61', '71', '81', '92', 'IC'], '2017-04-09','2017-04-10', '2017-04-08 00:00:00', '2017-04-08 23:23:00', test=True)
+# ret = get_label_records(['P', 'S'], ['정기'], ['51'], '2017-09-18','2017-09-18', '2017-09-17 00:00:00', '2017-09-17 23:23:00', test=False)
 
 # for row in ret:
 # 	print(row)
-# 	# break
+	# break
 
 def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
 	ord_lst = get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['효능코드명'] in ['단백아미노산제제'])

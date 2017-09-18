@@ -5,3 +5,4 @@
 *.csv
 collect.log
 *.json
+.DS_STORE

@@ -1,0 +1,20 @@
+<button class="btn btn-danger" data-target="#{{ id }}" data-toggle="modal"><span class="glyphicon glyphicon-trash">폐기</span></button>
+<div class="modal" id="{{ id }}" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header" style="text-align: center">
+				<button class="close" data-dismiss="modal">&times;</button>
+				<div style="font-size: 30px;">삭제 하겠습니까?</div>
+			</div>
+			<div class="modal-body" style="text-align: center;">
+				<form class="form-inline" method="post" action="{{ url }}">
+					{% csrf_token %}
+					<button type="submit" class="btn btn-warning">&nbsp;&nbsp;&nbsp;예&nbsp;&nbsp;&nbsp; </button>
+					<span>&nbsp;&nbsp;&nbsp;</span>
+					<button type="button" class="btn btn-primary" data-dismiss="modal">아니오</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+

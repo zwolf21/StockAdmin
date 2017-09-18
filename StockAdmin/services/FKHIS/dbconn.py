@@ -2,7 +2,10 @@ from datetime import datetime
 import pymssql
 from listorm import Listorm, read_excel
 
-from .mapping import codes
+try:
+	from .mapping import codes
+except:
+	from mapping import codes
 
 server = '192.168.7.7'
 user = 'sa'

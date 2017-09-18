@@ -12,7 +12,7 @@ class CollectCreateView(FormView):
     def form_valid(self, form):
         c = Collect()
         obj = c.create_collect(**form.cleaned_data)
-        c.set_context(obj, test=True)
+        c.set_context(obj, test=False)
         c.save(obj)
         return super(CollectCreateView, self).form_valid(form)
 
@@ -20,7 +20,6 @@ class CollectCreateView(FormView):
         context = super(CollectCreateView, self).get_context_data(**kwargs)
         c = Collect()
         form_data = c.get_form(self.request)
-        print(form_data)
         if form_data:
             context['form'] = CollectCreateForm(form_data)
         context['object_list'] = c.get_list()

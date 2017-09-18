@@ -139,8 +139,8 @@ class Collect(object):
 		if start_date is None or end_date is None:
 			start_date, end_date = self._get_auto_ord_date_range(auto_on_staturday=auto_on_staturday)
 		else:
-			start_date = start_date.strftime("%Y-%m-%d %H:%M:%S") if isinstance(start_date, (datetime.datetime, datetime.date)) else start_date
-			end_date = end_date.strftime("%Y-%m-%d %H:%M:%S") if isinstance(end_date, (datetime.datetime, datetime.date)) else end_date		
+			start_date = start_date.strftime("%Y-%m-%d") if isinstance(start_date, (datetime.datetime, datetime.date)) else start_date
+			end_date = end_date.strftime("%Y-%m-%d") if isinstance(end_date, (datetime.datetime, datetime.date)) else end_date		
 
 		seq = self._calc_seq(types, kind, date)
 
@@ -170,8 +170,9 @@ class Collect(object):
 		if kind == "영양수액":
 			context = get_nutfluid_records(types, wards, start_date, end_date, start_dt, end_dt, test)
 		elif kind == "라벨":
+			print('start_date, end_date:',start_date, end_date)
 			context = get_label_records(["S", "P"], types, wards, start_date, end_date, start_dt, end_dt, test)
-
+			
 		# collect['context'] = context
 		collect['ord_count'] = context['count']
 		collect['grp_by_drug_nm'] = context['grp_by_drug_nm']
