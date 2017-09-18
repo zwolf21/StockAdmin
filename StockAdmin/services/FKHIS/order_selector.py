@@ -121,6 +121,7 @@ def get_label_object_test(kinds, types, wards, ord_start_date, ord_end_date, sta
 def get_label_object(kinds, types, wards, ord_start_date, ord_end_date, start_dt, end_dt):
 	try:
 		drug_db_recs = get_label_list()
+		drug_db_recs = RecordParser(drug_db_recs, drop_if= lambda row: row['단일포장구분'] not in ['S', 'P']) 
 	except:
 		drug_db_recs = read_excel(DRUG_DB_PATH, drop_if= lambda row: row['단일포장구분'] not in ['S', 'P'])
 

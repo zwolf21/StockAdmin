@@ -48,17 +48,17 @@ class FkocsAPI:
 			lst.rename(**renames)
 			lst.to_excel(filename, selects=columns)
 
-	# def get_label_info(self, **renames):
-	# 	query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N'"
-	# 	self.cursor.execute(query)
-	# 	records = [row for row in self.cursor.fetchall()]
-	# 	return Listorm(records).rename(**renames)
-	
 	def get_label_info(self, **renames):
-		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N' AND SNG_PACK_GB='S' OR SNG_PACK_GB='P'"
+		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N'"
 		self.cursor.execute(query)
 		records = [row for row in self.cursor.fetchall()]
 		return Listorm(records).rename(**renames)
+	
+	# def get_label_info(self, **renames):
+	# 	query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N' AND SNG_PACK_GB='S' OR SNG_PACK_GB='P'"
+	# 	self.cursor.execute(query)
+	# 	records = [row for row in self.cursor.fetchall()]
+	# 	return Listorm(records).rename(**renames)
 
 
 	def _update_druginfo(self, code, column, value):
