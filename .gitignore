@@ -1,8 +1,9 @@
-*.sqlite3
 /media
+/__pycache__
+*.sqlite3
+*.pyc
 *.xlsx
 *.xls
 *.csv
-collect.log
-*.json
 .DS_STORE
+
