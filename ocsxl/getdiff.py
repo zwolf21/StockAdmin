@@ -49,7 +49,7 @@ def write_updated(context, ws, pk, column_orders=None, extras=None):
 def compare_contents(content_before, content_after, pk, extras, to_context=False):
 	lst_before = ls.read_excel(file_contents=content_before)
 	lst_after = ls.read_excel(file_contents=content_after)
-	inout_map = {'1': '원외', '2': '원외', '3':'원내/원외'}
+	inout_map = {'1': '원외', '2': '원내', '3':'원내/원외'}
 	column_orders = lst_before.column_orders
 	lst_before = lst_before.map(**{'원내/원외 처방구분': inout_map.get})
 	lst_after = lst_after.map(**{'원내/원외 처방구분': inout_map.get})
