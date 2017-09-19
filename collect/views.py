@@ -20,7 +20,6 @@ class CollectCreateView(FormView):
         context = super(CollectCreateView, self).get_context_data(**kwargs)
         c = Collect()
         form_data = c.get_form(self.request, auto_on_staturday=True, translate=False)
-        print(form_data)
         if form_data:
             context['form'] = CollectCreateForm(form_data)
         context['object_list'] = c.get_list()

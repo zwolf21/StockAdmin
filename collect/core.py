@@ -160,11 +160,11 @@ class Collect(object):
 			start_dt = start_dt.strftime("%Y-%m-%d %H:%M:%S") if isinstance(start_dt, (datetime.datetime, datetime.date)) else start_dt
 			end_dt = end_dt.strftime("%Y-%m-%d %H:%M:%S") if isinstance(end_dt, (datetime.datetime, datetime.date)) else end_dt
 
-		slug = self._generate_slug(types, kind, seq, date)
 
 		if not translate:
 			types = ori_types
 			kind = ori_kind
+		slug = self._generate_slug(ori_types, ori_kind, seq, date)
 
 		collect = {
 			'slug': slug, 'kind': kind, 'types': types, 'date': date, 'seq': seq, 'wards': wards,
