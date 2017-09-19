@@ -1,6 +1,6 @@
 import datetime
 from django import forms
-from django.forms import CheckboxSelectMultiple
+from django.forms import CheckboxSelectMultiple, Textarea
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -29,3 +29,4 @@ class CollectCreateForm(forms.Form):
     wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
     kind = forms.ChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨')], initial='LABEL')
     types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OUT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
+    exclude_names = forms.CharField(required=False, widget=Textarea())

@@ -4,6 +4,7 @@ from django.views.generic import CreateView, UpdateView, FormView, TemplateView
 from .core import Collect
 from .forms import CollectCreateForm
 
+
 class CollectCreateView(FormView):
     template_name = 'collect/collect_form.html'
     form_class = CollectCreateForm
@@ -12,7 +13,7 @@ class CollectCreateView(FormView):
     def form_valid(self, form):
         c = Collect()
         obj = c.create_collect(**form.cleaned_data)
-        c.set_context(obj, test=False)
+        c.set_context(obj, test=True)
         c.save(obj)
         return super(CollectCreateView, self).form_valid(form)
 

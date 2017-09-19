@@ -46,6 +46,7 @@ def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, te
 	return ord_lst
 
 
+
 def get_label_records(kinds, types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
 	ord_lst= get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['단일포장구분'] in kinds)
 	ord_lst_length = len(ord_lst)
@@ -64,8 +65,10 @@ def get_label_records(kinds, types, wards, ord_start_date, ord_end_date, start_d
 # 	print(row)
 	# break
 
-def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
-	ord_lst = get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['효능코드(보건복지부)'] in ['325'])
+def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, exclude_names=None, test=False):
+	ord_lst = get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['효능코드(보건복지부)'] in ['325'] or '알부민' in row['drug_nm'])
+	if exclude_names:
+		ord_lst = ord_lst.search_splited(exclude_names or [], ['drug_nm'], exclude=True)
 	ord_lst_length = len(ord_lst)
 	ord_lst = ord_lst.add_columns(
 			once_amt=lambda row: round(row['ord_qty'] / row['ord_frq'], 2),
@@ -77,13 +80,13 @@ def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, e
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
 		extra_columns=['ord_cd', 'ord_unit_nm',],
 		set_name = 'order_set'
-	)
+	).orderby('drug_nm')
 
 	grp_by_ward = ord_lst.groupby('ward_', ord_qty=sum, total_amt=sum, drug_nm=len,
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
 		extra_columns=['ord_cd', 'ord_unit_nm',],
 		set_name = 'order_set'
-	)
+	).orderby('ward_', 'drug_nm')
 	return {'grp_by_drug_nm': grp_by_drug_nm, 'grp_by_ward': grp_by_ward, 'count': ord_lst_length}
 
 # ret = get_nutfluid_records(['정기'], ['51', '52', '61', '71', '81', '92', 'IC'], '2017-04-09','2017-04-10', '2017-04-08 00:00:00', '2017-04-08 23:23:00', test=True)

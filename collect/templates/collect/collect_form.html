@@ -14,38 +14,51 @@
 	<div class="panel panel-body">
 			<form id="collect-form" name="show" method="post" class="form-inline" action="{% url 'collect:create' %}">
 				{% csrf_token %}
-				<div class="row">
-					<div class="form-group">
-						<div class="col-xs-12">
-							<label >처방일자: {{ form.start_date }}</label>~
-							<label>{{ form.end_date }}</label>
+	
+				<div class="col-xs-7">
+					<div class="row">
+						<div class="form-group">
+							<div class="col-xs-12">
+								<label >처방일자: {{ form.start_date }}</label>~
+								<label>{{ form.end_date }}</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group">
+							<div class="col-xs-12">
+								<label>접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group">
+							<div class="col-xs-12">
+								<label>집계병동: {{ form.wards }}</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group">
+							<div class="col-xs-12">
+								<label>처방구분: {{ form.types }}</label>
+							</div>
+							<div class="col-xs-12">
+								<label>집계항목: {{ form.kind }}</label>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="row">
-					<div class="form-group">
-						<div class="col-xs-12">
-							<label>접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
+				<div class="col-xs-5">
+					<div class="row">
+						<div class="form-group">
+							<div class="col-xs-12">
+							<label>집계제외: {{ form.exclude_names }}</label>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="row">
-					<div class="form-group">
-						<div class="col-xs-12">
-							<label>집계병동: {{ form.wards }}</label>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="form-group">
-						<div class="col-xs-12">
-							<label>처방구분: {{ form.types }}</label>
-						</div>
-						<div class="col-xs-12">
-							<label>집계항목: {{ form.kind }}</label>
-						</div>
-					</div>
-				</div>
+			
 				<hr>
 				<div class="row" align="center">
 					<div class="col-xs-10">

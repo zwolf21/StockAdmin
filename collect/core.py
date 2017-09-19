@@ -54,7 +54,6 @@ class Collect(object):
 			os.mkdir(collect_dir)
 		return collect_path		
 
-
 	def _open_record_file(self):
 		collect_path = self._set_collect_path()
 		if os.path.exists(collect_path):		
@@ -62,7 +61,6 @@ class Collect(object):
 				records = json.loads(fp.read())
 				return Listorm(records)
 		return Listorm()
-
 
 	def save(self, collect, remove=-1):
 		collect_path = self._set_collect_path()
@@ -99,7 +97,6 @@ class Collect(object):
 			next_end_dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 		return next_start_dt, next_end_dt
 
-
 	def _get_auto_ord_date_range(self, auto_on_staturday=False):
 		tomorrow = datetime.date.today() + datetime.timedelta(1)
 		start, end = tomorrow, tomorrow
@@ -115,13 +112,11 @@ class Collect(object):
 		type = '/'.join(sorted(types, key=type_order.get))
 		return "{} {} {} {}차({}건)".format(date, kind, type, seq, counts)
 
-	# def _generate_slug(self, *args, **kwargs):
-	# 	return self._generate_title(*args, **kwargs)
-
 	def _generate_slug(self, types, kind, seq, date):
 		type_order = {'ST':1 , 'AD':2, 'EM':3, 'OUT':4}
 		type = '-'.join(sorted(types, key=type_order.get))
 		return "{}-{}-{}-{}".format(date, kind, type, seq)
+
 
 	def get_object(self, slug):
 		for obj in self.objects:
@@ -132,7 +127,7 @@ class Collect(object):
 	def get_list(self):
 		return self.objects[::-1] 
 
-	def create_collect(self, kind, types, wards, date=None, start_date=None, end_date=None, start_dt=None, end_dt=None, auto_on_staturday=True, translate=True):
+	def create_collect(self, kind, types, wards, date=None, start_date=None, end_date=None, start_dt=None, end_dt=None, auto_on_staturday=True, translate=True, exclude_names=None):
 
 		wards = wards.split(', ') if isinstance(wards, str) else wards
 
@@ -160,7 +155,6 @@ class Collect(object):
 			start_dt = start_dt.strftime("%Y-%m-%d %H:%M:%S") if isinstance(start_dt, (datetime.datetime, datetime.date)) else start_dt
 			end_dt = end_dt.strftime("%Y-%m-%d %H:%M:%S") if isinstance(end_dt, (datetime.datetime, datetime.date)) else end_dt
 
-
 		if not translate:
 			types = ori_types
 			kind = ori_kind
@@ -168,12 +162,12 @@ class Collect(object):
 
 		collect = {
 			'slug': slug, 'kind': kind, 'types': types, 'date': date, 'seq': seq, 'wards': wards,
-			'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt
+			'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt,
+			'excludes': [], 'encludes':[]
 		}
 		return collect
 
-
-	def set_context(self, collect=None, slug=None, test=False):
+	def set_context(self, collect=None, slug=None, excludes=None, includes=None, exclude_names=None, test=False):
 
 		collect = collect or self.get_object(slug)
 
@@ -183,17 +177,15 @@ class Collect(object):
 		date, types, kind, wards, start_date, end_date, start_dt, end_dt = collect.get('date'), collect.get('types'), collect.get('kind'), collect.get('wards'), collect.get('start_date'), collect.get('end_date'), collect.get('start_dt'), collect.get('end_dt')
 		
 		if kind in ["영양수액", "NUT"]:
-			context = get_nutfluid_records(types, wards, start_date, end_date, start_dt, end_dt, test)
+			context = get_nutfluid_records(types=types, wards=wards, ord_start_date=start_date, ord_end_date=end_date, start_dt=start_dt, end_dt=end_dt, exclude_names=exclude_names, test=test)
 			collect['grp_by_ward'] = context['grp_by_ward']
 		elif kind in ["라벨", "LABEL"]:
 			context = get_label_records(["S", "P"], types, wards, start_date, end_date, start_dt, end_dt, test)
-			
-		# collect['context'] = context
+		
 		collect['ord_count'] = context['count']
 		collect['grp_by_drug_nm'] = context['grp_by_drug_nm']
 		collect['title'] = self._generate_title(types, kind, collect['seq'], date, collect['ord_count'])
 		
-
 	def get_form(self,request, *args, **kwargs):
 		if request.method == "GET":
 			kind = request.GET.get('kind')
