@@ -33,7 +33,7 @@ def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, te
 		else:
 			ord_lst = ord_lst.filter(where=lambda row:row.rcpt_dt and start_dt <= row['rcpt_dt'] < end_dt)
 	
-	drug_lst = drug_lst.select('약품코드', '단일포장구분', '효능코드명')
+	drug_lst = drug_lst.select('약품코드', '단일포장구분', '효능코드(보건복지부)')
 	pk_set = drug_lst.unique('약품코드')
 
 	ord_lst = ord_lst.filter(where = lambda row: row.get('ord_cd') in pk_set and row.get('rcpt_dt') and row.get('rcpt_ord_tp_nm') in types)
@@ -65,7 +65,7 @@ def get_label_records(kinds, types, wards, ord_start_date, ord_end_date, start_d
 	# break
 
 def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
-	ord_lst = get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['효능코드명'] in ['단백아미노산제제'])
+	ord_lst = get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['효능코드(보건복지부)'] in ['325'])
 	ord_lst_length = len(ord_lst)
 	ord_lst = ord_lst.add_columns(
 			once_amt=lambda row: round(row['ord_qty'] / row['ord_frq'], 2),
@@ -76,6 +76,7 @@ def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, e
 	grp_by_drug_nm = ord_lst.groupby('drug_nm', ord_qty=sum, total_amt=sum, drug_nm=len,
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
 		extra_columns=['ord_cd', 'ord_unit_nm',],
+		set_name = 'order_set'
 	)
 
 	grp_by_ward = ord_lst.groupby('ward_', ord_qty=sum, total_amt=sum, drug_nm=len,

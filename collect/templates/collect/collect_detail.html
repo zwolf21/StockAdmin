@@ -1,10 +1,11 @@
 {% extends "collect/base.html" %}
+{% load humanize %}
 
 {% block main %}
 <div class="panel panel-success">
 	<div class="panel-heading">
 		<h3 class="panel-title">
-			<span class="glyphicon glyphicon-tag">라벨집계</span>
+			<span class="glyphicon glyphicon-tag">{{ object.kind }} 집계</span>
 		</h3>
 	</div>
 	<div class="panel panel-body">
@@ -46,7 +47,7 @@
 			{% if object.ord_count == 0 %}
 				<h2>집계 내역이 없습니다.</h2>
 			{% else %}
-				{% if object.kind == "라벨" %}		
+				
 				<table class="list text-right" border="1" width="100%">
 					<thead>
 						<th align="center" width="150px;">약품코드</th>
@@ -125,14 +126,22 @@
 						{% endfor %}
 					</tbody>
 				</table>
-				{% elif object.kind == "영양수액" %}
-					{{ object }}
-					{% for object in object.grp_by_nm %}
-						
-					{% endfor %}
-				{% endif %}
+			
+			
 			{% endif %}
-
+				<h4>병동별</h4>
+				<div>
+					{% for object in object.grp_by_ward %}
+					<div class="col-xs-6" style="border: 1px solid green">
+						<h4>{{ object.ward_}}</h4>
+						<ul>
+						{% for object in object.order_set %}
+							<li>{{ object.rcpt_ord_tp_nm }}|{{ object.ptnt_nm }}|{{ object.drug_nm }}: {{ object.total_amt|floatformat:0|intcomma }}</li>							
+						{% endfor %}
+						</ul>
+					</div>
+					{% endfor %}
+				</div>
 		</div>
 	</div>
 </div>

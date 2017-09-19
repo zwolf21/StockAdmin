@@ -133,8 +133,13 @@ class Collect(object):
 		return self.objects[::-1] 
 
 	def create_collect(self, kind, types, wards, date=None, start_date=None, end_date=None, start_dt=None, end_dt=None, auto_on_staturday=True, translate=True):
+
 		wards = wards.split(', ') if isinstance(wards, str) else wards
-		
+
+		ori_types, ori_kind = types, kind
+		types = list(map(TYPE_MAPPING.get, types))
+		kind = KIND_MAPPING.get(kind)
+
 		if date is None:
 			date = datetime.date.today().strftime("%Y-%m-%d")
 		else:
@@ -157,9 +162,9 @@ class Collect(object):
 
 		slug = self._generate_slug(types, kind, seq, date)
 
-		if translate:
-			types = list(map(TYPE_MAPPING.get, types))
-			kind = KIND_MAPPING.get(kind)
+		if not translate:
+			types = ori_types
+			kind = ori_kind
 
 		collect = {
 			'slug': slug, 'kind': kind, 'types': types, 'date': date, 'seq': seq, 'wards': wards,
@@ -179,6 +184,7 @@ class Collect(object):
 		
 		if kind in ["영양수액", "NUT"]:
 			context = get_nutfluid_records(types, wards, start_date, end_date, start_dt, end_dt, test)
+			collect['grp_by_ward'] = context['grp_by_ward']
 		elif kind in ["라벨", "LABEL"]:
 			context = get_label_records(["S", "P"], types, wards, start_date, end_date, start_dt, end_dt, test)
 			
