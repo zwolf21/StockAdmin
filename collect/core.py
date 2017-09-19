@@ -19,6 +19,8 @@ COLLECT_LOG_FILE = os.path.join(APP_BASE_DIR, 'logs/collect.log')
 MAX_COLLECT_LENGTH = 20
 WARDS = ['51', '52', '61', '71', '72', '81', '92', 'IC']
 
+TYPE_MAPPING = {'ST': '정기', 'AD':'추가', 'EM': '응급', 'OUT': '퇴원'}
+KIND_MAPPING = {'LABEL': '라벨', 'NUT': '영양수액'}
 # print(sys.path)
 # print(MODULE_PATH)
 
@@ -76,7 +78,6 @@ class Collect(object):
 	def delete(self, slug):
 		for i, collect in enumerate(self.objects):
 			if collect.slug == slug:
-				print(slug)
 				return self.save(collect, i)
 
 	def _calc_seq(self, types, kind, date):
@@ -103,20 +104,24 @@ class Collect(object):
 		tomorrow = datetime.date.today() + datetime.timedelta(1)
 		start, end = tomorrow, tomorrow
 		if auto_on_staturday:
-			end = end + datetime.timedelta(1)
+			today = datetime.date.today()
+			if today.weekday() == 5:
+				end = end + datetime.timedelta(1)
 		return start, end
 
 	def _generate_title(self, types, kind, seq, date, counts=None):
-		type_order = {'정기':1 , '추가':2, '응급':3, '퇴원':4}
-		if counts:
-			type = '/'.join(sorted(types, key=type_order.get))
-			return "{} {} {} {}차({}건)".format(date, kind, type, seq, counts)
+		type_order = {'정기':1 , '추가':2, '응급':3, '퇴원':4}		
+		# types = map(TYPE_MAPPING.get, types)
+		type = '/'.join(sorted(types, key=type_order.get))
+		return "{} {} {} {}차({}건)".format(date, kind, type, seq, counts)
+
+	# def _generate_slug(self, *args, **kwargs):
+	# 	return self._generate_title(*args, **kwargs)
+
+	def _generate_slug(self, types, kind, seq, date):
+		type_order = {'ST':1 , 'AD':2, 'EM':3, 'OUT':4}
 		type = '-'.join(sorted(types, key=type_order.get))
 		return "{}-{}-{}-{}".format(date, kind, type, seq)
-
-	def _generate_slug(self, *args, **kwargs):
-		return self._generate_title(*args, **kwargs)
-
 
 	def get_object(self, slug):
 		for obj in self.objects:
@@ -127,7 +132,7 @@ class Collect(object):
 	def get_list(self):
 		return self.objects[::-1] 
 
-	def create_collect(self, kind, types, wards, date=None, start_date=None, end_date=None, start_dt=None, end_dt=None, auto_on_staturday=True):
+	def create_collect(self, kind, types, wards, date=None, start_date=None, end_date=None, start_dt=None, end_dt=None, auto_on_staturday=True, translate=True):
 		wards = wards.split(', ') if isinstance(wards, str) else wards
 		
 		if date is None:
@@ -151,6 +156,11 @@ class Collect(object):
 			end_dt = end_dt.strftime("%Y-%m-%d %H:%M:%S") if isinstance(end_dt, (datetime.datetime, datetime.date)) else end_dt
 
 		slug = self._generate_slug(types, kind, seq, date)
+
+		if translate:
+			types = list(map(TYPE_MAPPING.get, types))
+			kind = KIND_MAPPING.get(kind)
+
 		collect = {
 			'slug': slug, 'kind': kind, 'types': types, 'date': date, 'seq': seq, 'wards': wards,
 			'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt
@@ -166,11 +176,10 @@ class Collect(object):
 			return {}
 
 		date, types, kind, wards, start_date, end_date, start_dt, end_dt = collect.get('date'), collect.get('types'), collect.get('kind'), collect.get('wards'), collect.get('start_date'), collect.get('end_date'), collect.get('start_dt'), collect.get('end_dt')
-
-		if kind == "영양수액":
+		
+		if kind in ["영양수액", "NUT"]:
 			context = get_nutfluid_records(types, wards, start_date, end_date, start_dt, end_dt, test)
-		elif kind == "라벨":
-			print('start_date, end_date:',start_date, end_date)
+		elif kind in ["라벨", "LABEL"]:
 			context = get_label_records(["S", "P"], types, wards, start_date, end_date, start_dt, end_dt, test)
 			
 		# collect['context'] = context
@@ -186,7 +195,6 @@ class Collect(object):
 			wards = request.GET.getlist('wards')
 
 			if kind and types and wards:
-				print(wards)
 				return self.create_collect(kind, types, wards, *args, **kwargs)
 
 # 	def get_or_create(self, request):
@@ -194,9 +202,9 @@ class Collect(object):
 # 			request.GET.get('slug')
 
 
-cm = Collect()
-c = cm.create_collect(kind="라벨", types=['응급','정기', '추가'], wards=['51', '52'], date='2017-04-17', start_date='2017-04-18', end_date='2017-04-18', start_dt='2017-04-17 00:00:00', end_dt='2017-04-17 14:07:12')
-cm.set_context(c, test=True)
+# cm = Collect()
+# c = cm.create_collect(kind="라벨", types=['응급','정기', '추가'], wards=['51', '52'], date='2017-04-17', start_date='2017-04-18', end_date='2017-04-18', start_dt='2017-04-17 00:00:00', end_dt='2017-04-17 14:07:12')
+# cm.set_context(c, test=True)
 
 
 

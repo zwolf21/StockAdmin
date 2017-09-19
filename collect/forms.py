@@ -18,8 +18,7 @@ class HorizontalCheckboxRenderer(forms.CheckboxSelectMultiple.renderer):
 
 
 
-
-WARDS_CHOICES = [('51', '51'), ('52', '52'), ('61', '61'), ('71', '71'), ('72', '72'), ('81', '81'), ('91', '91'), ('92', '92'), ('IC', 'IC')]
+WARDS_CHOICES = [('51', '51'), ('52', '52'), ('61', '61'), ('71', '71'), ('81', '81'), ('92', '92'), ('IC', 'IC')]
 
 class CollectCreateForm(forms.Form):
     date = forms.DateField(initial=datetime.date.today(), required=False)
@@ -28,5 +27,5 @@ class CollectCreateForm(forms.Form):
     start_dt = forms.DateTimeField(initial=datetime.date.today())
     end_dt = forms.DateTimeField(initial=datetime.datetime.now())
     wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
-    kind = forms.ChoiceField(choices=[('영양수액', '영양수액'), ('라벨', '라벨')], initial='라벨')
-    types = forms.MultipleChoiceField(choices=[('정기', '정기'), ('추가', '추가'), ('응급', '응급'), ('퇴원', '퇴원')], initial=['정기'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
+    kind = forms.ChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨')], initial='LABEL')
+    types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OUT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
