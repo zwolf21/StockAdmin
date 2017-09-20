@@ -27,7 +27,7 @@
 						</tr>
 						<tr>
 							<th colspan="2" style="text-align: center; border: 1px solid black;">접수시간 범위</th>
-							{# <td colspan="2" style="text-align: center; border: 1px solid black;">{{  }} ~ {{  }}</td> #}
+							<td colspan="2" style="text-align: center; border: 1px solid black;">{{ object.grp_by_drug_nm.0.rcpt_dt_min }} ~ {{ object.grp_by_drug_nm.0.rcpt_dt_max }}</td>
 						</tr>
 					</table>
 					<hr>
@@ -134,9 +134,9 @@
 					{% for object in object.grp_by_ward %}
 					<div class="col-xs-6" style="border: 1px solid green">
 						<h4>{{ object.ward_}}</h4>
-						<ul>
+						<ul class="list-unstyled">
 						{% for object in object.order_set %}
-							<li>{{ object.rcpt_ord_tp_nm }}|{{ object.ptnt_nm }}|{{ object.drug_nm }}: {{ object.total_amt|floatformat:0|intcomma }}</li>							
+							<li style="border-bottom: 1px solid #ccc">{{ object.rcpt_ord_tp_nm }}-{{ object.medi_no }} {{ object.ptnt_nm }}|{{ object.drug_nm }}: {{ object.total_amt|floatformat:0|intcomma }}</li>							
 						{% endfor %}
 						</ul>
 					</div>
@@ -146,7 +146,7 @@
 					{% endfor %}
 				</div>
 				<hr>
-				<h5>※집계 제외된 약품: {{ object.exclude_names }}</h5>
+				<h5>※집계 제외된 품목: {{ object.exclude_names }}</h5>
 		</div>
 	</div>
 </div>
