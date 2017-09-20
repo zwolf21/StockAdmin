@@ -1,4 +1,5 @@
 import os
+from pprint import pprint
 # from recordlib import RecordParser, read_excel
 import listorm
 from recordlib import RecordParser, read_excel
@@ -16,7 +17,7 @@ except:
 # path = 'C:\\Users\\HS\\Desktop\\처방조회종합.xlsx'
 
 
-def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test):
+def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test, shape='po'):
 	# print(ord_start_date, ord_end_date, wards)
 	ord_request = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
 	if test:
@@ -27,7 +28,10 @@ def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, te
 		ord_request.api_calls()
 		ord_lst = listorm.Listorm(ord_request.get_records())
 		try:
-			drug_lst = get_label_list()
+			if shape == 'inj':
+				drug_lst = get_inj_list()
+			else:
+				drug_lst = get_label_list()
 		except:
 			drug_lst = read_excel(DRUG_DB_PATH)
 		else:
@@ -66,7 +70,23 @@ def get_label_records(kinds, types, wards, ord_start_date, ord_end_date, start_d
 	# break
 
 def get_inj_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
-	ord_lst= get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['단일포장구분'] in kinds)
+	ord_lst= get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False, shape='inj')
+	ord_lst_length = len(ord_lst)
+	ord_lst = ord_lst.add_columns(once_amt=lambda row: round(row['ord_qty'] / row['ord_frq'], 2), total_amt=lambda row: row['ord_qty'] * row['ord_day'])
+	ord_lst = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum, 
+		renames={'drug_nm': 'drug_nm_count', 'total_amt': 'total_amt_sum', 'ord_qty': 'ord_qty_sum'},
+		extra_columns = ['ord_cd', 'ord_unit_nm', 'rcpt_dt_min', 'rcpt_dt_max'],
+		set_name = 'order_set'
+	)
+	return {'grp_by_drug_nm': ord_lst, 'count': ord_lst_length}
+
+# ord_lst= get_records(['정기', '추가'], ['51', '52', '61', '71', '81', '92', 'IC'], '2017-09-20', '2017-09-21', '2017-09-19 00:00:00', '2017-09-20 23:59:59', test=False, shape='inj')
+# ord_lst.to_excel('tst.xlsx')
+# for row in rec:
+# 	print(row)
+# pprint(rec)
+
+# rec['grp_by_drug_nm'].to_excel('text.xlsx')
 
 def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, exclude_names=None, test=False):
 	ord_lst = get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['효능코드(보건복지부)'] in ['325'] or '알부민' in row['drug_nm'])
