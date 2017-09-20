@@ -27,6 +27,6 @@ class CollectCreateForm(forms.Form):
     start_dt = forms.DateTimeField(initial=datetime.date.today())
     end_dt = forms.DateTimeField(initial=datetime.datetime.now())
     wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
-    kind = forms.ChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨')], initial='LABEL')
+    kind = forms.ChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨')], initial='NUT')
     types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OUT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
     exclude_names = forms.CharField(required=False, widget=Textarea(attrs={'rows':3, 'cols': 20, 'placeholder': '제외할 약품 입력 후 엔터키'}))
