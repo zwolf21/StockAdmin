@@ -78,6 +78,11 @@ class Collect(object):
 			if collect.slug == slug:
 				return self.save(collect, i)
 
+	def clear_list(self):
+		collect_path = self._set_collect_path()
+		if os.path.exists(collect_path):
+			os.unlink(collect_path)
+
 	def _calc_seq(self, types, kind, date):
 		date = date or datetime.date.today().strftime("%Y-%m-%d")
 		objects = self.objects.filter(where = lambda row: row.date==date and row.types==types and row.kind==kind)
@@ -117,6 +122,11 @@ class Collect(object):
 		type = '-'.join(sorted(types, key=type_order.get))
 		return "{}-{}-{}-{}".format(date, kind, type, seq)
 
+	def _get_lastest_exclude_names(self):
+		for obj in self.objects[::-1]:
+			if obj.kind in ['NUT', '영양수액']:
+				return obj.exclude_names
+		return ''
 
 	def get_object(self, slug):
 		for obj in self.objects:
@@ -160,14 +170,23 @@ class Collect(object):
 			kind = ori_kind
 		slug = self._generate_slug(ori_types, ori_kind, seq, date)
 
+		if kind in ['NUT', '영양수액']:
+			if exclude_names == '':
+				if translate:
+					exclude_names = ''
+				else:
+					exclude_names = exclude_names or self._get_lastest_exclude_names()
+			else:
+				exclude_names = exclude_names or self._get_lastest_exclude_names()
+		
 		collect = {
 			'slug': slug, 'kind': kind, 'types': types, 'date': date, 'seq': seq, 'wards': wards,
 			'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt,
-			'excludes': [], 'encludes':[]
+			'exclude_names': exclude_names
 		}
 		return collect
 
-	def set_context(self, collect=None, slug=None, excludes=None, includes=None, exclude_names=None, test=False):
+	def set_context(self, collect=None, slug=None, test=False):
 
 		collect = collect or self.get_object(slug)
 
@@ -176,9 +195,15 @@ class Collect(object):
 
 		date, types, kind, wards, start_date, end_date, start_dt, end_dt = collect.get('date'), collect.get('types'), collect.get('kind'), collect.get('wards'), collect.get('start_date'), collect.get('end_date'), collect.get('start_dt'), collect.get('end_dt')
 		
+
 		if kind in ["영양수액", "NUT"]:
+			exclude_names = collect['exclude_names']
+			exclude_names = exclude_names.split('\r\n') if isinstance(exclude_names, str) else exclude_names
+			exclude_names = list(filter(None, exclude_names))
+			print('exclude_names:', exclude_names)
 			context = get_nutfluid_records(types=types, wards=wards, ord_start_date=start_date, ord_end_date=end_date, start_dt=start_dt, end_dt=end_dt, exclude_names=exclude_names, test=test)
 			collect['grp_by_ward'] = context['grp_by_ward']
+
 		elif kind in ["라벨", "LABEL"]:
 			context = get_label_records(["S", "P"], types, wards, start_date, end_date, start_dt, end_dt, test)
 		
@@ -191,9 +216,10 @@ class Collect(object):
 			kind = request.GET.get('kind')
 			types = request.GET.getlist('types')
 			wards = request.GET.getlist('wards')
+			exclude_names = request.GET.get('exclude_names')
 
 			if kind and types and wards:
-				return self.create_collect(kind, types, wards, *args, **kwargs)
+				return self.create_collect(kind, types, wards,  *args, exclude_names=exclude_names, **kwargs)
 
 # 	def get_or_create(self, request):
 # 		if request.method = "GET":

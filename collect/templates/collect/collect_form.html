@@ -8,19 +8,18 @@
 <div class="panel panel-success">
 	<div class="panel-heading">
 		<h3 class="panel-title">
-			<span class="glyphicon glyphicon-tag">라벨집계</span>
-		</h3>
-	</div>
+			<span class="glyphicon glyphicon-tag">{% if form.kind.value == 'LABEL' %} 라벨{% elif form.kind.value == 'NUT' %} 영양수액{% endif %}집계</span>
+		</h3> 
+		</div>
 	<div class="panel panel-body">
 			<form id="collect-form" name="show" method="post" class="form-inline" action="{% url 'collect:create' %}">
 				{% csrf_token %}
 	
-				<div class="col-xs-7">
+				<div class="col-xs-8">
 					<div class="row">
 						<div class="form-group">
 							<div class="col-xs-12">
-								<label >처방일자: {{ form.start_date }}</label>~
-								<label>{{ form.end_date }}</label>
+								<label >처방일자: {{ form.start_date }}</label>~<label>{{ form.end_date }}</label>
 							</div>
 						</div>
 					</div>
@@ -49,7 +48,9 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-xs-5">
+				{% if form.kind.value == 'NUT' %}
+					
+				<div class="col-xs-4 col-xs-pull-1">
 					<div class="row">
 						<div class="form-group">
 							<div class="col-xs-12">
@@ -58,6 +59,7 @@
 						</div>
 					</div>
 				</div>
+				{% endif %}
 			
 				<hr>
 				<div class="row" align="center">

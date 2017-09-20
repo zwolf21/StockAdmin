@@ -13,7 +13,7 @@ class CollectCreateView(FormView):
     def form_valid(self, form):
         c = Collect()
         obj = c.create_collect(**form.cleaned_data)
-        c.set_context(obj, test=True)
+        c.set_context(obj, test=False)
         c.save(obj)
         return super(CollectCreateView, self).form_valid(form)
 
@@ -23,7 +23,7 @@ class CollectCreateView(FormView):
         form_data = c.get_form(self.request, auto_on_staturday=True, translate=False)
         if form_data:
             context['form'] = CollectCreateForm(form_data)
-        context['object_list'] = c.get_list()
+        context['object_list'] = c.get_list()        
         return context
 
 def collect_detail(request, slug):
@@ -36,5 +36,10 @@ def collect_delete(request, slug):
     # if request.method == "POST":
     c = Collect()
     c.delete(slug)
+    return redirect('collect:create')
+
+def clear_collect(request):
+    c = Collect()
+    c.clear_list()
     return redirect('collect:create')
 

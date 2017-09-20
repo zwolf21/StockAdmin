@@ -35,8 +35,8 @@
 					</div>
 					<div class="row" align="right">
 						<div class="col-xs-12">
-							<button class="btn btn-danger" data-target="#modal-history-delete" data-toggle="modal"><span class="glyphicon glyphicon-trash">비우기</span></button>
-							{# {% include "orderutils/label_history_delete_confirm.html" %} #}
+							{% url 'collect:clear' as clear_url %}
+							{% include "includes/delete_one_confirm.html" with url=clear_url id='collect-clear' %}
 						</div>
 					</div>
 				</div>

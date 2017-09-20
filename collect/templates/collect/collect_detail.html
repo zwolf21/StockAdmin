@@ -140,8 +140,13 @@
 						{% endfor %}
 						</ul>
 					</div>
+					{% if forloop.counter|divisibleby:"2" %}
+						<div class="clearfix"></div>
+					{% endif %}
 					{% endfor %}
 				</div>
+				<hr>
+				<h5>※집계 제외된 약품: {{ object.exclude_names }}</h5>
 		</div>
 	</div>
 </div>

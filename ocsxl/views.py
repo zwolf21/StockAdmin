@@ -71,7 +71,6 @@ def ocsfiles_compare_excel_response(request):
 	if request.method == "POST":
 		pk_list = request.POST['reportList'].split(',')
 		if len(pk_list) == 2:
-			print(pk_list)
 			context = {}
 			before, after = OcsFile.objects.filter(pk__in=pk_list).order_by('created')
 			before_created = before.created.strftime("%Y%m%d")

@@ -68,7 +68,8 @@ def get_label_records(kinds, types, wards, ord_start_date, ord_end_date, start_d
 def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, exclude_names=None, test=False):
 	ord_lst = get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['효능코드(보건복지부)'] in ['325'] or '알부민' in row['drug_nm'])
 	if exclude_names:
-		ord_lst = ord_lst.search_splited(exclude_names or [], ['drug_nm'], exclude=True)
+		ord_lst = ord_lst.search_splited(exclude_names, ['drug_nm'], exclude=True, distinct=False)
+	print('ord_lst:', ord_lst)
 	ord_lst_length = len(ord_lst)
 	ord_lst = ord_lst.add_columns(
 			once_amt=lambda row: round(row['ord_qty'] / row['ord_frq'], 2),
