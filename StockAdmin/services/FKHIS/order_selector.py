@@ -17,6 +17,7 @@ except:
 # path = 'C:\\Users\\HS\\Desktop\\처방조회종합.xlsx'
 
 
+
 def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test, shape='po'):
 	# print(ord_start_date, ord_end_date, wards)
 	ord_request = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
@@ -42,7 +43,7 @@ def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, te
 
 	ord_lst = ord_lst.filter(where = lambda row: row.get('ord_cd') in pk_set and row.get('rcpt_dt') and row.get('rcpt_ord_tp_nm') in types)
 	ord_lst = ord_lst.join(drug_lst, left_on='ord_cd', right_on='약품코드')
-	ord_lst = ord_lst.set_number_type(ord_qty=0.0, ord_frq=0, ord_day=0)
+				
 	rcpt_dt_list = ord_lst.column_values('rcpt_dt')
 	if rcpt_dt_list:
 		f, l = min(rcpt_dt_list), max(rcpt_dt_list)
@@ -70,7 +71,7 @@ def get_label_records(kinds, types, wards, ord_start_date, ord_end_date, start_d
 	# break
 
 def get_inj_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
-	ord_lst= get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False, shape='inj')
+	ord_lst= get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=test, shape='inj')
 	ord_lst_length = len(ord_lst)
 	ord_lst = ord_lst.add_columns(once_amt=lambda row: round(row['ord_qty'] / row['ord_frq'], 2), total_amt=lambda row: row['ord_qty'] * row['ord_day'])
 	ord_lst = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum, 
