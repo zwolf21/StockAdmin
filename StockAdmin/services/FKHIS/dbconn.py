@@ -53,7 +53,14 @@ class FkocsAPI:
 		self.cursor.execute(query)
 		records = [row for row in self.cursor.fetchall()]
 		return Listorm(records).rename(**renames)
-	
+
+	def get_inj_info(self, **renames):
+		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N' AND MED_PTH='3'"
+		self.cursor.execute(query)
+		records = [row for row in self.cursor.fetchall()]
+		return Listorm(records).rename(**renames)
+		
+
 	# def get_label_info(self, **renames):
 	# 	query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N' AND SNG_PACK_GB='S' OR SNG_PACK_GB='P'"
 	# 	self.cursor.execute(query)
@@ -167,3 +174,10 @@ def drug_update(source_excel, base_excel, what):
 def get_label_list():
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
 	return fk.get_label_info(**codes)
+
+
+def get_inj_list():
+	fk = FkocsAPI(server=server, user=user, password=password, database=database)
+	return fk.get_inj_info(**codes)
+
+

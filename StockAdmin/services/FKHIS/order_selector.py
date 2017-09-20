@@ -60,10 +60,13 @@ def get_label_records(kinds, types, wards, ord_start_date, ord_end_date, start_d
 	return {'grp_by_drug_nm':ord_lst.orderby('-단일포장구분', 'drug_nm'), 'count': ord_lst_length}
 	
 # ret = get_label_records(['P', 'S'], ['정기'], ['51'], '2017-09-18','2017-09-18', '2017-09-17 00:00:00', '2017-09-17 23:23:00', test=False)
-
+	
 # for row in ret:
 # 	print(row)
 	# break
+
+def get_inj_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
+	ord_lst= get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['단일포장구분'] in kinds)
 
 def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, exclude_names=None, test=False):
 	ord_lst = get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test).filter(lambda row: row['효능코드(보건복지부)'] in ['325'] or '알부민' in row['drug_nm'])
