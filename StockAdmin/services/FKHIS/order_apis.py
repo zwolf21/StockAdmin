@@ -72,12 +72,13 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind='LAB
 		set_name = 'order_set'
 	).orderby('ward_', 'drug_nm')
 
-	live_order_list = ord_lst.filter(lambda row: row.dc_gb == 'N' and row.ret_yn == 'N')
+	live_order_list = ord_lst.filter(lambda row: row.dc_gb == 'N' and row.ret_stus not in ['O', 'C'])
 	dc_order_list = ord_lst.filter(lambda row: row.dc_gb == 'Y')
 	not_dc_order_list = ord_lst.filter(lambda row: row.dc_gb == 'N')
-	ret_order_list = ord_lst.filter(lambda row: row.ret_yn == 'Y')
-	only_dc = ord_lst.filter(lambda row: row.dc_gb == 'Y' and row.ret_yn == 'N')
-	only_ret = ord_lst.filter(lambda row: row.dc_gb != 'Y' and row.ret_yn == 'Y')
+	ret_order_list = ord_lst.filter(lambda row: row.ret_stus == 'O')
+	only_dc = ord_lst.filter(lambda row: row.ret_stus not in ['O', 'C'] and row.dc_gb == 'Y')
+	only_ret = ord_lst.filter(lambda row: row.dc_gb != 'Y' and row.ret_stus == 'O')
+	dc_or_ret = ord_lst.filter(lambda row: row.dc_gb == 'Y' or row.ret_stus == 'O')
 	grp_dc_by_ward = dc_order_list.groupby('ward_', ord_qty=sum, total_amt=sum, drug_nm=len,
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
 		set_name='order_set'
@@ -87,7 +88,7 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind='LAB
 		set_name='order_set'
 	).orderby('ward_', 'drug_nm')
 
-	nt = namedtuple('OrderCollections', 'order_list live_order_list dc_order_list not_dc_order_list ret_order_list only_dc only_ret grp_by_drug_nm grp_dc_by_ward grp_ret_by_ward kind')
+	nt = namedtuple('OrderCollections', 'order_list live_order_list dc_order_list not_dc_order_list ret_order_list only_dc only_ret dc_or_ret grp_by_drug_nm grp_dc_by_ward grp_ret_by_ward kind')
 
 	context = nt(
 		order_list = ord_lst,
@@ -97,6 +98,7 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind='LAB
 		ret_order_list = ret_order_list, 
 		only_dc = only_dc,
 		only_ret = only_ret,
+		dc_or_ret = dc_or_ret,
 		grp_by_drug_nm = grp_by_drug_nm, 
 		grp_dc_by_ward = grp_dc_by_ward,
 		grp_ret_by_ward = grp_ret_by_ward, 
@@ -110,16 +112,16 @@ ret = get_orderset(types=['정기', '추가', '응급', '퇴원'],
 	# wards=['51', '52', '61', '71', '81', '92', 'IC'], 
 	# start_date='2017-09-18', end_date='2017-09-21',
 	# start_dt='2016-09-18 00:00:00', end_dt='2017-09-21 00:00:00', 
-	wards=['51', '52', '61'], 
+	wards=['51', '52'], 
 	start_date='2017-09-20', end_date='2017-09-20',
 	start_dt='2016-09-19 00:00:00', end_dt='2017-09-20 00:00:00', 
-	kind='NUT',
+	kind='INJ',
 	# test=False
 )
 
 
-pprint(ret.order_list)
-print(len(ret.order_list.column_values('pk')))
-print(len(ret.order_list.unique('pk')))
+pprint(ret.dc_or_ret)
+print(len(ret.dc_or_ret.column_values('pk')))
+print(len(ret.dc_or_ret.unique('pk')))
 
 
