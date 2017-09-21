@@ -146,7 +146,9 @@
 					{% endfor %}
 				</div>
 				<hr>
+				{% if object.exclude_names %}
 				<h5>※집계 제외된 품목: {{ object.exclude_names }}</h5>
+				{% endif %}
 		</div>
 	</div>
 </div>
