@@ -48,6 +48,12 @@ class FkocsAPI:
 			lst.rename(**renames)
 			lst.to_excel(filename, selects=columns)
 
+	def get_all_info(self, **renames):
+		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N'"
+		self.cursor.execute(query)
+		records = [row for row in self.cursor.fetchall()]
+		return Listorm(records).rename(**renames)
+
 	def get_nutfluid_info(self, **renames):
 		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N' AND EFCY_CD='325' OR EFCY_CD='634'"
 		self.cursor.execute(query)
@@ -190,13 +196,22 @@ def get_nutfluid_list(test):
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
 	return fk.get_nutfluid_info(**codes)
 
+def get_all_list(test):
+	if test:
+		return read_excel('약품정보.xls')
+	fk = FkocsAPI(server=server, user=user, password=password, database=database)
+	return fk.get_all_info(**codes)
+
+
 def get_drug_list(kind, test=False):
 	if kind == "LABEL":
 		return get_label_list(test)
 	elif kind == "NUT":
 		return get_nutfluid_list(test)
-	else:
+	elif kind == 'INJ':
 		return get_inj_list(test)
+	else:
+		return get_all_list(test)
 
 
 
