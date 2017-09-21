@@ -32,7 +32,7 @@ def _time_to_str(*time_values, to='date'):
 		return tuple(map(lambda time: time.strftime("%Y-%m-%d %H:%M:%S"), ret))
 
 						
-def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, test):
+def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind='LABEL', test=False):
 
 	start_date, end_date = _time_to_str(start_date, end_date)
 	start_dt, end_dt = _time_to_str(start_dt, end_dt, to='datetime')
@@ -40,14 +40,15 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, tes
 	request = OrderSelectApiRequest(start_date, end_date, wards)
 
 	if test:
-		request.set_test_response('response_samples/ordSelect51.sample.rsp')
+		start_dt, end_dt = '2017-09-15 00:00:00', '2017-09-21 00:00:00'
+		request.set_test_response('response_samples/orderselect')
 	else:
 		request.api_calls()
 
 	drug_lst = get_drug_list(kind, test)
 	drug_lst = drug_lst.select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)')
 	ord_lst = Listorm(request.get_records()).filter(lambda row: row.rcpt_dt and start_dt <= row.rcpt_dt < end_dt and row.rcpt_ord_tp_nm in types)
-	
+
 	if kind == 'NUT':
 		drug_lst = drug_lst.filter(lambda row: row.get('효능코드(보건복지부)') in ['325'] or row.drug_nm and '알부민' in row.drug_nm)
 	elif kind == 'INJ':
@@ -105,8 +106,19 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, tes
 
 
 
-ret = get_orderset(types=['정기', '추가', '응급', '퇴원'], wards=['51'], start_date='2017-04-12', end_date='2017/04/12', start_dt='2016-04-11 00:00:00', end_dt='2017/4/13 00:00:00', kind='LABEL', test=True)
+ret = get_orderset(types=['정기', '추가', '응급', '퇴원'],
+	# wards=['51', '52', '61', '71', '81', '92', 'IC'], 
+	# start_date='2017-09-18', end_date='2017-09-21',
+	# start_dt='2016-09-18 00:00:00', end_dt='2017-09-21 00:00:00', 
+	wards=['51', '52', '61'], 
+	start_date='2017-09-20', end_date='2017-09-20',
+	start_dt='2016-09-19 00:00:00', end_dt='2017-09-20 00:00:00', 
+	kind='NUT',
+	# test=False
+)
 
+
+pprint(ret.order_list)
 print(len(ret.order_list.column_values('pk')))
 print(len(ret.order_list.unique('pk')))
 

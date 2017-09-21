@@ -1,7 +1,6 @@
 *.sqlite3
 *.py[cod]
 *.xlsx
-*.xls
 *.csv
 .DS_STORE
 .vscode/

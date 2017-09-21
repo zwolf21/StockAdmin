@@ -43,6 +43,7 @@ def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, te
 
 	ord_lst = ord_lst.filter(where = lambda row: row.get('ord_cd') in pk_set and row.get('rcpt_dt') and row.get('rcpt_ord_tp_nm') in types)
 	ord_lst = ord_lst.join(drug_lst, left_on='ord_cd', right_on='약품코드')
+	ord_lst = ord_lst.set_number_type(ord_qty=0.0, ord_frq=0, ord_day=0)
 				
 	rcpt_dt_list = ord_lst.column_values('rcpt_dt')
 	if rcpt_dt_list:
@@ -115,7 +116,7 @@ def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, e
 	).orderby('ward_', 'drug_nm')
 	return {'grp_by_drug_nm': grp_by_drug_nm, 'grp_by_ward': grp_by_ward, 'count': ord_lst_length}
 
-# ret = get_nutfluid_records(['정기'], ['51', '52', '61', '71', '81', '92', 'IC'], '2017-04-09','2017-04-10', '2017-04-08 00:00:00', '2017-04-08 23:23:00', test=True)
+# ret = get_nutfluid_records(['정기'], ['51',], '2017-09-21','2017-09-21', '2017-09-20 00:00:00', '2017-09-20 23:23:00', test=False)
 
 # for row in ret['grp_by_ward']:
 # 	print(row)
