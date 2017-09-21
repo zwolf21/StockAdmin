@@ -2,7 +2,6 @@ import os
 from pprint import pprint
 # from recordlib import RecordParser, read_excel
 import listorm
-from recordlib import RecordParser, read_excel
 try:
 	from .api_requests import *
 except:
@@ -124,6 +123,7 @@ def get_nutfluid_records(types, wards, ord_start_date, ord_end_date, start_dt, e
 
 
 def get_label_object_test(kinds, types, wards, ord_start_date, ord_end_date, start_dt, end_dt):
+	from recordlib import RecordParser, read_excel
 	drug_db_recs = read_excel(DRUG_DB_PATH, drop_if= lambda row: row['단일포장구분'] not in kinds)
 	pk_set = drug_db_recs.unique('약품코드')
 	odr = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
@@ -150,6 +150,7 @@ def get_label_object_test(kinds, types, wards, ord_start_date, ord_end_date, sta
 	return ord_recs.records, detail
 
 def get_label_object(kinds, types, wards, ord_start_date, ord_end_date, start_dt, end_dt):
+	from recordlib import RecordParser, read_excel
 	try:
 		drug_db_recs = get_label_list()
 		drug_db_recs = RecordParser(drug_db_recs, drop_if= lambda row: row['단일포장구분'] not in ['S', 'P']) 
@@ -183,6 +184,7 @@ def get_label_object(kinds, types, wards, ord_start_date, ord_end_date, start_dt
 	return ord_recs.records, detail
 
 def get_inj_object(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test=False):
+	from recordlib import RecordParser, read_excel
 	drug_db_recs = read_excel(DRUG_DB_PATH, 
 		drop_if = lambda row: row['투여경로'] != '3' or row['효능코드명'] in ['혈액대용제', '당류제'] or row['항암제구분'] == '1' or row['약품법적구분'] in ['1','2'])
 	pk_set = drug_db_recs.unique('약품코드')
@@ -221,6 +223,7 @@ def get_inj_object(types, wards, ord_start_date, ord_end_date, start_dt, end_dt,
 
 
 def get_chemo_label_object_test(wards, ord_start_date, ord_end_date, start_dt, end_dt):
+	from recordlib import RecordParser, read_excel
 	drugs_recs = read_excel(DRUG_DB_PATH)
 	odr = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
 	odr.set_test_response('response_samples/ordSelect51.sample.rsp')
@@ -251,6 +254,7 @@ def get_chemo_label_object_test(wards, ord_start_date, ord_end_date, start_dt, e
 	return ord_recs.records, detail
 
 def get_chemo_label_object(wards, ord_start_date, ord_end_date, start_dt, end_dt):
+	from recordlib import RecordParser, read_excel
 	drugs_recs = read_excel(DRUG_DB_PATH)
 	odr = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
 	odr.api_calls()
