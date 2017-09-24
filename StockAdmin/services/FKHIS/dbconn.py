@@ -1,7 +1,8 @@
 from datetime import datetime
+import sys, os
 import pymssql
 from listorm import Listorm, read_excel
-
+from pprint import pprint
 try:
 	from .mapping import codes
 except:
@@ -14,6 +15,8 @@ password = 'egmainkf#$R'
 # password = 'pjr31983198'
 database = 'FKOCS'
 
+MODULE_BASE = os.path.dirname(__file__)
+DRUG_DB_PATH = os.path.join(MODULE_BASE, '약품정보.xls')
 
 class FkocsAPI:
 
@@ -76,7 +79,6 @@ class FkocsAPI:
 
 	def _update_druginfo(self, code, column, value):
 		query = "UPDATE SPB_DRUG_MST SET {}='{}' WHERE DRUG_CD='{}';".format(column, value, code)
-		print(query)
 		self.cursor.execute(query)
 		self.conn.commit()
 
@@ -180,38 +182,54 @@ def drug_update(source_excel, base_excel, what):
 
 def get_label_list(test):
 	if test:
-		return read_excel('약품정보.xls').filter(lambda row: row['단일포장구분'] in ["S", "P"])
+		return read_excel(DRUG_DB_PATH).filter(lambda row: row['단일포장구분'] in ["S", "P"])
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
 	return fk.get_label_info(**codes)
 
 def get_inj_list(test):
 	if test:
-		return read_excel('약품정보.xls').filter(lambda row: row['투여경로'] == "3")
+		return read_excel(DRUG_DB_PATH).filter(lambda row: row['투여경로'] == "3")
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
 	return fk.get_inj_info(**codes)
 
 def get_nutfluid_list(test):
 	if test:
-		return read_excel('약품정보.xls').filter(lambda row: row['효능코드(보건복지부)'] in ["325"] or "알부민" in row['약품명(한글)'])
+		return read_excel(DRUG_DB_PATH).filter(lambda row: row['효능코드(보건복지부)'] in ["325"] or "알부민" in row['약품명(한글)'])
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
 	return fk.get_nutfluid_info(**codes)
 
 def get_all_list(test):
 	if test:
-		return read_excel('약품정보.xls')
+		return read_excel(DRUG_DB_PATH)
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
 	return fk.get_all_info(**codes)
 
 
-def get_drug_list(kind, test=False):
-	if kind == "LABEL":
-		return get_label_list(test)
-	elif kind == "NUT":
-		return get_nutfluid_list(test)
+# def get_drug_list(kind, test=False):
+# 	if kind == "LABEL":
+# 		return get_label_list(test)
+# 	elif kind == "NUT":
+# 		return get_nutfluid_list(test)
+# 	elif kind == 'INJ':
+# 		return get_inj_list(test)
+# 	else:
+# 		return get_all_list(test)
+
+
+def get_drug_list(kind, extras, excludes, test=False):
+	lst = get_all_list(test)
+	extra_lst = lst.filtersim(**{'약품명(한글)': extras}) #if extras else Listorm()
+	if kind == 'LABEL':
+		lst = lst.filter(lambda row: row['단일포장구분'] in ['S', 'P']).orderby('-단일포장구분', '약품명(한글)')
+	elif kind == 'NUT':
+		lst = lst.filter(lambda row: row['효능코드(보건복지부)'] in ['325'])
 	elif kind == 'INJ':
-		return get_inj_list(test)
+		lst = lst.filter(lambda row: row['투여경로'] == '3' and row['효능코드(보건복지부)'] not in ['325', '323', '331'] and row['약품법적구분'] in ['0'])
 	else:
-		return get_all_list(test)
+		lst = lst
+	return lst.excludesim(**{'약품명(한글)': excludes}) | extra_lst
+
+
 
 
 

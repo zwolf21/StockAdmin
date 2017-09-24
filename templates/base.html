@@ -9,6 +9,7 @@
 {# <link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" %}"> #}
 <link rel="stylesheet" type="text/css" href="{% static "jquery-ui-1.12.1.custom/jquery-ui.css" %}">
 <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/panels-with-nav-tabs.css" %}">
 
 <link rel="stylesheet" type="text/css" href="{% static "tablesorter/themes/blue/style.css" %}">
 
@@ -134,7 +135,7 @@
                                     <a href="{% url 'orderutils:labelcollect' %}">따챙이집계</a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'collect:create' %}">따챙2(영양수엑)</a>
+                                    <a href="{% url 'collect:create' 'LABEL' %}">따챙2(개발중)</a>
                                 </li>
                             </ul>
                         </li>

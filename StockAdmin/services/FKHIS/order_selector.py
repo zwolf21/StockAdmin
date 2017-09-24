@@ -15,13 +15,16 @@ except:
 
 # path = 'C:\\Users\\HS\\Desktop\\처방조회종합.xlsx'
 
+MODULE_BASE = os.path.dirname(os.path.dirname(__file__))
+MODULE_PATH = os.path.join(MODULE_BASE, 'StockAdmin/services/FKHIS')
+sys.path.append(MODULE_PATH)
 
 
 def get_records(types, wards, ord_start_date, ord_end_date, start_dt, end_dt, test, shape='po'):
 	# print(ord_start_date, ord_end_date, wards)
 	ord_request = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
 	if test:
-		ord_request.set_test_response('response_samples/ordSelect51.sample.rsp')
+		ord_request.set_test_response('response_samples/orderselect')
 		drug_lst = listorm.read_excel(DRUG_DB_PATH)
 		ord_lst = listorm.Listorm(ord_request.get_records())
 	else:
@@ -127,7 +130,14 @@ def get_label_object_test(kinds, types, wards, ord_start_date, ord_end_date, sta
 	drug_db_recs = read_excel(DRUG_DB_PATH, drop_if= lambda row: row['단일포장구분'] not in kinds)
 	pk_set = drug_db_recs.unique('약품코드')
 	odr = OrderSelectApiRequest(ord_start_date, ord_end_date, wards)
-	odr.set_test_response('response_samples/ordSelect51.sample.rsp')
+	odr.set_test_response('response_samples/orderselect/51.rsp')
+	odr.set_test_response('response_samples/orderselect/52.rsp')
+	odr.set_test_response('response_samples/orderselect/61.rsp')
+	odr.set_test_response('response_samples/orderselect/71.rsp')
+	odr.set_test_response('response_samples/orderselect/81.rsp')
+	odr.set_test_response('response_samples/orderselect/92.rsp')
+	odr.set_test_response('response_samples/orderselect/IC.rsp')
+	# print(ord_start_date)
 	ord_recs = RecordParser(records = odr.get_records(), drop_if = lambda row: row.get('ord_cd') not in pk_set or row.get('rcpt_dt', "") == "" or row.get('rcpt_ord_tp_nm') not in types)
 	ord_recs.format([('ord_qty', 0.0)])
 	ord_recs.vlookup(drug_db_recs, 'ord_cd', '약품코드', [('단일포장구분', 'S')])

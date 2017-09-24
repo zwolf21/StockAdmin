@@ -208,6 +208,18 @@ class OrderSelectApiRequest(ApiRequest):
                         self.raws.append(super(OrderSelectApiRequest, self).set_test_response(path))
         else:
             self.raws.append(super(OrderSelectApiRequest, self).set_test_response(response_sample_path))
+        # print(response_sample_path)
+        # response_sample_path = os.path.abspath(response_sample_path)
+        # print(response_sample_path)
+        # print(list(os.walk(response_sample_path)))
+        # for cur, d, f in os.walk(response_sample_path):
+        #     print(cur, d, f)
+        #     for fn in f:
+        #         path = os.path.join(cur, fn)
+        #         fname, ext = os.path.splitext(fn)
+        #         if fname in self.wards:
+        #             print(path)
+        #             self.raws.append(super(OrderSelectApiRequest, self).set_test_response(path))
         return self
 
 

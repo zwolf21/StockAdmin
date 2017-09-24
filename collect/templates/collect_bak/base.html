@@ -1,0 +1,165 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block title %} {{ block.super }}|집계 {% endblock title %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+<style type="text/css">
+	[class^=collect-list], li.collect-list.a {
+		cursor: cell;
+	}
+</style>
+{% endblock style %}
+
+{% block content %}
+	{% block header %}{% endblock header %}
+<div class="container-fluid">
+	 <div class="row">
+		<div class="col-xs-3">
+			{% block side %}
+			<div class="panel panel-warning">
+				<div class="panel-heading">
+					<h5 class="panel-title">
+						<span class="glyphicon glyphicon-scissors"></span>집게의역사
+					</h5>
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<ul class="list-group">	
+							<li class="collect-list-header list-group-item"><span class="glyphicon glyphicon-plus">집계생성</span></li>
+						{% for object in object_list %}
+							<li class="collect-list list-group-item" url="{% url 'collect:detail' object.slug %}" onclick="location.href='{% url 'collect:detail' object.slug %}'">{{ object.title }}</li>
+						{% endfor %}
+						</ul>
+					</div>
+					<div class="row" align="right">
+						<div class="col-xs-12">
+							{% url 'collect:clear' as clear_url %}
+							{% include "includes/delete_one_confirm.html" with url=clear_url id='collect-clear' %}
+						</div>
+					</div>
+				</div>
+			</div>
+			{% endblock side %}
+		</div>
+		<div class="col-xs-9">
+			{% block main %}{% endblock main %}
+		</div>
+	</div>
+</div>
+
+
+{% block script %}
+<script>
+$(function(){
+
+	// 인쇄
+	$('#btn-print').click(function(event){
+		var printArea = window.open('', 'pop1', 'width=900, height=500, left=200, top=200, scrollbars=no, toolbars=no, location=no')
+		printArea.document.write('<head>')
+		printArea.document.write($('head').html())
+		printArea.document.write('</head>')
+		printArea.document.write('<body>')
+		printArea.document.write('<div class="container">')
+		printArea.document.write('<h2>{{ object.kind }} 집계</h2>')
+		printArea.document.write($('#print-date-info').html())
+		printArea.document.write($('.panel-footer').html())
+		printArea.document.write('</div>')
+		printArea.document.write('</body>')
+		printArea.document.write('<script>window.print();window.close();<\/script>')
+	})
+
+	// 처방구분별 마지막 집계시간
+	const initial_start_t = $('#id_start_t').val()
+	const initial_start_date = $('#id_ord_start_date').val()
+	const initial_end_date = $('#id_ord_end_date').val()
+
+	lastCollected = {
+	{% for key, val in last_collect.items %}
+		{{ key }}:"{{ val }}",
+	{% endfor %}
+	}
+
+
+	$('[name=ord_tp]').click(function(){
+		
+		var last_collect = lastCollected[$(this).val()]
+		var date = new Date()
+
+		if($(this).val() === 'ch')
+		{
+			var today = date.toISOString().slice(0,10)
+			$('#id_ord_start_date, #id_ord_end_date').val(today)
+
+		}else{
+			$('#id_ord_start_date').val(initial_start_date)
+			$('#id_ord_end_date').val(initial_end_date)
+		}
+	
+
+		if (last_collect) {
+			$('#id_start_t').val(last_collect)
+		}else{
+			$('#id_start_t').val(initial_start_t)
+		}
+	})
+
+	$('[value="st"]').trigger('click')
+
+
+	// 약품명 클릭시 자세히보기 드롭다운
+	$('.show-detail').click(function(){
+		var id = $(this).attr('id');
+		var selector = `#detail-${id}`
+		$(selector).slideToggle()
+		return false
+	})
+	$('.show-detail-all').click(function(){
+		
+		var show = $(this).attr('show')
+		if(show === 'true') {
+			$('.detail').slideDown()
+			$(this).attr('show', 'false')
+		}else {
+			$('.detail').slideUp()
+			$(this).attr('show', 'true')
+		}
+		return false
+	})
+
+	$('.collect-list').each(function(idx, elem){
+		var selected = $(elem)
+		var selected_url = selected.attr('url')
+		if (selected_url == location.pathname) {
+			selected.addClass('list-group-item-warning')
+		}
+	})
+
+	// 집계 생성 마법사 화면으로 가기
+	$('.collect-list-header').click(function(){
+		location.href = "{% url 'collect:create' 'NUT' %}"
+	})
+
+	// 현재 선택된 집계 내역 표시하기
+	if (location.pathname == "{% url 'orderutils:labelcollect' %}") {
+		$('.collect-list-header').addClass('list-group-item-warning')
+	}
+
+	// setInterval(function(){
+	// 	var time = new Date();
+	// 	var iso = time.toISOString().replace('T', ' ').slice(0, 19)
+	// 	var target = $('#id_end_t')
+	// 	target.val(iso)
+	// 	target.css('background-color', '#f3e8c0')
+	// 	setTimeout(function(){
+	// 		target.css('background-color', 'white')
+	// 	}, 500)	
+
+	// }, 1000)
+
+
+})
+</script>
+{% endblock %}
+{% endblock content %}

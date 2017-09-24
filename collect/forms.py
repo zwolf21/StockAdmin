@@ -1,9 +1,23 @@
 import datetime
 from django import forms
-from django.forms import CheckboxSelectMultiple, Textarea
+from django.forms import CheckboxSelectMultiple, Textarea, DateInput
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
+
+def get_form_class(kind=None, app='collect', test=False, **kwargs):
+    if test:
+        return CollectFormTest if app == 'collect' else StaticForm
+
+    if kind == 'LABEL':
+        return CollectLabelForm if app == 'collect' else StaticLabelForm
+    elif kind == 'NUT':
+        return CollectNutForm if app == 'collect' else StaticNutForm
+    elif kind == 'INJ':
+        return CollectInjForm if app == 'collect' else StaticInjForm
+    else:
+        return CollectForm if app == 'collect' else StaticForm
 
 
 class HorizontalCheckboxRenderer(forms.CheckboxSelectMultiple.renderer):
@@ -17,16 +31,60 @@ class HorizontalCheckboxRenderer(forms.CheckboxSelectMultiple.renderer):
         return mark_safe('\n'.join(output))
 
 
-
 WARDS_CHOICES = [('51', '51'), ('52', '52'), ('61', '61'), ('71', '71'), ('81', '81'), ('92', '92'), ('IC', 'IC')]
 
-class CollectCreateForm(forms.Form):
-    date = forms.DateField(initial=datetime.date.today(), required=False)
-    start_date = forms.DateField(initial=datetime.date.today() + datetime.timedelta(1))
-    end_date = forms.DateField(initial=datetime.date.today() + datetime.timedelta(1))
-    start_dt = forms.DateTimeField(initial=datetime.date.today())
-    end_dt = forms.DateTimeField(initial=datetime.datetime.now())
+class CollectForm(forms.Form):
+    date = forms.DateField(initial=datetime.date.today())
+    types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
     wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
-    kind = forms.ChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨')], initial='NUT')
-    types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OUT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
-    exclude_names = forms.CharField(required=False, widget=Textarea(attrs={'rows':3, 'cols': 20, 'placeholder': '제외할 약품 입력 후 엔터키'}))
+    start_date = forms.DateField()
+    end_date = forms.DateField()
+    start_dt = forms.DateTimeField()
+    end_dt = forms.DateTimeField()
+
+
+class CollectLabelForm(CollectForm):
+    kind = forms.ChoiceField(choices=[('LABEL', '라벨')], initial='LABEL')
+
+class CollectNutForm(CollectForm):
+    kind = forms.ChoiceField(choices=[('NUT', '영양수액')], initial='NUT')
+    # excludes = forms.CharField(required=False, widget=Textarea(attrs={'rows':5, 'cols': 20, 'placeholder': '제외할 약품 입력 후 엔터키'}))
+    # extras = forms.CharField(required=False, widget=Textarea(attrs={'rows':5, 'cols': 20, 'placeholder': '추가할 약품 입력 후 엔터키'}))
+
+class CollectInjForm(CollectForm):
+    kind = forms.ChoiceField(choices=[('INJ', '주사')], initial='INJ')
+    # excludes = forms.CharField(required=False, widget=Textarea(attrs={'rows':5, 'cols': 20, 'placeholder': '제외할 약품 입력 후 엔터키'}))
+    # extras = forms.CharField(required=False, widget=Textarea(attrs={'rows':5, 'cols': 20, 'placeholder': '추가할 약품 입력 후 엔터키'}))
+
+
+
+test_date = datetime.date(2017, 9 ,20)
+test_dt = test_date - datetime.timedelta(1)
+
+class CollectFormTest(forms.Form):
+    date = forms.DateField(initial=datetime.date.today(), widget=DateInput())
+    types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
+    wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
+    start_date = forms.DateField(initial=test_date)
+    end_date = forms.DateField(initial=test_date)
+    start_dt = forms.DateTimeField(initial=test_dt)
+    end_dt = forms.DateTimeField(initial=test_date)
+    kind = forms.ChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨'), ('INJ', '주사')], initial='NUT')
+
+
+class StaticForm(forms.Form):
+    excludes = forms.CharField(required=False, widget=Textarea(attrs={'rows':20, 'cols': 30, 'placeholder': '제외할 약품 입력 후 엔터키'}))
+    extras = forms.CharField(required=False, widget=Textarea(attrs={'rows':20, 'cols': 30, 'placeholder': '추가할 약품 입력 후 엔터키'}))
+
+class StaticLabelForm(StaticForm):
+    kind = forms.ChoiceField(choices=[('LABEL', '라벨')], initial='LABEL')
+
+class StaticNutForm(StaticForm):
+    kind = forms.ChoiceField(choices=[('NUT', '영양수액')], initial='NUT')
+
+class StaticInjForm(StaticForm):
+    kind = forms.ChoiceField(choices=[('INJ', '주사')], initial='INJ')
+
+
+
+
