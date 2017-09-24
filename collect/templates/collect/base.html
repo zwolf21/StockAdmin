@@ -111,9 +111,11 @@ $(function(){
 	$('.collect-list-header').click(function(){
 		location.href = "{% url 'collect:create' 'LABEL' %}"
 	})
+	{% if object %}	
 	if (location.pathname == "{% url 'collect:detail' object.slug %}") {
 		$('.collect-list-header').addClass('list-group-item-warning')
 	}
+	{% endif %}
 })
 </script>
 {% endblock content %}
