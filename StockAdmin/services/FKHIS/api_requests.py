@@ -1,5 +1,6 @@
 import re, os
 from datetime import date
+from pprint import pprint
 from socket import *
 from abc import abstractmethod
 import time
@@ -130,10 +131,10 @@ class OrdMonApiRequest(ApiRequest):
         super(OrdMonApiRequest, self).__init__(request_bytes)
 
     def api_call(self, ord_date):
-        super(OrdMonApiRequest, self).api_call()
         date = ord_date.replace('-', '').encode()
         pat = re.compile(b'\d{8}')
-        self.raw = pat.sub(date, self.raw)
+        self.request = pat.sub(date, self.request)
+        super(OrdMonApiRequest, self).api_call()
         
     def get_records(self):
         return super(OrdMonApiRequest, self).get_records('ptntlist')
@@ -186,13 +187,11 @@ class OrderSelectApiRequest(ApiRequest):
 
     def get_records(self):
         records = []
-        for (raw, ward) in zip(self.raws, self.wards):
-            rec = super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
-            for row in rec:
-                row['WARD'] = ward
-            records+=rec
-        # for raw in self.raws:
-        #     records += super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
+        # for (raw, ward) in zip(self.raws, self.wards):
+        #     rec = super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
+        #     records+=rec
+        for raw in self.raws:
+            records += super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
         return records
 
     def set_test_response(self, response_sample_path):

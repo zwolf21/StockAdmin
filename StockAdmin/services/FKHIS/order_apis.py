@@ -15,11 +15,12 @@ sys.path.append(MODULE_PATH)
 try:
 	from .api_requests import OrderSelectApiRequest, DRUG_DB_PATH
 	from .dbconn import get_drug_list
+	from .order_mon import get_order_object_list, get_order_object_list_test
 
 except:
 	from api_requests import OrderSelectApiRequest, DRUG_DB_PATH
 	from dbconn import get_drug_list
-
+	from order_mon import get_order_object_list, get_order_object_list_test
 
 
 type_order = {'ST':1, 'AD':2, 'EM':3, 'OT':4}
@@ -52,7 +53,7 @@ def time_to_normstr(*time_values, to='date'):
 
 def norm_field(get_orderset):
 	@wraps(get_orderset)
-	def wrapper(types, wards, start_date, end_date, start_dt, end_dt, kind, extras=None, excludes=None, **kwargs):
+	def wrapper(types, wards, start_date, end_date, start_dt, end_dt, kind, date=None, extras=None, excludes=None, **kwargs):
 		types = list(map(lambda type: type_verbose.get(type, type), types))
 		wards = re.split('\s*,\s*', wards) if isinstance(wards, str) else wards
 		start_date, end_date = time_to_normstr(start_date, end_date)
@@ -62,17 +63,19 @@ def norm_field(get_orderset):
 		excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else excludes or []
 		extras = list(filter(None, extras))
 		excludes = list(filter(None, excludes))
+		date = date or datetime.date.today()
+		date = date if isinstance(date, str) else time_to_normstr(date)
 		# print(types, wards, start_date, end_date, start_dt, end_dt, kind, extras, excludes)
-		return get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, extras, excludes, **kwargs)
+		return get_orderset(types=types, wards=wards, start_date=start_date, end_date=end_date, start_dt=start_dt, end_dt=end_dt, kind=kind, date=date, extras=extras, excludes=excludes, **kwargs)
 	return wrapper		
 
 
 @norm_field
-def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, extras=None, excludes=None, test=False):
-				
+def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, date=None, extras=None, excludes=None, test=False):
 	request = OrderSelectApiRequest(start_date, end_date, wards)
 
 	if test:
+		ptnt_lst = get_order_object_list_test(start_date)
 		request.set_test_response('response_samples/orderselect/51.rsp')
 		request.set_test_response('response_samples/orderselect/52.rsp')
 		request.set_test_response('response_samples/orderselect/61.rsp')
@@ -81,12 +84,16 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, ext
 		request.set_test_response('response_samples/orderselect/92.rsp')
 		request.set_test_response('response_samples/orderselect/IC.rsp')
 	else:
+		ptnt_lst = get_order_object_list(date)
 		request.api_calls()
 
 	drug_lst = get_drug_list(kind, extras=extras or [], excludes=excludes or [], test=test)
-
+	ptnt_lst = ptnt_lst.select('ptnt_no', 'ward').rename(ward='WARD').distinct('ptnt_no')
+	ptnt_lst = ptnt_lst.update(WARD=lambda row: row.WARD[:2])
+	# pprint(ptnt_lst)
 	drug_lst = drug_lst.select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)', '약품명(한글)', '조제계산기준코드')
 	ord_lst = Listorm(request.get_records()).filter(lambda row: row.rcpt_dt and start_dt <= row.rcpt_dt < end_dt and row.rcpt_ord_tp_nm in types and row.medi_no < '40000')
+	ord_lst = ord_lst.join(ptnt_lst, on='ptnt_no', how='left').update(WARD=lambda row: row.ward[:2], where=lambda row: not row.WARD)
 	ord_lst = ord_lst.filter(lambda row: row.drug_nm)
 	ord_lst = ord_lst.set_number_type(ord_qty=0.0, ord_frq=0, ord_day=0)
 	ord_lst = ord_lst.join(drug_lst, left_on='ord_cd', right_on='약품코드')

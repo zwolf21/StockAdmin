@@ -135,7 +135,7 @@ class Collect(object):
 		return "{} {} {} {}차({}개 병동, {}건)".format(kind_verbose.get(kind), date, types, seq, len(wards) ,count)
 
 
-	def save(self, types, wards, date, start_date, end_date, start_dt, end_dt, kind, commit=True, test=False, **kwargs):
+	def save(self, types, wards, date, start_date, end_date, start_dt, end_dt, kind,  commit=True, test=False, **kwargs):
 		types = sorted(types, key=type_order.get)
 		vkind = kind_verbose.get(kind)
 		vtypes = list(map(type_verbose.get, types))
@@ -144,7 +144,7 @@ class Collect(object):
 		start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
 		seq = self._generate_seq(kind=kind, date=date, types=types, wards=wards)
 		static = self.get_static(kind)
-		order_list = get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, static.extras, static.excludes, test=test)
+		order_list = get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, date=date, extras=static.extras, excludes=static.excludes, test=test)
 		title = self._generate_title(kind, date, types, seq, wards, len(order_list))
 		slug = self._generate_title(kind, date, types, seq, wards, slugify=True)
 		rcpt_dt_min, rcpt_dt_max = order_list.min('rcpt_dt'), order_list.max('rcpt_dt')
