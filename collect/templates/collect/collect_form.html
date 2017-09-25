@@ -31,23 +31,5 @@
         </div>
     </div>
 </form>
-<script type="text/javascript">
-$(function(){
-        // 인쇄
-    $('#btn-print').click(function(event){
-        var printArea = window.open('', 'pop1', 'width=900, height=500, left=200, top=200, scrollbars=no, toolbars=no, location=no')
-        printArea.document.write('<head>')
-        printArea.document.write($('head').html())
-        printArea.document.write('</head>')
-        printArea.document.write('<body>')
-        printArea.document.write('<div class="container">')
-        printArea.document.write('<h2>라벨집계표</h2>')
-        printArea.document.write($('#print-date-info').html())
-        printArea.document.write($('.panel-footer').html())
-        printArea.document.write('</div>')
-        printArea.document.write('</body>')
-        printArea.document.write('<script>window.print();window.close();<\/script>')
-    })
-})
-</script>
+
 {% endblock main %}

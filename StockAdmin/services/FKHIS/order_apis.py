@@ -1,4 +1,4 @@
-import os, sys, re, datetime
+import os, sys, re, datetime, math
 from pprint import pprint
 from collections import namedtuple
 from functools import partial, wraps
@@ -85,12 +85,13 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, ext
 
 	drug_lst = get_drug_list(kind, extras=extras or [], excludes=excludes or [], test=test)
 
-	drug_lst = drug_lst.select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)', '약품명(한글)')
-	ord_lst = Listorm(request.get_records()).filter(lambda row: row.rcpt_dt and start_dt <= row.rcpt_dt < end_dt and row.rcpt_ord_tp_nm in types)
+	drug_lst = drug_lst.select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)', '약품명(한글)', '조제계산기준코드')
+	ord_lst = Listorm(request.get_records()).filter(lambda row: row.rcpt_dt and start_dt <= row.rcpt_dt < end_dt and row.rcpt_ord_tp_nm in types and row.medi_no < '40000')
 	ord_lst = ord_lst.filter(lambda row: row.drug_nm)
 	ord_lst = ord_lst.set_number_type(ord_qty=0.0, ord_frq=0, ord_day=0)
 	ord_lst = ord_lst.join(drug_lst, left_on='ord_cd', right_on='약품코드')
 	ord_lst = ord_lst.add_columns(once_amt=lambda row: round(row.ord_qty / row.ord_frq, 2), total_amt=lambda row: row.ord_qty * row.ord_day, ward_=lambda row: row.ward[:2])
+	ord_lst = ord_lst.update(total_amt=lambda row: math.ceil(row.once_amt)*row.ord_frq, where=lambda row: row['조제계산기준코드'] in ['7'])
 	ord_lst = ord_lst.add_columns(type=lambda row: {'정기': 'ST', '응급': 'EM', '추가': 'AD', '퇴원': 'OT'}.get(row.rcpt_ord_tp_nm))
 	ord_lst.set_index('ord_seq', 'rcpt_seq', 'ord_exec_seq','rcpt_ord_seq', index_name='pk')
 	ord_lst = ord_lst.distinct('pk')
