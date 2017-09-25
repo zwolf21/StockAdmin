@@ -3,9 +3,9 @@
 {% block main %}
 <form id="collect-form" method="post" class="form-inline" action="{% url 'collect:update-plusminus' form.kind.value %}">
     {% csrf_token %}
-    <h3> {% if form.kind.value == 'NUT' %} 영양수액 {% else %} 주사 {% endif %} 추가/제외</h3>
+    <h3> <span class="text-danger bg-info">{% if form.kind.value == 'NUT' %} 영양수액 {% else %} 주사 {% endif %}</span> 추가/제외</h3>
     <p>
-        <h4 class="bg-info text-info"  style="display: inline-block">※항목들을 개행으로 구분하여 입력합니다</h4>
+        <h4 class="text-info"  style="display: inline-block">※항목들을 개행으로 구분하여 입력합니다</h4>
     </p>
     <div class="form-group hidden">
         {{ form.kind }}

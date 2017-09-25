@@ -7,6 +7,16 @@
 	[class^=collect-list], li.collect-list.a {
 		cursor: cell;
 	}
+
+    @page  {
+   		margin: 0;
+    }
+    div.print-each {
+	    /*page:print-each;*/
+	    display: block; 
+	    page-break-before: right;
+	} 
+}
 </style>
 {% endblock style %}
 
@@ -75,7 +85,7 @@
 				        	{% endif %}
 				        {% else %}				        
 				            <li class="active"><a href="#by-drug" data-toggle="tab">약품별</a></li>
-				            <li class=""><a href="#by-ward-drug" data-toggle="tab">병동별</a></li>
+				            <li class=""><a href="#by-ward-drug" data-toggle="tab">+병동별</a></li>
 				            <li class=""><a href="#by-ward" data-toggle="tab">병동별(상세)</a></li>
 			        	{% endif %}
 			        </ul>
@@ -89,7 +99,6 @@
 			    <div class="panel-footer">
 			    	<div class="tab-content">
 			    		{% block list %}
-			    			
 			    		{% endblock list %}
 			    	</div>
 			    </div>
@@ -97,44 +106,11 @@
 		</div>
 	</div>
 </div>
-<script type="text/javascript">
-$(function(){
-	
-	$('.collect-list').each(function(idx, elem){
-		var selected = $(elem)
-		var selected_url = selected.attr('url')
-		if (selected_url == location.pathname) {
-			selected.addClass('list-group-item-warning')
-		}
-	})	
-	// 집계 생성 마법사 화면으로 가기
-	$('.collect-list-header').click(function(){
-		location.href = "{% url 'collect:create' 'LABEL' %}"
-	})
-	{% if object %}	
-	if (location.pathname == "{% url 'collect:detail' object.slug %}") {
-		$('.collect-list-header').addClass('list-group-item-warning')
-	}
-	{% endif %}
-})
-</script>
-<script type="text/javascript">
-$(function(){
-        // 인쇄
-    $('#btn-print').click(function(event){
-        var printArea = window.open('', 'pop1', 'width=900, height=500, left=200, top=200, scrollbars=no, toolbars=no, location=no')
-        printArea.document.write('<head>')
-        printArea.document.write($('head').html())
-        printArea.document.write('</head>')
-        printArea.document.write('<body>')
-        printArea.document.write('<div class="container">')
-        printArea.document.write('<h2>라벨집계표</h2>')
-        printArea.document.write($('#print-date-info').html())
-        printArea.document.write($('.panel-footer').html())
-        printArea.document.write('</div>')
-        printArea.document.write('</body>')
-        printArea.document.write('<script>window.print();window.close();<\/script>')
-    })
-})
-</script>
-{% endblock content %}
+{% block script %} 
+	{% include "collect/includes/script.html" %}
+	{% include "datepicker_js.html" %}
+	{% include "tablesorter_js.html" %}
+{% endblock script %}
+
+{% endblock content %}	
+

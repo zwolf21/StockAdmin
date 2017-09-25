@@ -52,7 +52,7 @@ class CollectStorage(object):
 		if commit:
 			with open(self.path, 'w') as fp:
 				object_list = self.object_list[-self.max_object_list_length:]
-				data = json.dumps(object_list)
+				data = json.dumps(object_list, indent=4)
 				fp.write(data)
 			return
 		return self.object_list
@@ -92,7 +92,7 @@ class StaticStorage(CollectStorage):
 				self.object_list = Listorm(json.loads(fp.read()))
 		else:
 			with open(self.path, 'w') as fp:
-				fp.write(json.dumps(self.initial))
+				fp.write(json.dumps(self.initial, indent=4))
 			self._load()
 
 	def save(self, kind, excludes=None, extras=None, **kwargs):
@@ -102,7 +102,7 @@ class StaticStorage(CollectStorage):
 			self.object_list.update(extras=extras, where=lambda row:row.kind==kind)
 
 		with open(self.path, 'w') as fp:
-			fp.write(json.dumps(self.object_list))
+			fp.write(json.dumps(self.object_list, indent=4))
 
 	def get(self, kind):
 		obj = self.object_list.filterand(kind=kind).first

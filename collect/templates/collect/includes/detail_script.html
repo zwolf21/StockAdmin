@@ -1,0 +1,42 @@
+<script>
+	$(function(){
+		// 인쇄
+	    $('#btn-print').click(function(event){
+	        var printArea = window.open('', 'pop1', 'width=900, height=500, left=200, top=200, scrollbars=no, toolbars=no, location=no')
+	        printArea.document.write('<head>')
+	        printArea.document.write($('head').html())
+	        printArea.document.write('</head>')
+	        printArea.document.write('<body>')
+	        printArea.document.write('<div class="container-fluid">')
+	        {% if object.kind != 'NUT' %}
+	        printArea.document.write('<h2>{{ object.vkind }} 집계표</h2>')
+	        {% endif %}
+	        printArea.document.write($('#print-date-info').html())
+	        printArea.document.write($('.panel-footer').html())
+	        printArea.document.write('</div>')
+	        printArea.document.write('</body>')
+	        printArea.document.write('<script>window.print();window.close();<\/script>')
+	    })
+
+		// 약품명 클릭시 자세히보기 드롭다운
+		$('.show-detail').click(function(){
+			var id = $(this).attr('id');
+			var selector = `#detail-${id}`
+			console.log(selector)
+			$(selector).slideToggle()
+			return false
+		})
+		$('.show-detail-all').click(function(){
+			
+			var show = $(this).attr('show')
+			if(show === 'true') {
+				$('.detail').slideDown()
+				$(this).attr('show', 'false')
+			}else {
+				$('.detail').slideUp()
+				$(this).attr('show', 'true')
+			}
+			return false
+		})
+	})
+</script>

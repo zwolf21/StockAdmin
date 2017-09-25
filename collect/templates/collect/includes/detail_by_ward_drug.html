@@ -1,0 +1,115 @@
+{% load humanize %}
+
+{% for ward in object.wards %}
+
+<div class="print-each">
+	<h3 class="text-center">
+		{{ object.vtypes|join:'/' }} {{ ward }} {{ object.vkind }} 집계표
+	</h3>
+	{% include "collect/includes/detail_info.html" with plusminus='' %}
+	<table class="list text-right" border="1" width="100%">
+			<tr>
+				<th class="text-center">약품코드</th>
+				<th class="text-center" width="400px;"><a class="show-detail-all" href="javascript: return false;" show="true">약품명</a></th>
+				<th class="text-center">집계량</th>
+				<th class="text-center">규격단위</th>
+			</tr>
+		<tbody>
+		{% for grp in object.orders.grp_by_ward_drug_nm %}
+			{% if ward == grp.WARD %}
+			<tr>
+				<td class="text-center">{{ grp.ord_cd }}</td>
+				<td class="text-right"><a class="show-detail" id="{{ grp.WARD }}-{{ grp.ord_cd }}" href="javascript: return false;">{{ grp.drug_nm }}</a></td>
+				<td class="text-center">{{ grp.total_amt_sum|floatformat:2 }}</td>
+				<td class="text-center">{{ grp.std_unit_nm }}</td>
+			</tr>
+			<tr>
+	
+				<td></td>
+				<td colspan="3">
+				<div class="detail" id="detail-s{{ grp.WARD }}-{{ grp.ord_cd }}" style="display: none">
+					<table class="inner tablesorter" border="1">
+						<thead>
+							<tr>
+								<th>처방일자</th>
+								<th>구분</th>
+								<th>처방번호</th>
+								<th>환자번호</th>
+								<th>환자명</th>
+								<th>1회량</th>
+								<th>횟수</th>
+								<th>일수</th>
+								<th>총량</th>
+								<th>접수일시</th>
+							</tr>
+						</thead>
+						<tbody>
+						{% for order in grp.order_set %}
+							<tr>
+								<td>{{ order.ord_ymd }}</td>
+								<td>{{ order.rcpt_ord_tp_nm }}</td>
+								<td>{{ order.medi_no }}</td>
+								<td>{{ order.ptnt_no }}</td>
+								<td>{{ order.ptnt_nm }}</td>
+								<td>{{ order.once_amt }}</td>
+								<td>{{ order.ord_frq }}</td>
+								<td>{{ order.ord_day }}</td>
+								<td>{{ order.total_amt|floatformat:2 }}</td>
+								<td>{{ order.rcpt_dt }}</td>
+							</tr>
+						{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				</td>
+			</tr>
+			{% endif %}
+		{% endfor %}
+		</tbody>
+	</table>
+	<p class="text-right">
+		수령확인:________________(서명)
+	</p>
+	<div class="row">
+		<div class="col-xs-12" style="border: 1px solid black">	
+			<h4 class="text-center">{{ object.vtypes|join:'/' }} {{ ward }} {{ object.vkind }} DC 또는 반납된 항목</h4>
+			<table class="tablesorter" border="1"> 
+				<thead>
+					<tr>
+						<th class="text-center">처방번호</th>
+						<th class="text-center">환자번호</th>
+						<th class="text-center">환자명</th>
+						<th class="text-center">약품코드</th>
+						<th class="text-center">약품명</th>
+						<th class="text-center">수량</th>
+						<th class="text-center">DC일시</th>
+						<th class="text-center">반납일자</th>
+						<th class="text-center">반납건수</th>
+						<th class="text-center">입력일시</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for dcret in object.orders.grp_dc_and_ret %}
+					{% if ward == dcret.WARD %}
+					<tr>
+						<td class="text-center">{{ dcret.medi_no }}</td>
+						<td class="text-center">{{ dcret.ptnt_no }}</td>
+						<td class="text-center">{{ dcret.ptnt_nm }}</td>
+						<td class="text-center">{{ dcret.ord_cd }}</td>
+						<td class="text-right">{{ dcret.drug_nm }}</td>
+						<td class="text-right">{{ dcret.total_amt_sum }}</td>
+						<td class="text-center">{{ dcret.dc_ent_dt|default:"" }}</td>
+						<td class="text-center">{{ dcret.ret_ymd }}</td>
+						<td class="text-center">{{ dcret.drug_nm_count }}</td>
+						<td class="text-center">{{ dcret.ord_ent_dt }}</td>
+					</tr>
+					{% endif %}
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+{# <div class="print-each"> #}
+{# </div> #}
+{% endfor %}

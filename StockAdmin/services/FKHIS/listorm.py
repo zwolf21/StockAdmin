@@ -1,4 +1,4 @@
-from itertools import chain, groupby, tee
+from itertools import chain, groupby, tee 
 from operator import itemgetter
 from heapq import nlargest, nsmallest
 from io import BytesIO, StringIO
@@ -16,7 +16,6 @@ def str2float(value):
         return value
     else:
         return ret
-
 
 def round_try(value, round_to=2):
     try:
@@ -122,9 +121,8 @@ class Scheme(dict):
 class Listorm(list):
 
     def __init__(self, records=None, index=None, index_name=None, nomalize=True, column_orders=None):
-        self.index = index
+        self.index = index or []
         self.index_name = index_name
-        self.column_orders = []
 
         to_normalize, to_init = tee(records or [])
 
@@ -307,11 +305,15 @@ class Listorm(list):
 
     def orderby(self, *rules):
         '''lst.orderby('A', '-B') orderby A asc B desc
+           lst = lst.orderby(lambda row: [row.name, row.age], lambda row: row.gender)
         '''
         for rule in reversed(rules):
-            rvs = rule.startswith('-')
-            rule = rule.strip('-')
-            super().sort(key=lambda x: x[rule], reverse=rvs)
+            if isinstance(rule, str):
+                rvs = rule.startswith('-')
+                rule = rule.strip('-')
+                super().sort(key=lambda x: x[rule], reverse=rvs)
+            elif callable(rule):
+                super().sort(key=rule)
         return self
 
     def distinct(self, *column, eliminate=False):
@@ -400,9 +402,7 @@ class Listorm(list):
         '''
         records = map(lambda record: record.rename(**key_map), self)
         colums = map(lambda e: key_map.get(e, e), self.column_orders)
-        index = list(map(lambda e: key_map.get(e, e), self.index or []))
-        index_name = key_map.get(self.index_name, self.index_name)
-        return Listorm(records, nomalize=False, column_orders=list(colums), index=index, index_name=index_name)
+        return Listorm(records, nomalize=False, column_orders=list(colums), index=list(map(lambda e: key_map.get(e, e), self.index)), index_name=key_map.get(self.index_name, self.index_name))
 
     def add_columns(self, **kwargs):
         '''adding columns in current scheme by related funcion with neighborhood in record
@@ -593,7 +593,6 @@ class Listorm(list):
                     lst|=toklst
                 keyword_set|= lst
             ret|= keyword_set
-
         return ret
 
     def excludesim(self, **where):

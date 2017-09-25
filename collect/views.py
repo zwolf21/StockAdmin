@@ -10,43 +10,43 @@ from .forms import *
 from .models import Collect
 
 
-class CollectCreateView(FormView):
-    template_name = 'collect/collect_form.html'
-    form_class = CollectFormTest
-    success_url = '.'
+# class CollectCreateView(FormView):
+#     template_name = 'collect/collect_form.html'
+#     form_class = CollectFormTest
+#     success_url = '.'
 
-    def form_valid(self, form):
-        c = Collect()
-        obj = c.create_collect(**form.cleaned_data)
-        c.set_context(obj, test=False)
-        c.save(obj)
-        return super(CollectCreateView, self).form_valid(form)
+#     def form_valid(self, form):
+#         c = Collect()
+#         obj = c.create_collect(**form.cleaned_data)
+#         c.set_context(obj, test=False)
+#         c.save(obj)
+#         return super(CollectCreateView, self).form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        context = super(CollectCreateView, self).get_context_data(**kwargs)
-        c = Collect()
-        form_data = c.get_form(self.request, auto_on_staturday=True, translate=False)
-        if form_data:
-            context['form'] = CollectCreateForm(form_data)
-        context['object_list'] = c.get_list()        
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super(CollectCreateView, self).get_context_data(**kwargs)
+#         c = Collect()
+#         form_data = c.get_form(self.request, auto_on_staturday=True, translate=False)
+#         if form_data:
+#             context['form'] = CollectCreateForm(form_data)
+#         context['object_list'] = c.get_list()        
+#         return context
 
-def collect_detail(request, slug):
-    c = Collect()
-    object = c.get_object(slug)
-    object_list = c.get_list()
-    return render(request, 'collect/collect_detail.html', {'object': object, 'object_list':object_list})
+# def collect_detail(request, slug):
+#     c = Collect()
+#     object = c.get_object(slug)
+#     object_list = c.get_list()
+#     return render(request, 'collect/collect_detail.html', {'object': object, 'object_list':object_list})
 
-def collect_delete(request, slug):
-    # if request.method == "POST":
-    c = Collect()
-    c.delete(slug)
-    return redirect('collect:create')
+# def collect_delete(request, slug):
+#     # if request.method == "POST":
+#     c = Collect()
+#     c.delete(slug)
+#     return redirect('collect:create')
 
-def clear_collect(request):
-    c = Collect()
-    c.clear_list()
-    return redirect('collect:create')
+# def clear_collect(request):
+#     c = Collect()
+#     c.clear_list()
+#     return redirect('collect:create')
 
 
 class CollectListView(ListView):
@@ -67,6 +67,7 @@ class CollectDetailView(DetailView):
         collect = Collect()
         context = super(CollectDetailView, self).get_context_data(**kwargs)
         context['object_list'] = collect.get_queryset()
+        context['static'] = collect.get_static(**self.get_object())
         return context
 
 
@@ -75,11 +76,11 @@ class CollectFormView(FormView):
     success_url = '.'
 
     def get_form_class(self):
-        return get_form_class(test=False, **self.kwargs)
+        return get_form_class(test=True, **self.kwargs)
 
     def form_valid(self, form):
         collect = Collect()
-        collect.save(test=False, **form.cleaned_data)
+        collect.save(test=True, **form.cleaned_data)
         return super(CollectFormView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -87,10 +88,8 @@ class CollectFormView(FormView):
         collect = Collect()
         context = super(CollectFormView, self).get_context_data(**kwargs)
         context['object_list'] = collect.get_queryset()
-        Form = self.get_form_class() 
-        form = Form(initial = collect.get_form_initial(kind=kind, types=['ST']))
-        context['form'] = form
-        # context['form'] = CollectFormTest(initial = collect.get_form_initial(kind=kind, types=['ST']))
+        # Form = self.get_form_class() 
+        # context['form'] = Form(initial = collect.get_form_initial(kind=kind, types=['ST']))
         return context
 
 
@@ -112,6 +111,7 @@ class StaticFormView(FormView):
         collect = Collect()
         Form = self.get_form_class()
         context['form'] = Form(initial=collect.get_static(**self.kwargs))
+        context['object_list'] = collect.get_queryset()
         return context
 
 class CollectDeleteView(DeleteView):

@@ -1,0 +1,21 @@
+<div id="print-date-info">
+    <table class="tablesorter collect-info" width="100%" >
+        <tr>
+            <th style="text-align: center; border: 1px solid black;">처방일자</th>
+            <th style="text-align: center; border: 1px solid black;">처방구분</th>
+            <th style="text-align: center; border: 1px solid black;">집계일시</th>
+            <th style="text-align: center; border: 1px solid black;">집계병동</th>
+        </tr>
+        <tr>
+            <td style="text-align: center; border: 1px solid black;">{{ object.start_date }} ~ {{ object.end_date }}</td>
+            <td style="text-align: center; border: 1px solid black;">{{ object.vkind }}-{{ object.vtypes|join:"/" }}</td>
+            <td style="text-align: center; border: 1px solid black;">{{ object.start_dt }} ~ {{ object.end_dt }}</td>
+            <td style="text-align: center; border: 1px solid black;">{{ object.wards|join:"," }}</td>
+        </tr>
+        <tr>
+            <th colspan="2" style="text-align: center; border: 1px solid black;">접수시간 범위</th>
+            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ object.rcpt_dt_min }} ~ {{ object.rcpt_dt_max }}</td>
+        </tr>
+    </table>
+    <hr>
+</div>

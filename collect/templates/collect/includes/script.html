@@ -1,0 +1,20 @@
+<script>
+	$(function(){
+		// 집계 생성 마법사 화면으로 가기
+		$('.collect-list-header').click(function(){
+			location.href = "{% url 'collect:create' 'NUT' %}"
+		})
+
+		$('.collect-list').each(function(idx, elem){
+			var selected = $(elem)
+			var selected_url = selected.attr('url')
+			if (selected_url == location.pathname) {
+				selected.addClass('list-group-item-warning')
+			}
+		})
+		// 현재 선택된 집계 내역 표시하기
+		if (location.pathname == "{% url 'orderutils:labelcollect' %}") {
+			$('.collect-list-header').addClass('list-group-item-warning')
+		}
+	})
+</script>
