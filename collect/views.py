@@ -69,6 +69,7 @@ class CollectDetailView(DetailView):
         context['object_list'] = collect.get_queryset()
         return context
 
+
 class CollectFormView(FormView):
     template_name = 'collect/collect_form.html'
     success_url = '.'

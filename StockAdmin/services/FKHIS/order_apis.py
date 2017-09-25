@@ -52,23 +52,23 @@ def time_to_normstr(*time_values, to='date'):
 
 def norm_field(get_orderset):
 	@wraps(get_orderset)
-	def wrapper(types, wards, start_date, end_date, start_dt, end_dt, kind, extras, excludes, **kwargs):
+	def wrapper(types, wards, start_date, end_date, start_dt, end_dt, kind, extras=None, excludes=None, **kwargs):
 		types = list(map(lambda type: type_verbose.get(type, type), types))
 		wards = re.split('\s*,\s*', wards) if isinstance(wards, str) else wards
 		start_date, end_date = time_to_normstr(start_date, end_date)
 		start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
 		kind = kind_reverbose.get(kind, kind)
-		extras = re.split('\s*[\r\n]+,*\s*', extras) if isinstance(extras, str) else extras
-		excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else excludes
+		extras = re.split('\s*[\r\n]+,*\s*', extras) if isinstance(extras, str) else extras or []
+		excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else excludes or []
 		extras = list(filter(None, extras))
 		excludes = list(filter(None, excludes))
-
+		# print(types, wards, start_date, end_date, start_dt, end_dt, kind, extras, excludes)
 		return get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, extras, excludes, **kwargs)
 	return wrapper		
 
 
 @norm_field
-def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, extras, excludes, test=False):
+def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, extras=None, excludes=None, test=False):
 				
 	request = OrderSelectApiRequest(start_date, end_date, wards)
 
@@ -155,16 +155,16 @@ def parse_order_list(order_list):
 
 
 # ret = get_orderset(types=['정기', '추가', '응급', '퇴원'],
-# 	wards=['51', '52', '61', '71', '92', 'IC'], 
-# 	start_date='2017-09-19', end_date='2017-09-20',
+# 	wards=['51'], 
+# 	start_date='2017-09-20', end_date='2017-09-20',
 # 	start_dt='2016-09-19 00:00:00', end_dt='2017-09-20 00:00:00', 
 # 	kind='NUT',
-# 	extras = ['란스톤15', '테리본', '하루날디'],
-# 	excludes = ['오마프원', '하모닐란', '위너프', '슈프라민', '멀티플렉스'],
-# 	test=True
+# 	# extras = ['란스톤15', '테리본', '하루날디'],
+# 	# excludes = ['오마프원', '하모닐란', '위너프', '슈프라민', '멀티플렉스'],
+# 	test=False
 # )
 
-
+# pprint(ret.first)
 
 
 

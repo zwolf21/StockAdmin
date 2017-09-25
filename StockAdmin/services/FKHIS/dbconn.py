@@ -55,6 +55,7 @@ class FkocsAPI:
 		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N'"
 		self.cursor.execute(query)
 		records = [row for row in self.cursor.fetchall()]
+		# pprint(records)
 		return Listorm(records).rename(**renames)
 
 	def get_nutfluid_info(self, **renames):
@@ -69,7 +70,6 @@ class FkocsAPI:
 		records = [row for row in self.cursor.fetchall()]
 		return Listorm(records).rename(**renames)
 		
-
 	def get_label_info(self, **renames):
 		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N' AND SNG_PACK_GB='S' OR SNG_PACK_GB='P'"
 		self.cursor.execute(query)
@@ -227,6 +227,8 @@ def get_drug_list(kind, extras, excludes, test=False):
 		lst = lst.filter(lambda row: row['투여경로'] == '3' and row['효능코드(보건복지부)'] not in ['325', '323', '331'] and row['약품법적구분'] in ['0'])
 	else:
 		lst = lst
+
+	# pprint(lst.select('약품명(한글)'))
 	return lst.excludesim(**{'약품명(한글)': excludes}) | extra_lst
 
 

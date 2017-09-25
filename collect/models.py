@@ -105,9 +105,7 @@ class StaticStorage(CollectStorage):
 			fp.write(json.dumps(self.object_list))
 
 	def get(self, kind):
-		pprint(self.object_list)
 		obj = self.object_list.filterand(kind=kind).first
-		pprint(obj)
 		return obj
 
 class Collect(object):
