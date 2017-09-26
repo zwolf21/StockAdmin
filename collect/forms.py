@@ -1,6 +1,6 @@
 import datetime
 from django import forms
-from django.forms import CheckboxSelectMultiple, Textarea, DateInput
+from django.forms import CheckboxSelectMultiple, Textarea, DateInput, DateTimeInput
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -65,11 +65,12 @@ class CollectFormTest(forms.Form):
     date = forms.DateField(initial=datetime.date.today(), widget=DateInput())
     types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
     wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
-    start_date = forms.DateField(initial=test_date)
-    end_date = forms.DateField(initial=test_date)
-    start_dt = forms.DateTimeField(initial=test_dt)
-    end_dt = forms.DateTimeField(initial=test_date)
+    start_date = forms.DateField(initial=test_date, widget=DateInput(attrs={'type': 'date'}))
+    end_date = forms.DateField(initial=test_date, widget=DateInput(attrs={'type': 'date'}))
+    start_dt = forms.DateTimeField(initial=test_dt, widget=DateTimeInput(attrs={'type': 'datetime'}))
+    end_dt = forms.DateTimeField(initial=test_date, widget=DateTimeInput(attrs={'type': 'datetime'}))
     kind = forms.ChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨'), ('INJ', '주사')], initial='NUT')
+
 
 
 class StaticForm(forms.Form):
