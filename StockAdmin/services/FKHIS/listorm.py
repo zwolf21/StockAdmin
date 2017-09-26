@@ -94,7 +94,7 @@ class Scheme(dict):
         keys = self._filter_invalid_keys(*keys)
         if index_name in self:
             index_name += '__index'
-        self[index_name] = ''.join(self[k] for k in keys)
+        self[index_name] = ''.join(self[k] or '' for k in keys)
         return self
 
 

@@ -110,8 +110,8 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, dat
 def parse_order_list(order_list):
 	ord_lst = Listorm(order_list, nomalize=False)
 	# ret_lst = ord_lst.filterand(ret_yn='Y')
-	ret_lst = ord_lst.filter(lambda row: row.medi_no >= '40000')
-	ord_lst = ord_lst.filter(lambda row: row.medi_no < '40000')
+	ret_lst = ord_lst.filter(lambda row: row.medi_no and row.medi_no >= '40000')
+	ord_lst = ord_lst.filter(lambda row: row.medi_no and row.medi_no < '40000')
 	# ord_lst = ord_lst.add_columns()
 	grp_by_drug_nm = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum,
 		renames={'drug_nm': 'drug_nm_count', 'total_amt': 'total_amt_sum', 'ord_qty': 'ord_qty_sum'},
@@ -123,6 +123,8 @@ def parse_order_list(order_list):
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
 		set_name = 'order_set'
 	).orderby('WARD', 'drug_nm')
+	# grp_by_ward['order_set'] = grp_by_ward.order_set.order_by('drug_nm')
+	# print('orderby')
 
 	grp_by_ward_drug_nm = ord_lst.groupby('WARD', 'drug_nm', ord_qty=sum, total_amt=sum, drug_nm=len,
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},

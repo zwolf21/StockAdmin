@@ -21,7 +21,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for order in object.order_set %}
+                {% for order in object.order_set|dictsort:'drug_nm' %}
                 <tr>
                     <td class="text-center">{{ order.medi_no }}</td>
                     {% if object.kind == 'NUT' %}
