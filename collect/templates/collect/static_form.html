@@ -3,7 +3,7 @@
 {% block main %}
 <form id="collect-form" method="post" class="form-inline" action="{% url 'collect:update-plusminus' form.kind.value %}">
     {% csrf_token %}
-    <h3> <span class="text-danger bg-info">{% if form.kind.value == 'NUT' %} 영양수액 {% else %} 주사 {% endif %}</span> 추가/제외</h3>
+    <h3> <span class="text-danger bg-info">{% if form.kind.value == 'NUT' %} 영양수액 {% else %} 주사 {% endif %}</span> 집계 추가/제외</h3>
     <p>
         <h4 class="text-info"  style="display: inline-block">※항목들을 개행으로 구분하여 입력합니다</h4>
     </p>
@@ -13,7 +13,7 @@
     <div class="form-group">
         <div class="col-xs-5">
             <div class="row">
-                <h4>추가적으로 집계할 항목</h4>
+                <span class="glyphicon glyphicon-plus-sign">추가적으로 집계할 항목</span>
             </div>
             <div class="row">
             {{ form.extras }}
@@ -21,7 +21,7 @@
         </div>
         <div class="col-xs-5 col-xs-push-3">
             <div class="row">
-                <h4>집계 제거 항목</h4>
+                <span class="glyphicon glyphicon-minus-sign">집계 제외할 항목</span>
             </div>
             <div class="row">
             {{ form.excludes }}

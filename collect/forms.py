@@ -16,6 +16,8 @@ def get_form_class(kind=None, app='collect', test=False, **kwargs):
         return CollectNutForm if app == 'collect' else StaticNutForm
     elif kind == 'INJ':
         return CollectInjForm if app == 'collect' else StaticInjForm
+    elif kind == 'ANY':
+        return CollectAnyStForm
     else:
         return CollectForm if app == 'collect' else StaticForm
 
@@ -56,6 +58,9 @@ class CollectInjForm(CollectForm):
     # excludes = forms.CharField(required=False, widget=Textarea(attrs={'rows':5, 'cols': 20, 'placeholder': '제외할 약품 입력 후 엔터키'}))
     # extras = forms.CharField(required=False, widget=Textarea(attrs={'rows':5, 'cols': 20, 'placeholder': '추가할 약품 입력 후 엔터키'}))
 
+class CollectAnyStForm(CollectForm):
+    kinds = forms.MultipleChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨'), ('INJ', '주사')], initial=['LABEL'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer, attrs={'class': 'form-control'}))
+
 
 
 test_date = datetime.date(2017, 9 ,20)
@@ -70,6 +75,7 @@ class CollectFormTest(forms.Form):
     start_dt = forms.DateTimeField(initial=test_dt, widget=DateTimeInput(attrs={'type': 'datetime'}))
     end_dt = forms.DateTimeField(initial=test_date, widget=DateTimeInput(attrs={'type': 'datetime'}))
     kind = forms.ChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨'), ('INJ', '주사')], initial='NUT')
+    kinds = forms.MultipleChoiceField(required=False, choices=[('NUT', '영양수액'), ('LABEL', '라벨'), ('INJ', '주사')], initial=['LABEL'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer, attrs={'class': 'form-control'}))
 
 
 

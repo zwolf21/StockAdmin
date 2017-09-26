@@ -1,45 +1,45 @@
 {% load humanize %}
-
-<div class="row text-center">
-    <h4>{{ object.vkind }} {{ object.vtypes|join:',' }} 처방 수령확인</h4>
-</div>
-<div class="row" style="border: 2px solid black;">
-{% for object in object.orders.grp_by_ward %}
-    <div class="col-xs-6" style="border: 1px dotted black">
-        <h4>{{ object.WARD }}</h4>
-        <table class="tablesorter" border="1" width="100%" style="border: 1px solid black">
-            <thead>
-                <tr>
-                    <th class="text-center">처방번호</th>
-                    {% if object.kind == 'NUT' %}
-                    <th class="text-center">환자번호</th>
-                    {% endif %}
-                    <th class="text-center">환자명</th>
-                    <th class="text-center">약품명</th>
-                    <th class="text-center">수량</th>
-                    {# <th class="text-center">규격단위</th> #}
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in object.order_set %}
-                <tr>
-                    <td class="text-center">{{ order.medi_no }}</td>
-                    {% if object.kind == 'NUT' %}
-                    <td class="text-center">{{ order.ptnt_no }}</td>
-                    {% endif %}
-                    <td class="text-center">{{ order.ptnt_nm }}</td>
-                    <td class="text-right">{{ order.drug_nm }}</td>
-                    <td class="text-center">{{ order.total_amt|floatformat:0 }} {{ order.std_unit_nm }}</td>
-                    {# <td class="text-center">{{ order.std_unit_nm }}</td> #}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <p class="text-right">
-            수령확인:________________(서명)
-        </p>
+<div class="{{ cls }}">
+    <div class="row text-center">
+        <h4>{{ object.vtypes|join:',' }} {{ object.vkind }} 수령확인</h4>
     </div>
-    {% cycle '' '<div class="clearfix"></div>' %}
-
-{% endfor %}
+    <div class="row" style="border: 2px solid black;">
+    {% for object in object.orders.grp_by_ward %}
+        <div class="col-xs-6" style="border: 1px dotted black">
+            <h4>{{ object.WARD }}</h4>
+            <table class="tablesorter" border="1" width="100%" style="border: 1px solid black">
+                <thead>
+                    <tr>
+                        <th class="text-center">처방번호</th>
+                        {% if object.kind == 'NUT' %}
+                        <th class="text-center">환자번호</th>
+                        {% endif %}
+                        <th class="text-center">환자명</th>
+                        <th class="text-center">약품명</th>
+                        <th class="text-center">수량</th>
+                        {# <th class="text-center">규격단위</th> #}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in object.order_set|dictsort:"drug_nm" %}
+                    <tr>
+                        <td class="text-center">{{ order.medi_no }}</td>
+                        {% if object.kind == 'NUT' %}
+                        <td class="text-center">{{ order.ptnt_no }}</td>
+                        {% endif %}
+                        <td class="text-center">{{ order.ptnt_nm }}</td>
+                        <td class="text-right">{{ order.drug_nm }}</td>
+                        <td class="text-center">{{ order.total_amt|floatformat:0 }} {{ order.std_unit_nm }}</td>
+                        {# <td class="text-center">{{ order.std_unit_nm }}</td> #}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="text-right">
+                수령확인:________________(서명)
+            </p>
+        </div>
+        {% cycle '' '<div class="clearfix"></div>' %}
+    {% endfor %}
+    </div>
 </div>

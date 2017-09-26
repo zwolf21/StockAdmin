@@ -76,20 +76,27 @@ class CollectFormView(FormView):
     success_url = '.'
 
     def get_form_class(self):
-        return get_form_class(test=False, **self.kwargs)
+        return get_form_class(test=True, **self.kwargs)
 
     def form_valid(self, form):
         collect = Collect()
-        collect.save(test=False, **form.cleaned_data)
+        collect.save(test=True, **form.cleaned_data)
         return super(CollectFormView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        context = self.get_context_data()
+        collect = Collect()
+        Form = self.get_form_class()
+        context['form'] = Form(collect.get_form_initial(**form.cleaned_data))
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         kind = self.kwargs.get('kind')
         collect = Collect()
         context = super(CollectFormView, self).get_context_data(**kwargs)
         context['object_list'] = collect.get_queryset()
-        Form = self.get_form_class() 
-        context['form'] = Form(initial = collect.get_form_initial(kind=kind, types=['ST']))
+        # Form = self.get_form_class() 
+        # context['form'] = Form(initial = collect.get_form_initial(kind=kind, types=['ST']))
         return context
 
 

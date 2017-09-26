@@ -4,7 +4,7 @@
 <form id="collect-form" method="post" class="form-inline" action="{% url 'collect:create' form.kind.value %}">
     {% csrf_token %}
     <div class="form-group">
-        <div class="col-xs-12">
+        <div class="col-xs-12" hidden="">
             <label>집계일자: {{ form.date }}</label>
         </div>
         {# <div class="col-xs-12 hidden"> #}
@@ -27,10 +27,49 @@
     <div class="row text-center">
         <div class="form-group">
             <div class="btn btn-group center-block">
-                <button class="btn btn-success" type="submit">집계<span class="glyphicon glyphicon-download-alt"></span></button>
+                <button class="btn btn-success" type="submit" id="btn-collect">집계<span class="glyphicon glyphicon-download-alt"></span></button>
+                <button class="btn btn-warning" type="submit" id="btn-calctime">집계시간불러오기<span class="glyphicon glyphicon-download-alt"></span></button>
             </div>
         </div>
     </div>
 </form>
 
 {% endblock main %}
+{% block script %}
+{{ block.super }}
+<script>
+    $(function(){
+
+        // 초기화
+        var start_date = $('#id_start_date').val()
+        var end_date = $('#id_end_date').val()
+        var start_dt = $('#id_start_dt').val()
+        var end_dt = $('#id_end_dt').val()
+
+        if (start_date == '' ||  end_date == '' || start_dt == '' || end_dt == '') {
+            $('#btn-collect').hide()
+        }else{
+            $('#btn-calctime').hide()
+        }
+
+        // 정기, 추가, 응급 체크박스 수정시
+        $('[name=types]').change(function(event){
+            // 날짜 초기화
+            $('#id_start_date, #id_end_date, #id_start_dt, #id_end_dt').val('')
+            // 집계 버튼 변경
+            $('#btn-collect').hide()
+            $('#btn-calctime').show()
+        })
+
+        // 추가 응급 버튼 동작 묶기
+        $('#id_types_1, #id_types_2').click(function(event){
+            if($(this).is(':checked')){
+                $('#id_types_1, #id_types_2').prop('checked', true)
+            }else{
+                $('#id_types_1, #id_types_2').prop('checked', false)
+            }
+        })
+
+    })
+</script>
+{% endblock script %}

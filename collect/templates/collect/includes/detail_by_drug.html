@@ -1,77 +1,79 @@
-<table class="list text-right" border="1" width="100%">
-    <thead>
-        <th class="text-center" width="150px;">약품코드</th>
-        <th class="text-center" width="400px;"><a class="show-detail-all" href="javascript: return false;" show="true">약품명</a></th>
-        <th class="text-center">집계량</th>
-        <th class="text-center">단위</th>
-        <th class="text-center">건수</th>
-    </thead>
-    <tbody>
-        {% for object in object.orders.grp_by_drug_nm %}
-        <tr>
-            <td>{{ object.ord_cd }}</td>
-            <td><a class="show-detail" id="{{ object.ord_cd }}" href="javascript: return false;">{{ object.drug_nm }}</a></td>
-            <td align="center">{{ object.total_amt_sum }}</td>
-            <td align="center">{{ object.ord_unit_nm }}</td>
-            <td align="center">{{ object.drug_nm_count }}</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td colspan="3">
-                {% if object.duplicated %}
-                <div class="detail" id="detail-{{ object.ord_cd }}">
-                {% else %}
-                <div class="detail" id="detail-{{ object.ord_cd }}" style="display: none;">
-                {% endif %}
-                    <table class="inner tablesorter" border="1">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center;">처방일자</th>
-                                <th style="text-align: center;">병동</th>
-                                <th style="text-align: center;">처방번호</th>
-                                <th style="text-align: center;">환자번호</th>
-                                <th style="text-align: center;">환자명</th>
-                                <th style="text-align: center;">1회량</th>
-                                <th style="text-align: center;">횟수</th>
-                                <th style="text-align: center;">일수</th>
-                                <th style="text-align: center;">총량</th>
-                                {% if object.sub_object_list.0.amt_vol %}
-                                <th>조제량환산</th>
-                                {% endif %}
-                                <th style="text-align: center;">접수일시</th>
-                                {% if object.duplicated %}
-                                <th>이전집계와 중복</th>
-                                {% endif %}
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for obj in object.order_set %}
-                                <tr style="background: yellow;" {% if obj.duplicated %} class="duplicated" {% endif %}>
-                                    <td align="center">{{ obj.ord_ymd }}</td>
-                                    <td align="center">{{ obj.ward|slice:"2" }}</td>
-                                    <td align="center">{{ obj.medi_no }}</td>
-                                    <td align="center">{{ obj.ptnt_no }}</td>
-                                    <td align="center">{{ obj.ptnt_nm }}</td>
-                                    <td align="center">{{ obj.once_amt }}</td>
-                                    <td align="center">{{ obj.ord_frq }}</td>
-                                    <td align="center">{{ obj.ord_day }}</td>
-                                    <td align="center">{{ obj.total_amt }}</td>
-                                    {% if obj.amt_vol %}
-                                    <td align="center">{{ obj.amt_vol }} {{ obj.함량단위1 }}</td>
+<div class="{{ cls }}">
+    <table class="list text-right" border="1" width="100%">
+        <thead>
+            <th class="text-center" width="150px;">약품코드</th>
+            <th class="text-center" width="400px;"><a class="show-detail-all" href="javascript: return false;" show="true">약품명</a></th>
+            <th class="text-center">집계량</th>
+            <th class="text-center">단위</th>
+            <th class="text-center">건수</th>
+        </thead>
+        <tbody>
+            {% for object in object.orders.grp_by_drug_nm %}
+            <tr>
+                <td>{{ object.ord_cd }}</td>
+                <td><a class="show-detail" id="{{ object.ord_cd }}" href="javascript: return false;">{{ object.drug_nm }}</a></td>
+                <td align="center">{{ object.total_amt_sum }}</td>
+                <td align="center">{{ object.ord_unit_nm }}</td>
+                <td align="center">{{ object.drug_nm_count }}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="3">
+                    {% if object.duplicated %}
+                    <div class="detail" id="detail-{{ object.ord_cd }}">
+                    {% else %}
+                    <div class="detail" id="detail-{{ object.ord_cd }}" style="display: none;">
+                    {% endif %}
+                        <table class="inner tablesorter" border="1">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;">처방일자</th>
+                                    <th style="text-align: center;">병동</th>
+                                    <th style="text-align: center;">처방번호</th>
+                                    <th style="text-align: center;">환자번호</th>
+                                    <th style="text-align: center;">환자명</th>
+                                    <th style="text-align: center;">1회량</th>
+                                    <th style="text-align: center;">횟수</th>
+                                    <th style="text-align: center;">일수</th>
+                                    <th style="text-align: center;">총량</th>
+                                    {% if object.sub_object_list.0.amt_vol %}
+                                    <th>조제량환산</th>
                                     {% endif %}
-                                    <td align="center">{{ obj.rcpt_dt }}</td>
+                                    <th style="text-align: center;">접수일시</th>
                                     {% if object.duplicated %}
-                                    <td>{{ obj.duplicated }}차 시에 집계됨</td>
+                                    <th>이전집계와 중복</th>
                                     {% endif %}
+
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </td>
-            <td></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                            </thead>
+                            <tbody>
+                                {% for obj in object.order_set %}
+                                    <tr style="background: yellow;" {% if obj.duplicated %} class="duplicated" {% endif %}>
+                                        <td align="center">{{ obj.ord_ymd }}</td>
+                                        <td align="center">{{ obj.ward|slice:"2" }}</td>
+                                        <td align="center">{{ obj.medi_no }}</td>
+                                        <td align="center">{{ obj.ptnt_no }}</td>
+                                        <td align="center">{{ obj.ptnt_nm }}</td>
+                                        <td align="center">{{ obj.once_amt }}</td>
+                                        <td align="center">{{ obj.ord_frq }}</td>
+                                        <td align="center">{{ obj.ord_day }}</td>
+                                        <td align="center">{{ obj.total_amt }}</td>
+                                        {% if obj.amt_vol %}
+                                        <td align="center">{{ obj.amt_vol }} {{ obj.함량단위1 }}</td>
+                                        {% endif %}
+                                        <td align="center">{{ obj.rcpt_dt }}</td>
+                                        {% if object.duplicated %}
+                                        <td>{{ obj.duplicated }}차 시에 집계됨</td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -1,3 +1,4 @@
+from collections import Iterable
 from datetime import datetime
 import sys, os
 import pymssql
@@ -219,17 +220,35 @@ def get_all_list(test):
 def get_drug_list(kind, extras, excludes, test=False):
 	lst = get_all_list(test)
 	extra_lst = lst.filtersim(**{'약품명(한글)': extras}) #if extras else Listorm()
-	if kind == 'LABEL':
-		lst = lst.filter(lambda row: row['단일포장구분'] in ['S', 'P']).orderby('-단일포장구분', '약품명(한글)')
-	elif kind == 'NUT':
-		lst = lst.filter(lambda row: row['효능코드(보건복지부)'] in ['325'])
-	elif kind == 'INJ':
-		lst = lst.filter(lambda row: row['투여경로'] == '3' and row['효능코드(보건복지부)'] not in ['325', '323', '331'] and row['약품법적구분'] in ['0'])
+
+	lst_label = lst.filter(lambda row: row['단일포장구분'] in ['S', 'P']).orderby('-단일포장구분', '약품명(한글)')
+	lst_nut = lst.filter(lambda row: row['효능코드(보건복지부)'] in ['325'])
+	lst_inj = lst.filter(lambda row: row['투여경로'] == '3' and row['효능코드(보건복지부)'] not in ['325', '323', '331'] and row['약품법적구분'] in ['0'])
+
+	if isinstance(kind, str):
+		if kind == 'LABEL':
+			lst = lst_label
+		elif kind == 'NUT':
+			lst = lst_nut
+		elif kind == 'INJ':
+			lst = lst_inj
+		else:
+			lst = lst
+		return lst.excludesim(**{'약품명(한글)': excludes}) | extra_lst
 	else:
-		lst = lst
+		ret = Listorm()
+		for k in kind:
+			if k == 'LABEL':
+				ret+= lst_label
+			elif k == 'NUT':
+				ret += lst_nut
+			elif k == 'INJ':
+				ret += lst_inj
+			else:
+				continue
+		return ret
 
 	# pprint(lst.select('약품명(한글)'))
-	return lst.excludesim(**{'약품명(한글)': excludes}) | extra_lst
 
 
 

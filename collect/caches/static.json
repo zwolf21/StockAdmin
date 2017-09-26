@@ -1,17 +1,17 @@
 [
     {
-        "kind": "LABEL",
         "extras": "",
-        "excludes": ""
+        "excludes": "",
+        "kind": "LABEL"
     },
     {
-        "kind": "INJ",
         "extras": "",
-        "excludes": "\ud734\ubb3c\ub9b0 \uc54c 100IU\r\n\ud734\ub9c8\ub85c\uadf8 100IU\r\n\ud2b8\ub9ac\uc824\r\n\ud5e4\ud30c\ub9b0\r\nISCOTIN\r\nRIFADIN\r\n\r\n\r\n\r\n\r\n"
+        "excludes": "\ud734\ubb3c\ub9b0 \uc54c 100IU\r\n\ud734\ub9c8\ub85c\uadf8 100IU\r\n\ud2b8\ub9ac\uc824\r\n\ud5e4\ud30c\ub9b0\r\nISCOTIN\r\nRIFADIN\r\n\uc54c\ubd80\ubbfc\r\n\r\n\r\n\r\n\r\n\r\n",
+        "kind": "INJ"
     },
     {
-        "kind": "NUT",
         "extras": "\ud14c\ub9ac\ubcf8\r\n\uc5d0\ub77d\uc2dc\uc2a4\r\n\uc54c\ubd80\ubbfc\r\n\uba40\ud2f0\ube14\ub8e8",
-        "excludes": "\ud558\ubaa8\ub2d0\ub780\r\n"
+        "excludes": "\ud558\ubaa8\ub2d0\ub780\r\n",
+        "kind": "NUT"
     }
 ]
