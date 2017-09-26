@@ -34,8 +34,8 @@ class HorizontalCheckboxRenderer(forms.CheckboxSelectMultiple.renderer):
 WARDS_CHOICES = [('51', '51'), ('52', '52'), ('61', '61'), ('71', '71'), ('81', '81'), ('92', '92'), ('IC', 'IC')]
 
 class CollectForm(forms.Form):
-    date = forms.DateField(initial=datetime.date.today())
-    types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
+    date = forms.DateField(initial=datetime.date.today(), widget=DateInput(attrs={'class': 'form-control input-sm'}))
+    types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer, attrs={'class': 'form-control'}))
     wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
     start_date = forms.DateField()
     end_date = forms.DateField()
