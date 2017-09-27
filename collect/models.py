@@ -72,6 +72,9 @@ class CollectStorage(object):
 		return Listorm(self.object_list[::-1])
 
 	def get_latest(self, **kwargs):
+		for key, val in kwargs.items():
+			if key == 'date':
+				kwargs[key] = time_to_normstr(val)
 		latest = self.object_list.filterand(**kwargs).top('seq')
 		return latest
 
@@ -135,7 +138,7 @@ class Collect(object):
 		return "{} {} {} {}차({}개 병동, {}건)".format(kind_verbose.get(kind), date, types, seq, len(wards) ,count)
 
 
-	def save(self, types, wards, date, start_date, end_date, start_dt, end_dt, kind,  commit=True, test=False, **kwargs):
+	def save(self, types, wards, date, start_date, end_date, start_dt, end_dt, kind, commit=True, test=False, **kwargs):
 		types = sorted(types, key=type_order.get)
 		vkind = kind_verbose.get(kind)
 		vtypes = list(map(type_verbose.get, types))
@@ -199,15 +202,53 @@ class Collect(object):
 				end_date += datetime.timedelta(1)
 		return time_to_normstr(start_date, end_date)
 
-	def get_form_initial(self, kind, types=['ST'], wards=['51', '52', '61', '71', '81', '92', 'IC']):
-		date = time_to_normstr(datetime.date.today())
-		start_dt, end_dt = self._get_next_dt(kind=kind, date=date, types=types, wards=wards)
-		start_date, end_date = self._get_next_date(types, kind)
-		initial = {
-			'start_date': start_date, 'end_date': end_date,
-			'start_dt': start_dt, 'end_dt': end_dt, 'types': types,
-		}
-		return initial
+	def time_options(self, kind, types, **kwargs):
+		today = datetime.date.today()
+		yesterday = today - datetime.timedelta(1)
+		tomorrow = today + datetime.timedelta(1)
+		now = datetime.datetime.now()
+		end_dt = now
+		if set(types) == {'ST', 'AD', 'EM'}:
+			start_date = yesterday
+			end_date = today
+			st_latest = self.db.get_latest(date=yesterday, kind=kind, types=['ST'])
+			ad_latest = self.db.get_latest(date=yesterday, kind=kind, types=['AD', 'EM'])
+			if st_latest and ad_latest:
+				latest = st_latest if st_latest < ad_latest else ad_latest
+			else:
+				latest = st_latest or ad_latest or None
+			
+			start_dt = latest.end_dt if latest else today
+		
+		elif set(types) == {'ST'}:
+			start_date = tomorrow
+			end_date = tomorrow
+			latest = self.db.get_latest(date=today, kind=kind, types=types)
+			if latest:
+				start_dt = latest.end_dt
+			else:
+				start_dt = today
+		elif set(types) == {'AD', 'EM'}:
+			start_date = today
+			end_date = today
+			latest = self.db.get_latest(date=today, kind=kind, types=types)
+			if latest:
+				start_dt = latest.end_dt
+			else:
+				start_dt = today
+		else:
+			start_date = today
+			end_date = today
+			start_dt, end_dt = today, now
+		# start_date, end_date = time_to_normstr(start_date, end_date)
+		# start_dt, end_dt = time_to_normstr(start_dt, end_dt)
+		return {'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt}
+
+
+	def get_form_initial(self, **kwargs):
+		kwargs.update(self.time_options(**kwargs))
+		return kwargs
+		
 
 	def save_static(self, kind, **kwargs):
 		self.static_db.save(kind, **kwargs)

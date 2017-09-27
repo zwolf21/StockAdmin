@@ -221,6 +221,7 @@ class OrderSelectApiRequest(ApiRequest):
         #             self.raws.append(super(OrderSelectApiRequest, self).set_test_response(path))
         return self
 
+# pprint(API_REQ['ordSelect']['51'].decode('ascii', errors='ignore'))
 
 # req = OrderSelectApiRequest('2017-09-18', '2017-09-20', ['IC'])
 # save_to_path = 'response_samples/orderselect/IC.rsp'

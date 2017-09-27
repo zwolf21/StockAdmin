@@ -4,6 +4,7 @@
 *.csv
 .DS_STORE
 .vscode/
+*.json
 media/
 __pycache__/
 

@@ -79,15 +79,16 @@
 				            <li class="{% if form.kind.value == 'LABEL' %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">라벨</a></li>
 				             <li class="{% if form.kind.value == 'INJ' %}active{% endif %}"><a href="{% url 'collect:create' 'INJ' %}">주사</a></li>
 				            <li class="{% if form.kind.value == 'NUT' %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">영양수액</a></li>
-				            <li class="">
-				                <a href="{% url 'collect:update-plusminus' 'INJ' %}">추가/제외 관리</a>
-				            </li>
+				            <li class="{% if form.kind.value == 'ANY' %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">내일정기일괄</a></li>
 				        	{% endif %}
 				        {% else %}				        
-				            <li class="active"><a href="#by-drug" data-toggle="tab">약품별</a></li>
-				            <li class=""><a href="#by-ward-drug" data-toggle="tab">+병동별</a></li>
-				            <li class=""><a href="#by-ward" data-toggle="tab">병동별(상세)</a></li>
+				            <li class="active"><a class="tab-collect" href="#by-drug" data-toggle="tab" id="tab-drug">약품별</a></li>
+				            <li class=""><a class="tab-collect" href="#by-ward-drug" data-toggle="tab" id="tab-ward-drug">병동별</a></li>
+				            <li class=""><a class="tab-collect" href="#by-ward" data-toggle="tab" id="tab-ward">병동별(환자별)</a></li>
 			        	{% endif %}
+				            <li class="pull-right">
+				                <a href="{% url 'collect:update-plusminus' 'INJ' %}"><span class="glyphicon glyphicon-plus-sign"></span><span class="glyphicon glyphicon-minus-sign"></span>집계 추가/제외 관리</a>
+				            </li>
 			        </ul>
 			    </div>
 			    <div class="panel-body">
@@ -106,11 +107,6 @@
 		</div>
 	</div>
 </div>
-<script type="text/javascript">
-            $(function () {
-                $('#collect-date').datetimepicker();
-            });
-        </script>
 {% block script %} 
 	{% include "collect/includes/script.html" %}
 	{% include "datepicker_js.html" %}

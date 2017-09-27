@@ -11,7 +11,7 @@ from .views import *
 # ]
 
 urlpatterns = [
-	url(r'^create/(?P<kind>LABEL|NUT|INJ)/$', CollectFormView.as_view(), name='create'),
+	url(r'^create/(?P<kind>LABEL|NUT|INJ|ANY)/$', CollectFormView.as_view(), name='create'),
 	url(r'^detail/(?P<slug>[\w\d-]+)/$', CollectDetailView.as_view(), name='detail'),
 	url(r'^delete/$', clear, name='clear'),
 	url(r'^delete/(?P<slug>[\w\d-]+)/$', CollectDeleteView.as_view(), name='delete'),
