@@ -209,16 +209,24 @@ class Collect(object):
 		now = datetime.datetime.now()
 		end_dt = now
 		if set(types) == {'ST', 'AD', 'EM'}:
-			start_date = yesterday
-			end_date = today
-			st_latest = self.db.get_latest(date=yesterday, kind=kind, types=['ST'])
-			ad_latest = self.db.get_latest(date=yesterday, kind=kind, types=['AD', 'EM'])
-			if st_latest and ad_latest:
-				latest = st_latest if st_latest < ad_latest else ad_latest
+			today_latest = self.db.get_latest(date=today, kind=kind, types=types)
+			if today_latest:
+				# print(types, today_latest)
+				start_date, end_date = today, today
+				start_dt = today_latest.end_dt
 			else:
-				latest = st_latest or ad_latest or None
-			
-			start_dt = latest.end_dt if latest else today
+				start_date = yesterday
+				end_date = today
+				st_latest = self.db.get_latest(date=yesterday, kind=kind, types=['ST'])
+				ad_latest = self.db.get_latest(date=yesterday, kind=kind, types=['AD', 'EM'])
+				if st_latest and ad_latest:
+					latest = st_latest if st_latest < ad_latest else ad_latest
+				else:
+					latest = st_latest or ad_latest or None
+				
+				start_dt = latest.end_dt if latest else today
+				if not latest:
+					start_date = today
 		
 		elif set(types) == {'ST'}:
 			start_date = tomorrow

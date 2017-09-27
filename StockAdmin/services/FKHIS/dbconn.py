@@ -223,7 +223,9 @@ def get_drug_list(kind, extras, excludes, test=False):
 
 	lst_label = lst.filter(lambda row: row['단일포장구분'] in ['S', 'P']).orderby('-단일포장구분', '약품명(한글)')
 	lst_nut = lst.filter(lambda row: row['효능코드(보건복지부)'] in ['325'])
-	lst_inj = lst.filter(lambda row: row['투여경로'] == '3' and row['효능코드(보건복지부)'] not in ['325', '323', '331'] and row['약품법적구분'] in ['0'])
+	lst_inj = lst.filter(
+		lambda row: row['투여경로'] == '3' and row['효능코드(보건복지부)'] not in ['325', '323', '331'] and row['약품법적구분'] in ['0'] and row['항암제구분'] == '0'
+	)
 
 	if isinstance(kind, str):
 		if kind == 'LABEL':

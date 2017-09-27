@@ -113,11 +113,6 @@ def parse_order_list(order_list):
 	ret_lst = ord_lst.filter(lambda row: row.medi_no and row.medi_no >= '40000')
 	ord_lst = ord_lst.filter(lambda row: row.medi_no and row.medi_no < '40000')
 	# ord_lst = ord_lst.add_columns()
-	grp_by_drug_nm = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum,
-		renames={'drug_nm': 'drug_nm_count', 'total_amt': 'total_amt_sum', 'ord_qty': 'ord_qty_sum'},
-		extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', 'std_unit_nm', '보관방법코드'],
-		set_name = 'order_set'
-	).orderby('보관방법코드', lambda row: unit_sort(row.std_unit_nm),'단일포장구분', 'drug_nm')
 
 	grp_by_ward = ord_lst.groupby('WARD', ord_qty=sum, total_amt=sum, drug_nm=len,
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
@@ -126,9 +121,9 @@ def parse_order_list(order_list):
 	# grp_by_ward['order_set'] = grp_by_ward.order_set.order_by('drug_nm')
 	# print('orderby')
 
-	grp_by_ward_drug_nm = ord_lst.groupby('WARD', 'drug_nm', ord_qty=sum, total_amt=sum, drug_nm=len,
+	grp_by_ward_drug_nm = ord_lst.groupby('WARD', 'ord_cd', ord_qty=sum, total_amt=sum, drug_nm=len,
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},
-		extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', '단일포장구분', 'std_unit_nm', '보관방법코드'],
+		extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', '단일포장구분', 'std_unit_nm', '보관방법코드', 'drug_nm'],
 		set_name = 'order_set'
 	).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
 
@@ -141,10 +136,24 @@ def parse_order_list(order_list):
 	dc_or_ret = ord_lst.filter(lambda row: row.dc_gb == 'Y' or row.ret_stus == 'O').orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
 	# dc_or_ret|= ret_lst
 	dc_and_ret = (ret_lst | only_dc).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
+
 	grp_dc_and_ret = dc_and_ret.groupby('WARD', 'medi_no', 'ord_cd','ptnt_no', ord_qty=sum, total_amt=sum, drug_nm=len,
 		renames = {'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},
 		extra_columns = ['ptnt_nm', 'dc_ent_dt', 'ret_ymd', 'ord_ent_dt', '보관방법코드', '단일포장구분'],
 	).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
+
+	grp_by_drug_nm = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum,
+		renames={'drug_nm': 'drug_nm_count', 'total_amt': 'total_amt_sum', 'ord_qty': 'ord_qty_sum'},
+		extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', 'std_unit_nm', '보관방법코드'],
+		set_name = 'order_set'
+	).orderby('보관방법코드', lambda row: unit_sort(row.std_unit_nm),'단일포장구분', 'drug_nm')
+	
+	# 반납약 빼기 표시
+	dcret_counts = grp_dc_and_ret.groupby('ord_cd', total_amt_sum=sum,
+		renames = {'total_amt_sum': 'minus_count'}
+	)
+	# grp_by_ward_drug_nm = grp_by_ward_drug_nm.join(dcret_counts, on=['WARD','ord_cd'], how='left')
+
 
 	grp_dc_by_ward = dc_order_list.groupby('WARD', ord_qty=sum, total_amt=sum, drug_nm=len,
 		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
@@ -155,13 +164,11 @@ def parse_order_list(order_list):
 		set_name='order_set'
 	).orderby('WARD', 'drug_nm')
 
-	nt = namedtuple('OrderCollections', 'count order_list live_order_list dc_order_list not_dc_order_list ret_order_list only_dc only_ret dc_or_ret dc_and_ret grp_dc_and_ret grp_by_drug_nm grp_by_ward grp_by_ward_drug_nm grp_dc_by_ward grp_ret_by_ward')
+	nt = namedtuple('OrderCollections', 'count order_list  not_dc_order_list ret_order_list only_dc only_ret dc_or_ret dc_and_ret grp_dc_and_ret grp_by_drug_nm grp_by_ward grp_by_ward_drug_nm grp_dc_by_ward grp_ret_by_ward')
 
 	context = nt(
 		count = len(ord_lst),
 		order_list = ord_lst,
-		live_order_list = live_order_list, 
-		dc_order_list = dc_order_list,
 		not_dc_order_list = not_dc_order_list, 
 		ret_order_list = ret_order_list, 
 		only_dc = only_dc,
@@ -190,6 +197,7 @@ def parse_order_list(order_list):
 # )
 
 # pprint(ret.first)
+
 
 
 
