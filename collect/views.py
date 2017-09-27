@@ -10,43 +10,6 @@ from .forms import *
 from .models import Collect
 
 
-# class CollectCreateView(FormView):
-#     template_name = 'collect/collect_form.html'
-#     form_class = CollectFormTest
-#     success_url = '.'
-
-#     def form_valid(self, form):
-#         c = Collect()
-#         obj = c.create_collect(**form.cleaned_data)
-#         c.set_context(obj, test=False)
-#         c.save(obj)
-#         return super(CollectCreateView, self).form_valid(form)
-
-#     def get_context_data(self, **kwargs):
-#         context = super(CollectCreateView, self).get_context_data(**kwargs)
-#         c = Collect()
-#         form_data = c.get_form(self.request, auto_on_staturday=True, translate=False)
-#         if form_data:
-#             context['form'] = CollectCreateForm(form_data)
-#         context['object_list'] = c.get_list()        
-#         return context
-
-# def collect_detail(request, slug):
-#     c = Collect()
-#     object = c.get_object(slug)
-#     object_list = c.get_list()
-#     return render(request, 'collect/collect_detail.html', {'object': object, 'object_list':object_list})
-
-# def collect_delete(request, slug):
-#     # if request.method == "POST":
-#     c = Collect()
-#     c.delete(slug)
-#     return redirect('collect:create')
-
-# def clear_collect(request):
-#     c = Collect()
-#     c.clear_list()
-#     return redirect('collect:create')
 
 
 class CollectListView(ListView):
@@ -79,8 +42,9 @@ class CollectFormView(FormView):
         return get_form_class(test=False, **self.kwargs)
 
     def form_valid(self, form):
+        kind = self.kwargs.get('kind')
         collect = Collect()
-        collect.save(test=False, **form.cleaned_data)
+        collect.save(test=False, auto_st=(kind=='ANY'), **form.cleaned_data)
         return super(CollectFormView, self).form_valid(form)
 
     def form_invalid(self, form):

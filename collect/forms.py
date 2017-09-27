@@ -58,8 +58,15 @@ class CollectInjForm(CollectForm):
     # excludes = forms.CharField(required=False, widget=Textarea(attrs={'rows':5, 'cols': 20, 'placeholder': '제외할 약품 입력 후 엔터키'}))
     # extras = forms.CharField(required=False, widget=Textarea(attrs={'rows':5, 'cols': 20, 'placeholder': '추가할 약품 입력 후 엔터키'}))
 
-class CollectAnyStForm(CollectForm):
-    kinds = forms.MultipleChoiceField(choices=[('NUT', '영양수액'), ('LABEL', '라벨'), ('INJ', '주사')], initial=['LABEL'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer, attrs={'class': 'form-control'}))
+class CollectAnyStForm(forms.Form):
+    date = forms.DateField(initial=datetime.date.today(), widget=DateInput(attrs={'class': 'hidden'}))
+    types = forms.MultipleChoiceField(choices=[('ST', '정기')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer, attrs={'class': 'form-control'}))
+    kinds = forms.MultipleChoiceField(choices=[('LABEL', '라벨'), ('INJ', '주사'), ('NUT', '영양수액')], initial=['INJ', 'LABEL'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer, attrs={'class': 'form-control'}))
+    wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
+    start_date = forms.DateField(initial=datetime.date.today())
+    end_date = forms.DateField(initial=datetime.date.today())
+    start_dt = forms.DateTimeField(initial=datetime.date.today())
+    end_dt = forms.DateTimeField(initial=datetime.date.today()+datetime.timedelta(1))
 
 
 

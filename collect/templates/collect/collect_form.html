@@ -1,14 +1,16 @@
 {% extends "collect/base.html" %}
 
 {% block main %}
+
+{% if form.kind %}
 <form id="collect-form" method="post" class="form-inline" action="{% url 'collect:create' form.kind.value %}">
     {% csrf_token %}
     <div class="form-group">
-        <div class="col-xs-12" hidden="">
+        <div class="col-xs-12 hidden">
             <label>집계일자: {{ form.date }}</label>
         </div>
         {# <div class="col-xs-12 hidden"> #}
-        <div class="col-xs-12">
+        <div class="col-xs-12 hidden">
             <label>집계항목: {{ form.kind }}</label>
         </div>
         <div class="col-xs-12">
@@ -33,6 +35,41 @@
         </div>
     </div>
 </form>
+{% else %}
+<form id="collect-form" method="post" class="form-inline" action="{% url 'collect:create' 'ANY' %}">
+    {% csrf_token %}
+    <div class="form-group">        
+        <div class="col-xs-12 hidden">
+            <label>집계일자: {{ form.date }}</label>
+        </div>
+        <div class="col-xs-12">
+            <label>집계항목: {{ form.kinds }}</label>
+        </div>
+        <div class="col-xs-12">
+            <label>처방구분: {{ form.types }}</label>
+        </div>
+        <div class="col-xs-12">
+            <label>집계병동: {{ form.wards }}</label>
+        </div>
+        <div class="col-xs-12 hidden">
+            <label >처방일자: {{ form.start_date }}</label>~<label>{{ form.end_date }}</label>
+        </div>
+        <div class="col-xs-12 hidden">
+            <label >접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="form-group">
+            <div class="btn btn-group center-block">
+                <button class="btn btn-success" id="btn-collect">집계<span class="glyphicon glyphicon-download-alt"></span></button>
+                {% if form.kind %}
+                <button class="btn btn-warning" type="submit" id="btn-calctime">집계시간불러오기<span class="glyphicon glyphicon-download-alt"></span></button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</form>
+{% endif %}
 
 {% endblock main %}
 {% block script %}
@@ -45,6 +82,9 @@
         var end_date = $('#id_end_date').val()
         var start_dt = $('#id_start_dt').val()
         var end_dt = $('#id_end_dt').val()
+
+        {% if form.kind %}
+            
 
         if (start_date == '' ||  end_date == '' || start_dt == '' || end_dt == '') {
             $('#btn-collect').hide()
@@ -60,6 +100,7 @@
             $('#btn-collect').hide()
             $('#btn-calctime').show()
         })
+        {% endif %}
 
         // 추가 응급 버튼 동작 묶기
         $('#id_types_1, #id_types_2').click(function(event){

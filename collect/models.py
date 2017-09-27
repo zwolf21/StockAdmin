@@ -117,8 +117,8 @@ class Collect(object):
 		self.db = CollectStorage(COLLECT_FILE)
 		self.static_db = StaticStorage(STATIC_INFO_FILE)
 		
-	def get_context(self, *args, **kwargs):
-		return get_orderset(*args, **kwargs)
+	# def get_context(self, *args, **kwargs):
+	# 	return get_orderset(*args, **kwargs)
 
 	def _get_collect_date(self):
 		today = datetime.date.today()
@@ -138,34 +138,75 @@ class Collect(object):
 		return "{} {} {} {}차({}개 병동, {}건)".format(kind_verbose.get(kind), date, types, seq, len(wards) ,count)
 
 
-	def save(self, types, wards, date, start_date, end_date, start_dt, end_dt, kind, commit=True, test=False, **kwargs):
+	def save(self, types, wards, date, start_date, end_date, start_dt, end_dt, kind=None, kinds=None, commit=True, auto_st=False, test=False, **kwargs):
 		types = sorted(types, key=type_order.get)
-		vkind = kind_verbose.get(kind)
 		vtypes = list(map(type_verbose.get, types))
 		date, timestamp, start_date, end_date = time_to_normstr(date, datetime.datetime.now(), start_date, end_date)
 
-		start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
-		seq = self._generate_seq(kind=kind, date=date, types=types, wards=wards)
-		static = self.get_static(kind)
-		order_list = get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, date=date, extras=static.extras, excludes=static.excludes, test=test)
-		title = self._generate_title(kind, date, types, seq, wards, len(order_list))
-		slug = self._generate_title(kind, date, types, seq, wards, slugify=True)
-		rcpt_dt_min, rcpt_dt_max = order_list.min('rcpt_dt'), order_list.max('rcpt_dt')
+		kinds = kinds if kinds else [kind]
 
-		obj = {
-			'slug': slug, 'title': title, 'date': date, 'timestamp': timestamp,
-			'types': types, 'vtypes': vtypes, 'wards': wards, 'seq':seq,
-			'start_date': start_date, 'end_date': end_date,
-			'start_dt': start_dt, 'end_dt': end_dt,
-			'kind': kind, 'vkind': vkind,
-			'order_list': order_list,
-			'count': len(order_list),
-			'rcpt_dt_max': rcpt_dt_max, 'rcpt_dt_min': rcpt_dt_min
-		}
+		for kind, order_list in zip(kinds, get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind=kind, kinds=kinds, date=date, get_static=self.get_static, test=test)):
+			vkind = kind_verbose.get(kind)
+			start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
 
-		if commit:
-			self.db.save(obj)
-		return obj
+			if auto_st:
+				t = self.time_options(kind, types)
+				start_date, end_date = time_to_normstr(t['start_date'], t['end_date'])
+				start_dt, end_dt = time_to_normstr(t['start_dt'], t['end_dt'], to='datetime')
+
+			seq = self._generate_seq(kind=kind, date=date, types=types, wards=wards)
+			title = self._generate_title(kind, date, types, seq, wards, len(order_list))
+			slug = self._generate_title(kind, date, types, seq, wards, slugify=True)
+			rcpt_dt_min, rcpt_dt_max = order_list.min('rcpt_dt'), order_list.max('rcpt_dt')
+
+			obj = {
+				'slug': slug, 'title': title, 'date': date, 'timestamp': timestamp,
+				'types': types, 'vtypes': vtypes, 'wards': wards, 'seq':seq,
+				'start_date': start_date, 'end_date': end_date,
+				'start_dt': start_dt, 'end_dt': end_dt,
+				'kind': kind, 'vkind': vkind,
+				'order_list': order_list,
+				'count': len(order_list),
+				'rcpt_dt_max': rcpt_dt_max, 'rcpt_dt_min': rcpt_dt_min
+			}
+
+			if commit:
+				self.db.save(obj)
+
+	# def auto_st_save(self, kinds, wards, test=False, **kwargs):
+	# 	types = ['ST']
+	# 	vtypes = list(map(type_verbose.get, types))
+	# 	today = datetime.date.today()
+	# 	tomorrow = today + timedelta(1)
+	# 	now = datetime.datetime.now()
+
+	# 	start_date, end_date = tomorrow, tomorrow
+	# 	start_dt, end_dt = today, tomorrow
+
+	# 	order_lists = get_orderset(
+	# 		types=['정기'], wards=wards, start_date=tomorrow, end_date=tomorrow, start_dt=today, end_dt=tomorrow, 
+	# 		kinds=kinds, date=today, get_static=self.get_static, test=test
+	# 	)
+
+	# 	for order_list, kind in zip(order_lists, kinds):
+	# 		seq = self._generate_seq(kind=kind, date=today, types=types, wards=wards)
+	# 		title = self._generate_title(kind=kind, date=today, types=types, seq=seq, wards=wards, len(order_list))
+	# 		slug = self._generate_title(kind=kind, date=today, types=types, seq=seq, wards=wards, slugify=True)
+	# 		rcpt_dt_min, rcpt_dt_max = order_list.min('rcpt_dt'), order_list.max('rcpt_dt')
+	# 		timeset = self.time_options(kind, types)
+
+	# 		obj = {
+	# 			'slug': slug, 'title': title, 'date': date, 'timestamp': timestamp,
+	# 			'types': types, 'vtypes': vtypes, 'wards': wards, 'seq':seq,
+	# 			'start_date': start_date, 'end_date': end_date,
+	# 			'start_dt': start_dt, 'end_dt': end_dt,
+	# 			'kind': kind, 'vkind': vkind,
+	# 			'order_list': order_list,
+	# 			'count': len(order_list),
+	# 			'rcpt_dt_max': rcpt_dt_max, 'rcpt_dt_min': rcpt_dt_min
+	# 		}
+
+
 
 	def get(self, slug):
 		obj = self.db.get(slug)
@@ -224,9 +265,9 @@ class Collect(object):
 				else:
 					latest = st_latest or ad_latest or None
 				
-				start_dt = latest.end_dt if latest else today
+				start_dt = latest.end_dt if latest else yesterday
 				if not latest:
-					start_date = today
+					start_date = yesterday
 		
 		elif set(types) == {'ST'}:
 			start_date = tomorrow
@@ -239,11 +280,15 @@ class Collect(object):
 		elif set(types) == {'AD', 'EM'}:
 			start_date = today
 			end_date = today
-			latest = self.db.get_latest(date=today, kind=kind, types=types)
-			if latest:
-				start_dt = latest.end_dt
+			st_ad_latest = self.db.get_latest(date=today, kind=kind, types=['ST', 'AD', 'EM'])
+			if st_ad_latest:
+				start_dt = st_ad_latest.end_dt
 			else:
-				start_dt = today
+				latest = self.db.get_latest(date=today, kind=kind, types=types)
+				if latest:
+					start_dt = latest.end_dt
+				else:
+					start_dt = today
 		else:
 			start_date = today
 			end_date = today

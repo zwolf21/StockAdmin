@@ -94,9 +94,8 @@ class Scheme(dict):
         keys = self._filter_invalid_keys(*keys)
         if index_name in self:
             index_name += '__index'
-        self[index_name] = ''.join(self[k] or '' for k in keys)
+        self[index_name] = ''.join(filter(None, (self[k] for k in keys)))
         return self
-
 
     def number_format(self, **key_examples):
 
@@ -212,6 +211,9 @@ class Listorm(list):
         for record in self:
             if where(record):
                 for column, apply in updates.items():
+                    if column not in record:
+                        print("Listorm.update-Warning: {} is not in this columns".format(column))
+                        continue
                     if callable(apply):
                         record.row_update(apply_to_record=to_rows, **{column: apply})
                     else:
@@ -572,8 +574,10 @@ class Listorm(list):
         for colname, keywords in where.items():
             if isinstance(keywords, str):
                 keywords = [keywords]
+            elif keywords is None:
+                keywords = []
             keyword_set = Listorm()
-            for keyword in keywords:
+            for keyword in filter(None, keywords):
                 lst = Listorm()
                 for sep in splitby:
                     ismatch = lambda keyword, text: re.search(keyword, text)
@@ -611,6 +615,7 @@ def join(left, right, left_on=None, right_on=None, on=None, how='inner'):
     right_on = right_on or right.index_name
 
     if not (left_on and right_on or on):
+        print("Listorm.join: has no index for join")
         return
 
     left_on_index, right_on_index = defaultdict(list), defaultdict(list)

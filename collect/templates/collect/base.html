@@ -79,7 +79,7 @@
 				            <li class="{% if form.kind.value == 'LABEL' %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">라벨</a></li>
 				             <li class="{% if form.kind.value == 'INJ' %}active{% endif %}"><a href="{% url 'collect:create' 'INJ' %}">주사</a></li>
 				            <li class="{% if form.kind.value == 'NUT' %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">영양수액</a></li>
-				            <li class="{% if form.kind.value == 'ANY' %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">내일정기일괄</a></li>
+				            <li class="{% if form.kind.value == 'ANY' %}active{% endif %}"><a href="{% url 'collect:create' 'ANY' %}">정기일괄집계</a></li>
 				        	{% endif %}
 				        {% else %}				        
 				            <li class="active"><a class="tab-collect" href="#by-drug" data-toggle="tab" id="tab-drug">약품별</a></li>

@@ -2,7 +2,7 @@ from collections import Iterable
 from datetime import datetime
 import sys, os
 import pymssql
-from listorm import Listorm, read_excel
+from .listorm import Listorm, read_excel
 from pprint import pprint
 try:
 	from .mapping import codes

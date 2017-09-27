@@ -54,19 +54,25 @@ def time_to_normstr(*time_values, to='date'):
 
 def norm_field(get_orderset):
 	@wraps(get_orderset)
-	def wrapper(types, wards, start_date, end_date, start_dt, end_dt, kind, date=None, extras=None, excludes=None, **kwargs):
+	def wrapper(types, wards, start_date, end_date, start_dt, end_dt, kind, kinds=None, date=None, get_static=None, **kwargs):
 		types = list(map(lambda type: type_verbose.get(type, type), types))
 		wards = re.split('\s*,\s*', wards) if isinstance(wards, str) else wards
 		start_date, end_date = time_to_normstr(start_date, end_date)
 		start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
 		kind = kind_reverbose.get(kind, kind)
-		extras = re.split('\s*[\r\n]+,*\s*', extras) if isinstance(extras, str) else extras or []
-		excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else excludes or []
-		extras = list(filter(None, extras))
-		excludes = list(filter(None, excludes))
+
+		# norm_static = []
+		# for row in static:
+		# 	extras, excludes, kind = row['extras'], row['excludes'], row['kind']
+		# 	extras = re.split('\s*[\r\n]+,*\s*', extras) if isinstance(extras, str) else extras or []
+		# 	excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else excludes or []
+		# 	extras = list(filter(None, extras))
+		# 	excludes = list(filter(None, excludes))
+		# 	norm_static.append({'extras': extras, 'excludes': excludes, 'kind':kind})
+
 		date = date or datetime.date.today()
 		date = date if isinstance(date, str) else time_to_normstr(date)
-		return get_orderset(types=types, wards=wards, start_date=start_date, end_date=end_date, start_dt=start_dt, end_dt=end_dt, kind=kind, date=date, extras=extras, excludes=excludes, **kwargs)
+		return get_orderset(types=types, wards=wards, start_date=start_date, end_date=end_date, start_dt=start_dt, end_dt=end_dt, kind=kind, kinds=kinds, date=date, get_static=get_static, **kwargs)
 	return wrapper		
 
 
@@ -74,7 +80,7 @@ unit_sort = lambda unit: {'ML': 100, 'G': 101, '통': 102, 'BAG':998, 'KIT': 100
 
 
 @norm_field
-def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, date=None, extras=None, excludes=None, test=False):
+def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind=None, kinds=None, date=None, get_static=None, test=False):
 	request = OrderSelectApiRequest(start_date, end_date, wards)
 
 	if test:
@@ -90,22 +96,32 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind, dat
 		# 환자 정보를 불러서 처방리스트에 조인 하여 전실 완료된 병동을 얻는다.(기본 값으로 당일자로 조회)
 		ptnt_lst = get_order_object_list(date)
 		request.api_calls()
-
-	drug_lst = get_drug_list(kind, extras=extras or [], excludes=excludes or [], test=test)
-	ptnt_lst = ptnt_lst.select('ptnt_no', 'ward').rename(ward='WARD').distinct('ptnt_no') # WARD: 전실 완료된 병동 정보
-	ptnt_lst = ptnt_lst.update(WARD=lambda row: row.WARD[:2])
-	drug_lst = drug_lst.select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)', '약품명(한글)', '조제계산기준코드', '보관방법코드')
 	ord_lst = Listorm(request.get_records()).filter(lambda row: row.rcpt_dt and start_dt <= row.rcpt_dt < end_dt and row.rcpt_ord_tp_nm in types)
-	ord_lst = ord_lst.join(ptnt_lst, on='ptnt_no', how='left').update(WARD=lambda row: row.ward[:2], where=lambda row: not row.WARD) # 전실 정보를 받지 못한 환자는 기본(ward) 병동으로 채움
-	ord_lst = ord_lst.filter(lambda row: row.drug_nm)
-	ord_lst = ord_lst.set_number_type(ord_qty=0.0, ord_frq=0, ord_day=0)
-	ord_lst = ord_lst.join(drug_lst, left_on='ord_cd', right_on='약품코드')
-	ord_lst = ord_lst.add_columns(once_amt=lambda row: round(row.ord_qty / row.ord_frq, 2), total_amt=lambda row: row.ord_qty * row.ord_day, ward_=lambda row: row.ward[:2])
-	ord_lst = ord_lst.update(total_amt=lambda row: math.ceil(row.once_amt)*row.ord_frq, where=lambda row: row['조제계산기준코드'] in ['7']) # 회수로 올림 약(7)의 경우 total_amt 의 재계산
-	ord_lst = ord_lst.add_columns(type=lambda row: {'정기': 'ST', '응급': 'EM', '추가': 'AD', '퇴원': 'OT'}.get(row.rcpt_ord_tp_nm))
-	ord_lst.set_index('ord_seq', 'rcpt_seq', 'ord_exec_seq','rcpt_ord_seq', index_name='pk')
-	ord_lst = ord_lst.distinct('pk')
-	return ord_lst
+
+	kinds = kinds if kinds else [kind]
+
+	for kind in kinds:
+		# extras, excludes = [], []
+		# for row in static:
+		# 	if kind == row['kind']:
+		# 		extras = row['extras'] or []
+		# 		excludes = row['excludes'] or []
+		# 		break
+		static = get_static(kind)
+		drug_lst = get_drug_list(kind, extras=static.extras, excludes=static.excludes, test=test)
+		ptnt_lst = ptnt_lst.select('ptnt_no', 'ward').rename(ward='WARD').distinct('ptnt_no') # WARD: 전실 완료된 병동 정보
+		ptnt_lst = ptnt_lst.update(WARD=lambda row: row.WARD[:2])
+		drug_lst = drug_lst.select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)', '약품명(한글)', '조제계산기준코드', '보관방법코드')
+		ord_lst = ord_lst.join(ptnt_lst, on='ptnt_no', how='left').update(WARD=lambda row: row.ward[:2], where=lambda row: not row.WARD) # 전실 정보를 받지 못한 환자는 기본(ward) 병동으로 채움
+		ord_lst = ord_lst.filter(lambda row: row.drug_nm)
+		ord_lst = ord_lst.set_number_type(ord_qty=0.0, ord_frq=0, ord_day=0)
+		ord_lst = ord_lst.join(drug_lst, left_on='ord_cd', right_on='약품코드')
+		ord_lst = ord_lst.add_columns(once_amt=lambda row: round(row.ord_qty / row.ord_frq, 2), total_amt=lambda row: row.ord_qty * row.ord_day, ward_=lambda row: row.ward[:2])
+		ord_lst = ord_lst.update(total_amt=lambda row: math.ceil(row.once_amt)*row.ord_frq, where=lambda row: row['조제계산기준코드'] in ['7']) # 회수로 올림 약(7)의 경우 total_amt 의 재계산
+		ord_lst = ord_lst.add_columns(type=lambda row: {'정기': 'ST', '응급': 'EM', '추가': 'AD', '퇴원': 'OT'}.get(row.rcpt_ord_tp_nm))
+		ord_lst.set_index('ord_seq', 'rcpt_seq', 'ord_exec_seq','rcpt_ord_seq', index_name='pk')
+		ord_lst = ord_lst.distinct('pk')
+		yield ord_lst
 
 def parse_order_list(order_list):
 	ord_lst = Listorm(order_list, nomalize=False)
