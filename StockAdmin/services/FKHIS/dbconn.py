@@ -236,16 +236,17 @@ def get_drug_list(kind, extras, excludes, test=False):
 			lst = lst_inj
 		else:
 			lst = lst
+		# print(extras)
 		return lst.excludesim(**{'약품명(한글)': excludes}) | extra_lst
 	else:
 		ret = Listorm()
 		for k in kind:
 			if k == 'LABEL':
-				ret+= lst_label
+				ret+= lst_label.excludesim(**{'약품명(한글)': excludes}) | extra_lst
 			elif k == 'NUT':
-				ret += lst_nut
+				ret += lst_nut.excludesim(**{'약품명(한글)': excludes}) | extra_lst
 			elif k == 'INJ':
-				ret += lst_inj
+				ret += lst_inj.excludesim(**{'약품명(한글)': excludes}) | extra_lst
 			else:
 				continue
 		return ret

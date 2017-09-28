@@ -64,10 +64,6 @@ def norm_field(get_orderset):
 		# norm_static = []
 		# for row in static:
 		# 	extras, excludes, kind = row['extras'], row['excludes'], row['kind']
-		# 	extras = re.split('\s*[\r\n]+,*\s*', extras) if isinstance(extras, str) else extras or []
-		# 	excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else excludes or []
-		# 	extras = list(filter(None, extras))
-		# 	excludes = list(filter(None, excludes))
 		# 	norm_static.append({'extras': extras, 'excludes': excludes, 'kind':kind})
 
 		date = date or datetime.date.today()
@@ -108,7 +104,12 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind=None
 		# 		excludes = row['excludes'] or []
 		# 		break
 		static = get_static(kind)
-		drug_lst = get_drug_list(kind, extras=static.extras, excludes=static.excludes, test=test)
+		extras, excludes = static.extras, static.excludes
+		extras = re.split('\s*[\r\n]+,*\s*', extras) if isinstance(extras, str) else static.extras or []
+		excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else static.excludes or []
+		extras = list(filter(None, extras))
+		excludes = list(filter(None, excludes))
+		drug_lst = get_drug_list(kind, extras=extras, excludes=excludes, test=test)
 		ptnt_lst = ptnt_lst.select('ptnt_no', 'ward').rename(ward='WARD').distinct('ptnt_no') # WARD: 전실 완료된 병동 정보
 		ptnt_lst = ptnt_lst.update(WARD=lambda row: row.WARD[:2])
 		drug_lst = drug_lst.select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)', '약품명(한글)', '조제계산기준코드', '보관방법코드')
