@@ -201,7 +201,8 @@ def get_nutfluid_list(test):
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
 	return fk.get_nutfluid_info(**codes)
 
-def get_all_list(test):
+def get_all_list(test=False, **kwargs):
+
 	if test:
 		return read_excel(DRUG_DB_PATH)
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
@@ -228,7 +229,6 @@ def get_drug_list(kind, extras, excludes, test=False):
 	lst_inj = lst.filter(
 		lambda row: row['투여경로'] == '3' and row['효능코드(보건복지부)'] not in ['325', '323', '331'] and row['약품법적구분'] in ['0'] and row['항암제구분'] == '0'
 	)
-
 	if isinstance(kind, str):
 		if kind == 'LABEL':
 			lst = lst_label
@@ -238,20 +238,10 @@ def get_drug_list(kind, extras, excludes, test=False):
 			lst = lst_inj
 		else:
 			lst = lst
-		# print(extras)
-		return lst.excludesim(**{'약품명(한글)': excludes}) | extra_lst
-	else:
-		ret = Listorm()
-		for k in kind:
-			if k == 'LABEL':
-				ret+= lst_label.excludesim(**{'약품명(한글)': excludes}) | extra_lst
-			elif k == 'NUT':
-				ret += lst_nut.excludesim(**{'약품명(한글)': excludes}) | extra_lst
-			elif k == 'INJ':
-				ret += lst_inj.excludesim(**{'약품명(한글)': excludes}) | extra_lst
-			else:
-				continue
-		return ret
+		exclude_lst = lst.filtersim(**{'약품명(한글)': excludes})
+		lst = lst - exclude_lst + extra_lst
+		return lst, extra_lst, exclude_lst
+
 
 	# pprint(lst.select('약품명(한글)'))
 

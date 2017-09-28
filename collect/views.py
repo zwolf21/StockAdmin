@@ -44,14 +44,16 @@ class CollectFormView(FormView):
     def form_valid(self, form):
         kind = self.kwargs.get('kind')
         collect = Collect()
-        collect.save(test=False, auto_st=(kind=='ANY'), **form.cleaned_data)
+        collect.save(test=True, auto_st=(kind=='ANY'), **form.cleaned_data)
         return super(CollectFormView, self).form_valid(form)
 
     def form_invalid(self, form):
         context = self.get_context_data()
         collect = Collect()
         Form = self.get_form_class()
-        context['form'] = Form(collect.get_form_initial(**form.cleaned_data))
+        initial = collect.get_form_initial(**form.cleaned_data)
+        print(initial)
+        context['form'] = Form(initial)
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):

@@ -145,7 +145,7 @@ class Collect(object):
 
 		kinds = kinds if kinds else [kind]
 
-		for kind, order_list in zip(kinds, get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind=kind, kinds=kinds, date=date, get_static=self.get_static, test=test)):
+		for kind, (order_list, plus, minus) in zip(kinds, get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind=kind, kinds=kinds, date=date, get_static=self.get_static, test=test)):
 			vkind = kind_verbose.get(kind)
 			start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
 
@@ -159,6 +159,10 @@ class Collect(object):
 			slug = self._generate_title(kind, date, types, seq, wards, slugify=True)
 			rcpt_dt_min, rcpt_dt_max = order_list.min('rcpt_dt'), order_list.max('rcpt_dt')
 
+			# static = self.get_static(kind)
+			# extras, excludes = static.extras, static.excludes
+			# added_list = 
+			plus = plus.join(order_list, left_on='약품코드', right_on='ord_cd').distinct('ord_cd')
 			obj = {
 				'slug': slug, 'title': title, 'date': date, 'timestamp': timestamp,
 				'types': types, 'vtypes': vtypes, 'wards': wards, 'seq':seq,
@@ -167,7 +171,8 @@ class Collect(object):
 				'kind': kind, 'vkind': vkind,
 				'order_list': order_list,
 				'count': len(order_list),
-				'rcpt_dt_max': rcpt_dt_max, 'rcpt_dt_min': rcpt_dt_min
+				'rcpt_dt_max': rcpt_dt_max, 'rcpt_dt_min': rcpt_dt_min,
+				'plus': plus, 'minus': minus
 			}
 
 			if commit:

@@ -1,29 +1,32 @@
 {% load humanize %}
 <div class="{{ cls }}">
-	{% for ward in object.wards %}
+
+	{% regroup object.orders.grp_by_ward_drug_nm by WARD as grp_by_ward %}
+
+	{% for ward in grp_by_ward %}
 	<div class="print-each">
 		<h3 class="text-center">
-			{{ object.vtypes|join:'/' }} {{ ward }} {{ object.vkind }} 집계표
+			{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkind }} 집계표
 		</h3>
 		{% include "collect/includes/detail_info.html" with plusminus='' %}
 		<table class="list text-right" border="1" width="100%">
-				<tr>
-					<th class="text-center">약품코드</th>
-					<th class="text-center" width="400px;"><a class="show-detail-all" href="javascript: return false;" show="true">약품명</a></th>
-					<th class="text-center">집계량</th>
-					<th class="text-center">규격단위</th>
-				</tr>
+			<tr>
+				<th class="text-center">No.</th>
+				<th class="text-center">약품코드</th>
+				<th class="text-center" width="400px;"><a class="show-detail-all" href="javascript: return false;" show="true">약품명</a></th>
+				<th class="text-center">집계량</th>
+				<th class="text-center">규격단위</th>
+			</tr>
 			<tbody>
-			{% for grp in object.orders.grp_by_ward_drug_nm %}
-				{% if ward == grp.WARD %}
+		{% for grp in ward.list %}
 				<tr>
+					<td class="text-center">{{ forloop.counter }}</td>
 					<td class="text-center">{{ grp.ord_cd }}</td>
 					<td class="text-right"><a class="show-detail" id="{{ grp.WARD }}-{{ grp.ord_cd }}" href="javascript: return false;">{{ grp.drug_nm }}</a></td>
 					<td class="text-center">{{ grp.total_amt_sum|floatformat:2 }}</td>
 					<td class="text-center">{{ grp.std_unit_nm }}</td>
 				</tr>
 				<tr>
-		
 					<td></td>
 					<td colspan="3">
 					<div class="detail" id="detail-s{{ grp.WARD }}-{{ grp.ord_cd }}" style="display: none">
@@ -62,16 +65,15 @@
 					</div>
 					</td>
 				</tr>
-				{% endif %}
 			{% endfor %}
 			</tbody>
 		</table>
-		<p class="text-right">
+		<h4 class="text-right">
 			수령확인:________________(서명)
-		</p>
+		</h4>
 		<div class="row">
 			<div class="col-xs-12" style="border: 1px solid black">	
-				<h4 class="text-center">{{ object.vtypes|join:'/' }} {{ ward }} {{ object.vkind }} DC 또는 반납된 항목</h4>
+				<h4 class="text-center">{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkind }} DC 또는 반납된 항목</h4>
 				<table class="tablesorter" border="1"> 
 					<thead>
 						<tr>
@@ -89,31 +91,37 @@
 					</thead>
 					<tbody>
 					{% for dcret in object.orders.grp_dc_and_ret %}
-						{% if ward == dcret.WARD %}
+						{% if ward.grouper == dcret.WARD %}
 						<tr>
 							<td class="text-center">{{ dcret.medi_no }}</td>
 							<td class="text-center">{{ dcret.ptnt_no }}</td>
 							<td class="text-center">{{ dcret.ptnt_nm }}</td>
 							<td class="text-center">{{ dcret.ord_cd }}</td>
 							<td class="text-right">{{ dcret.drug_nm|truncatechars:25 }}</td>
-							<td class="text-right">{{ dcret.total_amt_sum }}</td>
+							<td class="text-center">{{ dcret.total_amt_sum }}</td>
 							{% if dcret.dc_ent_dt %}
 							<td class="text-center">{{ dcret.dc_ent_dt|default:"" }}</td>
-							<td>DC</td>
+							<td class="text-center">DC</td>
 							{% else %}
 							<td class="text-center">{{ dcret.ord_ent_dt }}</td>
-							<td>반납</td>
+							<td class="text-center">반납</td>
 							{% endif %}
 							{# <td class="text-center">{{ dcret.ret_ymd }}</td> #}
 						</tr>
 						{% endif %}
-					{% endfor %}
+					{% endfor %}	
 					</tbody>
 				</table>
 			</div>
 		</div>
+		
 	</div>
-	{# <div class="print-each"> #}
-	{# </div> #}
 	{% endfor %}
+
 </div>
+
+
+
+
+
+

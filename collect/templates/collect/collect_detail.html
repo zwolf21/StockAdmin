@@ -5,6 +5,28 @@
 <div class="row">
     <div class="col-xs-12" >
        {% include "collect/includes/detail_info.html" %}
+        {% if object.plus %}
+          <p>추가된 항목:
+            {% for plus in object.plus %}
+            {{ plus.수가명|truncatechars:20 }}         
+            {% if forloop.last %}
+            {% else %}
+            , 
+            {% endif %}
+            {% endfor %}
+            </p>
+        {% endif %}
+        {% if object.minus %}
+          <p>제외된 항목:
+            {% for minus in object.minus %}
+            {{ minus.수가명|truncatechars:20 }}         
+            {% if forloop.last %}
+            {% else %}
+            , 
+            {% endif %}
+            {% endfor %}
+            </p>
+        {% endif %}
     </div>
     <div class="row" align="center">
         <button class="btn btn-success" id="btn-print" type="button">인쇄<span class="glyphicon glyphicon-print"></span></button>
