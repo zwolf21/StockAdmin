@@ -2,24 +2,24 @@ import os, sys, re, datetime, math
 from pprint import pprint
 from collections import namedtuple
 from functools import partial, wraps
-
-from .listorm import Listorm, read_excel
+from listorm import Listorm, read_excel
 
 from dateutil.parser import parse
 
 MODULE_BASE = os.path.dirname(os.path.dirname(__file__))
 MODULE_PATH = os.path.join(MODULE_BASE, 'StockAdmin/services/FKHIS')
 sys.path.append(MODULE_PATH)
+# from .listorm import Listorm, read_excel
 
 
 try:
 	from .api_requests import OrderSelectApiRequest, DRUG_DB_PATH
-	from .dbconn import get_drug_list
+	from .dbconn import get_drug_list, get_all_list
 	from .order_mon import get_order_object_list, get_order_object_list_test
 
 except:
 	from api_requests import OrderSelectApiRequest, DRUG_DB_PATH
-	from dbconn import get_drug_list
+	from dbconn import get_drug_list, get_all_list
 	from order_mon import get_order_object_list, get_order_object_list_test
 
 
@@ -214,6 +214,162 @@ def parse_order_list(order_list):
 # )
 
 # pprint(ret.first)
+
+
+
+
+
+class OrderApi(object):
+	type_order = {'ST':1, 'AD':2, 'EM':3, 'OT':4}
+	type_verbose = {'ST': '정기', 'AD': '추가', 'EM': '응급', 'OT': '퇴원'}
+	kind_verbose = {'NUT': '영양수액', 'INJ': '주사', 'LABEL': '라벨'}
+	kind_reverbose = {'영양수액':'NUT', '주사':'INJ', '라벨':'LABEL'}
+
+	# def __init__(self, start_date, end_date, wards, extras=None, excludes=None, test=False):
+	# 	self.start_date, self.end_date = start_date, end_date
+	# 	self.drug_list = get_drug_list(test=test)
+
+	def __init__(self, dates, start_date, end_date, wards, static=None, test=False, **kwargs):
+		self.ptnt_lst = Listorm()
+		self.static=static
+		self.drug_list = get_all_list(test=test)
+		self.set_order_list(start_date, end_date, wards, test)
+		self.set_ptnt_list(dates)
+
+	def _get_test_order_list(self, start_date, end_date, wards, **kwargs):
+		request = OrderSelectApiRequest(start_date, end_date, wards)
+		request.set_test_response('response_samples/orderselect/51.rsp')
+		request.set_test_response('response_samples/orderselect/52.rsp')
+		request.set_test_response('response_samples/orderselect/61.rsp')
+		request.set_test_response('response_samples/orderselect/71.rsp')
+		request.set_test_response('response_samples/orderselect/81.rsp')
+		request.set_test_response('response_samples/orderselect/92.rsp')
+		request.set_test_response('response_samples/orderselect/IC.rsp')
+		return Listorm(request.get_records())
+
+	def _get_order_list(self, start_date, end_date, wards, **kwargs):
+		request = OrderSelectApiRequest(start_date, end_date, wards)
+		request.api_calls()
+		return Listorm(request.get_records())
+		
+	def set_order_list(self, start_date, end_date, wards, test, **kwargs):
+		if test:
+			self.order_list = self._get_test_order_list(start_date, end_date, wards)
+		else:
+			self.order_list = self._get_order_list(start_date, end_date, wards)
+
+	def set_ptnt_list(self, dates, **kwargs):
+		dates = [dates] if isinstance(dates, str) else dates
+		ptnts = Listorm()
+		for date in dates:
+			ptnts |= Listorm(get_order_object_list(date)).select('ptnt_no', 'ward').rename(ward='WARD').distinct('ptnt_no')
+		self.ptnt_lst = ptnts
+
+	def filter_drug_list(self, kinds, **kwargs):
+		static = self.static or {}
+		drug_list = Listorm()
+		for kind in kinds:
+			extras, excludes = [], []
+			for row in static:
+				if row.get('kind') == kind:
+					extras, excludes = row.get('extras'), row.get('excludes')
+					extras = re.split('\s*[\r\n]+,*\s*', extras) if isinstance(extras, str) else static.extras or []
+					excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else static.excludes or []
+					extras = list(filter(None, extras))
+					excludes = list(filter(None, excludes))
+					break
+			extras_lst = self.drug_list.filtersim(**{'약품명(한글)': extras})
+			if kind == 'LABEL':
+				lst = self.drug_list.filter(lambda row: row['단일포장구분'] in ['S', 'P']).orderby('-단일포장구분', '약품명(한글)')
+			elif kind == 'NUT':
+				lst = self.drug_list.filter(lambda row: row['효능코드(보건복지부)'] in ['325'])
+			elif kind == 'INJ':
+				lst = self.drug_list.filter(
+					lambda row: row['투여경로'] == '3' and row['효능코드(보건복지부)'] not in ['325', '323', '331'] and row['약품법적구분'] in ['0'] and row['항암제구분'] == '0'
+				)
+
+			drug_list|= lst.excludesim(**{'약품명(한글)': excludes}) | extras_lst
+		return drug_list
+
+	def filter_order_list(self, types, start_dt, end_dt, **kwargs):
+		return self.order_list.filter(lambda row: row.rcpt_dt and start_dt <= row.rcpt_dt < end_dt and row.rcpt_ord_tp_nm in types)
+
+
+	def get_order_lists(self, *filter_contexts, **kwargs):
+		for context in filter_contexts:
+			drug_list = self.filter_drug_list(**context).select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)', '약품명(한글)', '조제계산기준코드', '보관방법코드')
+			order_list = self.filter_order_list(**context)
+			order_list = order_list.join(drug_list, left_on='ord_cd', right_on='약품코드')
+			order_list = order_list.join(self.ptnt_lst, on='ptnt_no', how='left').update(WARD=lambda row: row.ward[:2], where=lambda row: not row.WARD) # 전실 정보를 받지 못한 환자는 기본(ward) 병동으로 채움
+			yield order_list			
+
+
+
+
+
+static=[
+    {
+        "extras": "",
+        "kind": "LABEL",
+        "excludes": ""
+    },
+    {
+        "extras": "염화칼륨\r\n염화나트륨주사액\r\n",
+        # "extras": "",
+        "kind": "INJ",
+        "excludes": "에락시스\r\n멕쿨"
+    },
+    {
+        "extras": "란스톤\r\n아달라트\r\n",
+        # "extras": '''에락시스
+        # ''',
+        "kind": "NUT",
+        "excludes": ""
+    }
+]
+
+contexts = [
+	{
+		'start_dt': '2017-09-27 00:00:00',
+		'end_dt': '2017-09-28 23:59:59',
+		'wards': ['61'],
+		'types': ['추가','응급'],
+		'kinds': ['INJ', 'NUT'],
+	},
+	{
+		'start_dt': '2017-09-27 00:00:00',
+		'end_dt': '2017-09-28 23:59:59',
+		'wards': ['61'],
+		'types': ['추가','응급', '정기'],
+		'kinds': ['INJ', 'NUT']
+	},
+	{
+		'start_dt': '2017-09-27 00:00:00',
+		'end_dt': '2017-09-28 23:59:59',
+		'wards': ['61'],
+		'types': ['추가','응급', '정기'],
+		'kinds': ['INJ', 'NUT', 'LABEL']
+	},
+	{
+		'start_dt': '2017-09-27 00:00:00',
+		'end_dt': '2017-09-28 23:59:59',
+		'wards': ['61'],
+		'types': ['추가','응급', ],
+		'kinds': ['NUT']
+	},
+]
+
+oa = OrderApi('2017-09-20', '2017-09-20', '2017-09-20', ['61'],  static=static, test=True)
+# pprint(len(oa.drug_list))
+# print(len(oa.ptnt_lst))
+# print(len(oa.order_list))
+# drug_list=oa.filter_drug_list(['INJ', 'NUT'])
+# pprint(drug_list.select('약품명(한글)').filter(lambda row: '트라우밀' in row['약품명(한글)']))
+# print(len(drug_list))
+# order_list = oa.filter_order_list([ '추가', '응급'], '2017-09-28 16:00:00', '2017-09-28 23:59:59')
+# print(len(order_list))
+for orderlist in oa.get_order_lists(*contexts):
+	print(len(orderlist))
 
 
 
