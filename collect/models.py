@@ -261,7 +261,7 @@ class Collect(object):
 				st_latest = self.db.get_latest(date=yesterday, kind=kind, types=['ST'])
 				ad_latest = self.db.get_latest(date=yesterday, kind=kind, types=['AD', 'EM'])
 				if st_latest and ad_latest:
-					latest = st_latest if st_latest < ad_latest else ad_latest
+					latest = st_latest if st_latest.end_dt < ad_latest.end_dt else ad_latest
 				else:
 					latest = st_latest or ad_latest or None
 				
@@ -288,7 +288,8 @@ class Collect(object):
 				if latest:
 					start_dt = latest.end_dt
 				else:
-					start_dt = today
+					start_date = yesterday
+					start_dt = yesterday
 		else:
 			start_date = today
 			end_date = today
