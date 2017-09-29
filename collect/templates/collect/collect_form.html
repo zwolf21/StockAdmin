@@ -1,7 +1,6 @@
 {% extends "collect/base.html" %}
 
 {% block main %}
-
 {% if form.kind %}
 <form id="collect-form" method="post" class="form-inline" action="{% url 'collect:create' form.kind.value %}">
     {% csrf_token %}

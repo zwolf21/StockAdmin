@@ -8,7 +8,7 @@
         {% if object.plus %}
           <p>추가된 항목:
             {% for plus in object.plus %}
-            {{ plus.수가명|truncatechars:20 }}         
+            {{ plus.drug_nm|truncatechars:20 }}         
             {% if forloop.last %}
             {% else %}
             , 
@@ -19,7 +19,7 @@
         {% if object.minus %}
           <p>제외된 항목:
             {% for minus in object.minus %}
-            {{ minus.수가명|truncatechars:20 }}         
+            {{ minus.drug_nm|truncatechars:20 }}         
             {% if forloop.last %}
             {% else %}
             , 
