@@ -28,6 +28,7 @@ class HorizontalCheckboxRenderer(forms.CheckboxSelectMultiple.renderer):
         # start_tag = format_html('<div id="{0}">', id_) if id_ else '<div>'
         output = []
         for widget in self:
+
             output.append(format_html(u'{0}', force_text(widget)))
         # output.append('</span>')
         return mark_safe('\n'.join(output))
@@ -37,7 +38,7 @@ WARDS_CHOICES = [('51', '51'), ('52', '52'), ('61', '61'), ('71', '71'), ('81', 
 
 class CollectForm(forms.Form):
     date = forms.DateField(initial=datetime.date.today(), widget=DateInput(attrs={'class': 'form-control input-sm'}))
-    types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer, attrs={'class': 'form-control'}))
+    types = forms.MultipleChoiceField(choices=[('ST', '정기'), ('AD', '추가'), ('EM', '응급'), ('OT', '퇴원')], initial=['ST'], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
     wards = forms.MultipleChoiceField(choices=WARDS_CHOICES, initial=[e[0] for e in WARDS_CHOICES], widget=CheckboxSelectMultiple(renderer=HorizontalCheckboxRenderer))
     start_date = forms.DateField()
     end_date = forms.DateField()

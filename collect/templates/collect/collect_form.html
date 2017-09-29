@@ -1,5 +1,9 @@
 {% extends "collect/base.html" %}
-
+{% load staticfiles %}
+{% block style %}
+    
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+{% endblock style %}
 {% block main %}
 
 {% if form.kind %}
@@ -16,6 +20,12 @@
         <div class="col-xs-12">
             <label>처방구분: {{ form.types }}</label>
         </div>
+        {# <div class="col-xs-12"> #}
+            {# <label for="id_types_0" class="btn btn-success btn-xs">정기<input checked="checked" class="badgebox" id="id_types_0" name="types" type="checkbox" value="ST" ><span class="badge">&check;</span></label> #}
+            {# <label for="id_types_1" class="btn btn-success btn-xs">추가<input checked="checked" class="badgebox" id="id_types_1" name="types" type="checkbox" value="AD" ><span class="badge">&check;</span></label> #}
+            {# <label for="id_types_2" class="btn btn-success btn-xs">응급<input checked="checked" class="badgebox" id="id_types_2" name="types" type="checkbox" value="EM" ><span class="badge">&check;</span></label> #}
+            {# <label for="id_types_3" class="btn btn-success btn-xs">퇴원<input checked="checked" class="badgebox" id="id_types_3" name="types" type="checkbox" value="OT" ><span class="badge">&check;</span></label> #}
+        {# </div> #}
         <div class="col-xs-12">
             <label>집계병동: {{ form.wards }}</label>
         </div>
