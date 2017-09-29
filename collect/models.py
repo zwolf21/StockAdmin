@@ -158,11 +158,10 @@ class Collect(object):
 			title = self._generate_title(kind, date, types, seq, wards, len(order_list))
 			slug = self._generate_title(kind, date, types, seq, wards, slugify=True)
 			rcpt_dt_min, rcpt_dt_max = order_list.min('rcpt_dt'), order_list.max('rcpt_dt')
+			
+			plus = plus.join(order_list, left_on='약품코드', right_on='ord_cd').distinct('ord_cd').select('약품명(한글)', '약품코드')
+			minus = minus.select('약품명(한글)', '약품코드').rename(**{'약품명(한글)': 'drug_nm', '약품코드': 'ord_cd'}).distinct('ord_cd')
 
-			# static = self.get_static(kind)
-			# extras, excludes = static.extras, static.excludes
-			# added_list = 
-			plus = plus.join(order_list, left_on='약품코드', right_on='ord_cd').distinct('ord_cd')
 			obj = {
 				'slug': slug, 'title': title, 'date': date, 'timestamp': timestamp,
 				'types': types, 'vtypes': vtypes, 'wards': wards, 'seq':seq,

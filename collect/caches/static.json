@@ -1,17 +1,17 @@
 [
     {
+        "excludes": "",
         "extras": "",
-        "kind": "LABEL",
-        "excludes": ""
+        "kind": "LABEL"
     },
     {
-        "extras": "\uc5fc\ud654\ub098\ud2b8\ub968 20\r\n\uc5fc\ud654\uce7c\ub968 40\r\n",
-        "kind": "INJ",
-        "excludes": "\ud734\ubb3c\ub9b0 \uc54c 100IU\r\n\ud734\ub9c8\ub85c\uadf8 100IU\r\n\ud2b8\ub9ac\uc824\r\n\ud5e4\ud30c\ub9b0\r\nISCOTIN\r\nRIFADIN\r\n\uc54c\ubd80\ubbfc\r\n\r\n\r\n\r\n\r\n\r\n"
+        "excludes": "\ud734\ubb3c\ub9b0 \uc54c 100IU\r\n\ud734\ub9c8\ub85c\uadf8 100IU\r\n\ud2b8\ub9ac\uc824\r\n\ud5e4\ud30c\ub9b0\r\nISCOTIN\r\nRIFADIN\r\n\uc54c\ubd80\ubbfc\r\n\ub9ac\ub3c4\uce74\uc778\r\n\ud14c\ub9ac\ubcf8\r\n\ub274\ud2b8\ub85c\uc9c4\r\n\uc878\ub808\ub4dc\ub860\r\n\r\n\r\n\r\n\r\n\r\n",
+        "extras": "NACL \uc5fc\ud654\ub098\ud2b8\ub968 \uc8fc\uc0ac\uc561 20ml\r\n\uc5fc\ud654\uce7c\ub968-40 20ml",
+        "kind": "INJ"
     },
     {
-        "extras": "\ud14c\ub9ac\ubcf8\r\n\uc5d0\ub77d\uc2dc\uc2a4\r\n\uc54c\ubd80\ubbfc\r\n\uba40\ud2f0\ube14\ub8e8",
-        "kind": "NUT",
-        "excludes": "\ud558\ubaa8\ub2d0\ub780\r\n"
+        "excludes": "\ud558\ubaa8\ub2d0\ub780\r\n",
+        "extras": "\ud14c\ub9ac\ubcf8\r\n\uc5d0\ub77d\uc2dc\uc2a4\r\n\uc54c\ubd80\ubbfc\r\n\uba40\ud2f0\ube14\ub8e8\r\n\ub274\ud2b8\ub85c\uc9c4\r\n\uc878\ub808\ub4dc\ub860",
+        "kind": "NUT"
     }
 ]

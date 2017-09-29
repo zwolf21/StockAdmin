@@ -44,7 +44,7 @@ class CollectFormView(FormView):
     def form_valid(self, form):
         kind = self.kwargs.get('kind')
         collect = Collect()
-        collect.save(test=True, auto_st=(kind=='ANY'), **form.cleaned_data)
+        collect.save(test=False, auto_st=(kind=='ANY'), **form.cleaned_data)
         return super(CollectFormView, self).form_valid(form)
 
     def form_invalid(self, form):
