@@ -307,7 +307,6 @@ class Collect(object):
 		kwargs.update(self.time_options(**kwargs))
 		return kwargs
 		
-
 	def save_static(self, kind, **kwargs):
 		self.static_db.save(kind, **kwargs)
 

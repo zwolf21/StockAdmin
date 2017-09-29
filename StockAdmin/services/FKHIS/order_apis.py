@@ -61,11 +61,6 @@ def norm_field(get_orderset):
 		start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
 		kind = kind_reverbose.get(kind, kind)
 
-		# norm_static = []
-		# for row in static:
-		# 	extras, excludes, kind = row['extras'], row['excludes'], row['kind']
-		# 	norm_static.append({'extras': extras, 'excludes': excludes, 'kind':kind})
-
 		date = date or datetime.date.today()
 		date = date if isinstance(date, str) else time_to_normstr(date)
 		return get_orderset(types=types, wards=wards, start_date=start_date, end_date=end_date, start_dt=start_dt, end_dt=end_dt, kind=kind, kinds=kinds, date=date, get_static=get_static, **kwargs)
@@ -233,13 +228,13 @@ class OrderApi(object):
 		if not test:
 			self.set_ptnt_list(**kwargs)
 
-	def _norm_context(self, *contexts):
-		for context in contexts:
-			types = map(lambda t: type_verbose.get(t, t), context['types'])
-			types = sorted(types, key=lambda t:self.type_order.get(t,t))
-			context['types'] = types
-			context['start_dt'], context['end_dt'] = time_to_normstr(context['start_dt'], context['end_dt'], to='datetime')
-		return context
+	def _norm_context(self, context):
+		new_context = {k:v for k, v in context.items()}
+		types = map(lambda t: type_verbose.get(t, t), context['types'])
+		types = sorted(types, key=lambda t:self.type_order.get(t,t))
+		new_context['types'] = types
+		new_context['start_dt'], new_context['end_dt'] = time_to_normstr(context['start_dt'], context['end_dt'], to='datetime')
+		return new_context
 
 	def _norm_static(self, static):
 		new = []
@@ -269,8 +264,8 @@ class OrderApi(object):
 		else:
 			self.order_list = self._get_order_list(**kwargs)
 
-	def set_ptnt_list(self, dates, **kwargs):
-		dates = [dates] if isinstance(dates, (str, datetime.datetime, datetime.date)) else dates
+	def set_ptnt_list(self, date, **kwargs):
+		dates = [date] if isinstance(date, (str, datetime.datetime, datetime.date)) else date
 		ptnts = Listorm()
 		for date in dates:
 			date = time_to_normstr(date)
@@ -302,6 +297,7 @@ class OrderApi(object):
 	def get_order_lists(self, *filter_contexts, **kwargs):
 		for context in filter_contexts:
 			context = self._norm_context(context)
+			wards_filter = context.get('wards')
 			drug_list = self.filter_drug_list(**context).select('약품코드', '단일포장구분', '투여경로', '효능코드(보건복지부)', '약품명(한글)', '조제계산기준코드', '보관방법코드')
 			order_list = self.filter_order_list(**context)
 			order_list = order_list.join(drug_list, left_on='ord_cd', right_on='약품코드')
@@ -317,6 +313,8 @@ class OrderApi(object):
 			order_list = order_list.update(total_amt=lambda row: math.ceil(row.once_amt)*row.ord_frq, where=lambda row: row['조제계산기준코드'] in ['7']) # 회수로 올림 약(7)의 경우 total_amt 의 재계산
 			order_list = order_list.add_columns(type=lambda row: {'정기': 'ST', '응급': 'EM', '추가': 'AD', '퇴원': 'OT'}.get(row.rcpt_ord_tp_nm, ''))
 			order_list.set_index('ord_seq', 'rcpt_seq', 'ord_exec_seq','rcpt_ord_seq', index_name='pk')	
+			if wards_filter:
+				order_list = order_list.filter(lambda row: row.WARD in wards_filter)	
 			yield order_list
 
 	def parse_order_list(self, order_list):
@@ -354,18 +352,18 @@ class OrderApi(object):
 			extra_columns = ['ptnt_nm', 'dc_ent_dt', 'ret_ymd', 'ord_ent_dt', '보관방법코드', '단일포장구분'],
 		).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
 
-		grp_dc_and_ret_by_ward = grp_dc_and_ret.groupby('WARD', drug_nm=len,
-			renames = {'drug_nm': 'drug_nm_count'},
-			set_name = 'dc_and_ret'
-		)
+		# grp_dc_and_ret_by_ward = grp_dc_and_ret.groupby('WARD', drug_nm=len,
+		# 	renames = {'drug_nm': 'drug_nm_count'},
+		# 	set_name = 'dc_and_ret'
+		# )
 
-		grp_by_ward_drug_nm_by_ward = grp_by_ward_drug_nm_by_ward.join(grp_dc_and_ret_by_ward, on='WARD', how='left').update(dc_and_ret=Listorm(), where=lambda row: not row.dc_and_ret)
-		grp_by_ward_drug_nm_by_ward = grp_by_ward_drug_nm_by_ward.orderby('WARD')
+		# grp_by_ward_drug_nm_by_ward = grp_by_ward_drug_nm_by_ward.join(grp_dc_and_ret_by_ward, on='WARD', how='left').update(dc_and_ret=Listorm(), where=lambda row: not row.dc_and_ret)
+		# grp_by_ward_drug_nm_by_ward = grp_by_ward_drug_nm_by_ward.orderby('WARD')
 		return {
 			'grp_by_drug_nm':grp_by_drug_nm,
 			'grp_by_ward': grp_by_ward,
 			'grp_by_ward_drug_nm': grp_by_ward_drug_nm,
-			'grp_by_ward_drug_nm_by_ward':grp_by_ward_drug_nm_by_ward,
+			# 'grp_by_ward_drug_nm_by_ward':grp_by_ward_drug_nm_by_ward,
 			'grp_dc_and_ret': grp_dc_and_ret,
 		}
 
@@ -400,7 +398,8 @@ contexts = [
 		'end_dt': '2017-09-20 00:00:00',
 		'types': ['정기', 'AD','EM'],
 		'kinds': ['INJ'],
-	},
+		'wards': ['51', '52']
+	}
 	# {
 	# 	'start_dt': '2017-09-19 00:00:00',
 	# 	'end_dt': '2017-09-20 23:59:59',
@@ -421,25 +420,21 @@ contexts = [
 	# },
 ]
 
-# oa = OrderApi(
-# 	dates=datetime.datetime.now(), start_date='2017-09-20', end_date='2017-09-20', wards=['51', '52', '61', '71', '81', '92', 'IC'],  static=static, test=True)
-# # pprint(len(oa.drug_list))
-# # print(len(oa.ptnt_lst))
-# # print(len(oa.order_list))
-# # drug_list=oa.filter_drug_list(['INJ', 'NUT'])
-# # pprint(drug_list.select('약품명(한글)').filter(lambda row: '트라우밀' in row['약품명(한글)']))
-# # print(len(drug_list))
-# # order_list = oa.filter_order_list([ '추가', '응급'], '2017-09-28 16:00:00', '2017-09-28 23:59:59')
-# # print(len(order_list))
-# for orderlist in oa.get_order_lists(*contexts):
+# oa = OrderApi(dates=datetime.datetime.now(), start_date=datetime.datetime(2017,9,20), end_date='2017-09-20', wards=['51', '52', '61', '71', '81', '92', 'IC'],  static=static, test=True)
+# pprint(len(oa.drug_list))
+# print(len(oa.ptnt_lst))
+# print(len(oa.order_list))
+# drug_list=oa.filter_drug_list(['INJ', 'NUT'])
+# pprint(drug_list.select('약품명(한글)').filter(lambda row: '트라우밀' in row['약품명(한글)']))
+# print(len(drug_list))
+# order_list = oa.filter_order_list([ '추가', '응급'], '2017-09-28 16:00:00', '2017-09-28 23:59:59')
+# print(len(order_list))
+# for orderlist in oa.get_order_lists(contexts[0]):
 # 	parsed = oa.parse_order_list(orderlist)
-# 	for wards in parsed['grp_by_ward_drug_nm_by_ward']:
+# 	for wards in parsed['grp_by_ward_drug_nm']:
 # 		print('----collect',wards.WARD)
-# 		for ward in wards.ward_set:
+# 		for ward in wards.order_set:
 # 			print(ward.drug_nm, ward.total_amt_sum)
-# 		print('-----DC LIST')
-# 		for dcret in wards.dc_and_ret:
-# 			print(dcret.medi_no, dcret.drug_nm, dcret.total_amt_sum, dcret.ret_ymd, dcret.dc_ent_dt or dcret.ord_ent_dt)
 
 
 

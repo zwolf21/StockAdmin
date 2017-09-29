@@ -8,7 +8,7 @@ from django.views.generic import CreateView, UpdateView, FormView, TemplateView,
 # from .core import Collect
 from .forms import *
 from .models import Collect
-
+from .apis import Collector, save_collect
 
 
 
@@ -52,7 +52,6 @@ class CollectFormView(FormView):
         collect = Collect()
         Form = self.get_form_class()
         initial = collect.get_form_initial(**form.cleaned_data)
-        print(initial)
         context['form'] = Form(initial)
         return self.render_to_response(context)
 
@@ -111,7 +110,45 @@ def clear(request):
     return HttpResponseRedirect(reverse('collect:create', args=('LABEL', )))
 
 
+def test(request):
+    today = datetime.date.today()
+    start_date = datetime.datetime(2017, 9 ,20)
+    end_date = datetime.datetime(2017, 9 ,20)
 
+    formdatas = [
+        {
+            'date': today,
+            'start_date': start_date,
+            'end_date': end_date,
+            'start_dt': datetime.datetime(2017, 9, 19, 00, 00, 00),
+            'end_dt': datetime.datetime(2017, 9, 19, 23, 59, 59),
+            'wards': ['51', '52', '61', '71', '81'],
+            'kinds': ['NUT'],
+            'types': ['ST']
+        },
+        {
+            'date': today,
+            'start_date': start_date,
+            'end_date': end_date,
+            'start_dt': datetime.datetime(2017, 9, 19, 00, 00, 00),
+            'end_dt': datetime.datetime(2017, 9, 19, 23, 59, 59),
+            'wards': ['51', '52', '61', '71', '81'],
+            'kinds': ['INJ'],
+            'types': ['ST']
+        },
+        {
+            'date': today,
+            'start_date': start_date,
+            'end_date': end_date,
+            'start_dt': datetime.datetime(2017, 9, 19, 00, 00, 00),
+            'end_dt': datetime.datetime(2017, 9, 19, 23, 59, 59),
+            'wards': ['51', '52', '61', '71', '81'],
+            'kinds': ['LABEL'],
+            'types': ['ST']
+        },
+    ]
+    save_collect(*formdatas, test=True)
+    return HttpResponseRedirect('/')
 
 
 

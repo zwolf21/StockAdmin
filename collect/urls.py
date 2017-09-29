@@ -16,5 +16,6 @@ urlpatterns = [
 	url(r'^delete/$', clear, name='clear'),
 	url(r'^delete/(?P<slug>[\w\d-]+)/$', CollectDeleteView.as_view(), name='delete'),
 	url(r'^update/plusminus/(?P<kind>NUT|INJ)/$', StaticFormView.as_view(), name='update-plusminus'),
+	url(r'^test/$', test, name='test'),
 	# url(r'^update/excludes/(?P<kind>LABEL|NUT|INJ)/$', name='update-excludes')
 ]
