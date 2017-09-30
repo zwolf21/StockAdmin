@@ -64,9 +64,7 @@ class Collector(object):
 			obj['queryset'] = queryset
 			self.db.save(obj, commit)
 	
-
-
-	def get_time_options(self, kind, types, **kwargs):
+	def time_options(self, kind, types, **kwargs):
 		today = datetime.date.today()
 		yesterday = today - datetime.timedelta(1)
 		tomorrow = today + datetime.timedelta(1)
@@ -111,15 +109,17 @@ class Collector(object):
 				if latest:
 					start_dt = latest.end_dt
 				else:
-					start_date = yesterday
-					start_dt = yesterday
+					# start_date = yesterday
+					start_dt = today
 		else:
 			start_date = today
 			end_date = today
 			start_dt, end_dt = today, now
 		# start_date, end_date = time_to_normstr(start_date, end_date)
 		# start_dt, end_dt = time_to_normstr(start_dt, end_dt)
-		return {'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt}
+		return {'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt, 'date': today}
+
+
 
 
 

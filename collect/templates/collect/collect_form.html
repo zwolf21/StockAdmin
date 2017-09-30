@@ -9,7 +9,7 @@
 <form id="collect-form" method="post" class="form-inline" action="{% url 'collect:create' form.kind.value %}">
     {% csrf_token %}
     <div class="form-group">
-        <div class="col-xs-12 hidden">
+        <div class="col-xs-12">
             <label>집계일자: {{ form.date }}</label>
         </div>
         {# <div class="col-xs-12 hidden"> #}

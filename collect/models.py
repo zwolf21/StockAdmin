@@ -137,7 +137,6 @@ class Collect(object):
 		types = '/'.join(types)
 		return "{} {} {} {}차({}개 병동, {}건)".format(kind_verbose.get(kind), date, types, seq, len(wards) ,count)
 
-
 	def save(self, types, wards, date, start_date, end_date, start_dt, end_dt, kind=None, kinds=None, commit=True, auto_st=False, test=False, **kwargs):
 		types = sorted(types, key=type_order.get)
 		vtypes = list(map(type_verbose.get, types))
@@ -292,15 +291,15 @@ class Collect(object):
 				if latest:
 					start_dt = latest.end_dt
 				else:
-					start_date = yesterday
-					start_dt = yesterday
+					# start_date = yesterday
+					start_dt = today
 		else:
 			start_date = today
 			end_date = today
 			start_dt, end_dt = today, now
 		# start_date, end_date = time_to_normstr(start_date, end_date)
 		# start_dt, end_dt = time_to_normstr(start_dt, end_dt)
-		return {'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt}
+		return {'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt, 'date': today}
 
 
 	def get_form_initial(self, **kwargs):

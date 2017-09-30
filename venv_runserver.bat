@@ -53,7 +53,7 @@ if defined _OLD_VIRTUAL_PATH (
 set "PATH=%VIRTUAL_ENV%\Scripts;%PATH%"
 
 rem C:\Users\HS\Desktop\Django\Django1.10.5\StockAdmin2\manage.py runserver
-manage.py runserver 0.0.0.0:8000
+manage.py runserver 0.0.0.0:8888
 
 :END
 
