@@ -67,7 +67,6 @@ class InvsetItemUV(UpdateView):
 	def form_valid(self, form):
 		context = self.get_context_data()
 		formset = context['formset']
-		print(self.request.POST)
 		if formset.is_valid():
 			for f in formset:
 				if f.has_changed():

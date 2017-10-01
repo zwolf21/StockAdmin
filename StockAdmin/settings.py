@@ -37,8 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'rest_framework',
     'widget_tweaks',
+    'rest_framework',
     'info',
     'stock',
     'buy',
@@ -128,3 +128,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'hpyjh9333@gmail.com'
 EMAIL_HOST_PASSWORD = 'pjr31983198'
+
+TEST = False

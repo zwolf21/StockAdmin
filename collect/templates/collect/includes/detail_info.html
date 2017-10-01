@@ -8,13 +8,13 @@
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid black;">{{ object.start_date }} ~ {{ object.end_date }}</td>
-            <td style="text-align: center; border: 1px solid black;">{{ object.vkind }}-{{ object.vtypes|join:"/" }}</td>
+            <td style="text-align: center; border: 1px solid black;">{{ object.vkind|join:"/" }}-{{ object.vtypes|join:"/" }}</td>
             <td style="text-align: center; border: 1px solid black;">{{ object.start_dt }} ~ {{ object.end_dt }}</td>
             <td style="text-align: center; border: 1px solid black;">{{ object.wards|join:"," }}</td>
         </tr>
         <tr>
             <th colspan="2" style="text-align: center; border: 1px solid black;">접수시간 범위</th>
-            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ object.rcpt_dt_min }} ~ {{ object.rcpt_dt_max }}</td>
+            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ objects.rcpt_dt_min }} ~ {{ objects.rcpt_dt_max }}</td>
         </tr>
     </table>
     <hr>

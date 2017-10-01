@@ -2,10 +2,10 @@
 
 <div class="{{ cls }}">
     <div class="row text-center">
-        <h4>{{ object.vtypes|join:',' }} {{ object.vkind }} 수령확인</h4>
+        <h4>{{ object.vtypes|join:',' }} {{ object.vkind|join:'/' }} 수령확인</h4>
     </div>
     <div class="row" style="border: 2px solid black;">
-    {% for object in object.orders.grp_by_ward %}
+    {% for object in objects.grp_by_ward %}
         <div class="col-xs-6" style="border: 1px dotted black">
             <h4>{{ object.WARD }}</h4>
             <table class="tablesorter" border="1" width="100%" style="border: 1px solid black">

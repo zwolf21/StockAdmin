@@ -1,12 +1,12 @@
 {% load humanize %}
 <div class="{{ cls }}">
 
-	{% regroup object.orders.grp_by_ward_drug_nm by WARD as grp_by_ward %}
+	{% regroup objects.grp_by_ward_drug_nm by WARD as grp_by_ward %}
 
 	{% for ward in grp_by_ward %}
 	<div class="print-each">
 		<h3 class="text-center">
-			{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkind }} 집계표
+			{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkind|join:'/' }} 집계표
 		</h3>
 		{% include "collect/includes/detail_info.html" with plusminus='' %}
 		<table class="list text-right" border="1" width="100%">
@@ -71,9 +71,13 @@
 		<h4 class="text-right">
 			수령확인:________________(서명)
 		</h4>
+	
+		{% regroup objects.grp_dc_and_ret by WARD as grp_dc_ret_by_ward %}
+		{% for ward_ in grp_dc_ret_by_ward %}
+			{% if ward_.grouper == ward.grouper %}
 		<div class="row">
 			<div class="col-xs-12" style="border: 1px solid black">	
-				<h4 class="text-center">{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkind }} DC 또는 반납된 항목</h4>
+				<h4 class="text-center">{{ object.vtypes|join:'/' }} {{ ward_.grouper }} {{ object.vkind|join:"/" }} DC 또는 반납된 항목</h4>
 				<table class="tablesorter" border="1"> 
 					<thead>
 						<tr>
@@ -90,8 +94,7 @@
 						</tr>
 					</thead>
 					<tbody>
-					{% for dcret in object.orders.grp_dc_and_ret %}
-						{% if ward.grouper == dcret.WARD %}
+					{% for dcret in ward_.list %}
 						<tr>
 							<td class="text-center">{{ dcret.medi_no }}</td>
 							<td class="text-center">{{ dcret.ptnt_no }}</td>
@@ -108,16 +111,15 @@
 							{% endif %}
 							{# <td class="text-center">{{ dcret.ret_ymd }}</td> #}
 						</tr>
-						{% endif %}
 					{% endfor %}	
 					</tbody>
 				</table>
 			</div>
 		</div>
-		
+			{% endif %}
+		{% endfor %}	
 	</div>
 	{% endfor %}
-
 </div>
 
 

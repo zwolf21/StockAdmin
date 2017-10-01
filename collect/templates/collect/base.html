@@ -15,6 +15,15 @@
 	    /*page:print-each;*/
 	    display: block; 
 	    page-break-before: right;
+	}
+	li.yesterday-item {
+		background-color: #cccccc;
+	}
+	li.since-item {
+		background-color: #aaaaaa
+	}
+	li.collect-list:hover {
+		background-color: #C29F6D;
 	} 
 }
 </style>
@@ -37,22 +46,22 @@
 						<ul class="list-group">	
 							<li class="collect-list-header list-group-item">
 								<div class="row">
-									<div class="col-xs-2">
-										<span class="glyphicon glyphicon-plus"></span>
-									</div>
 									<div class="col-xs-3">
 										<a href="{% url 'collect:create' 'LABEL' %}">라벨</a>
 									</div>
 									<div class="col-xs-3">
 										<a href="{% url 'collect:create' 'INJ' %}">주사</a>
 									</div>
-									<div class="col-xs-4">
+									<div class="col-xs-3">
 										<a href="{% url 'collect:create' 'NUT' %}">영양수액</a>
+									</div>
+									<div class="col-xs-3">
+										<a href="{% url 'collect:create-batch' %}">일괄</a>
 									</div>
 								</div>
 							</li>
 						{% for object in object_list %}
-							<li class="collect-list list-group-item" url="{% url 'collect:detail' object.slug %}" onclick="location.href='{% url 'collect:detail' object.slug %}'">{{ object.title }}</li>
+							<li class="collect-list list-group-item {% if object.since == 'today' %}today-item {% elif object.since == 'yesterday' %}yesterday-item {% else %}since-item{% endif %}" url="{% url 'collect:detail' object.slug %}" onclick="location.href='{% url 'collect:detail' object.slug %}'">{{ object.title }}</li>
 						{% endfor %}
 						</ul>
 					</div>
@@ -72,14 +81,14 @@
 			        <ul class="nav nav-tabs">
 			        	{% if form %}
 				        	{% if form.excludes %}
-				            <li class="{% if form.kind.value == 'INJ' %}active{% endif %}"><a href="{% url 'collect:update-plusminus' 'INJ' %}">주사</a></li>
+				            <li class="{% if form.kind.value.0 == 'INJ' %}active{% endif %}"><a href="{% url 'collect:update-plusminus' 'INJ' %}">주사</a></li>
 				            <li class="{% if form.kind.value == 'NUT' %}active{% endif %}"><a href="{% url 'collect:update-plusminus' 'NUT' %}">영양수액</a></li>
 				            <li class="{% if form.kind.value == 'LABEL' %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">집계화면</a></li>
-				        	{% else %}	
-				            <li class="{% if form.kind.value == 'LABEL' %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">라벨</a></li>
-				             <li class="{% if form.kind.value == 'INJ' %}active{% endif %}"><a href="{% url 'collect:create' 'INJ' %}">주사</a></li>
-				            <li class="{% if form.kind.value == 'NUT' %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">영양수액</a></li>
-				            <li class="{% if form.kind.value == 'ANY' %}active{% endif %}"><a href="{% url 'collect:create' 'ANY' %}">정기일괄집계</a></li>
+				        	{% else %}
+				            <li class="{% if form.kinds.value.0 == 'LABEL' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">라벨</a></li>
+				            <li class="{% if form.kinds.value.0 == 'INJ' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'INJ' %}">주사</a></li>
+				            <li class="{% if form.kinds.value.0 == 'NUT' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">영양수액</a></li>
+				            <li class="{% if formset %}active{% endif %}"><a href="{% url 'collect:create-batch' %}">일괄집계</a></li>
 				        	{% endif %}
 				        {% else %}				        
 				            <li class="active"><a class="tab-collect" href="#by-drug" data-toggle="tab" id="tab-drug">약품별</a></li>

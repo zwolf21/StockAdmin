@@ -11,7 +11,7 @@
 		</div>
 			
 		{% else %}
-		<form name="show" method="post" class="form-inline" action="{% url 'narcotic:opremain' %}">
+		<form id="form-opremain" name="show" method="post" class="form-inline" action="">
 			{% csrf_token %}
 			기간설정
 			<div class="form-group">
@@ -27,7 +27,9 @@
 					{{ form.end }}
 				</div>
 			</div>
-			<button class="btn btn-success btn-sm">조회</button>
+			{# <input type="submit" name="" value="제출"> #}
+			<button class="btn btn-success btn-sm" id="btn-retrieve">조회하기</button>
+			<button class="btn btn-success btn-sm" id="btn-download">파일로받기</button>
 		</form>			
 		{% endif %}
 	</div>
@@ -99,20 +101,35 @@
 	</div>
 </div>
 <script type="text/javascript">
-	$('#btn-print').click(function(e){
-		var printArea = window.open('', 'pop1', 'width=900, height=500, left=200, top=200, scrollbars=no, toolbars=no, location=no')
-		printArea.document.write('<head>')
-		printArea.document.write($('head').html())
-		printArea.document.write('</head>')
-		printArea.document.write('<body>')
-		printArea.document.write('<div class="container">')
-		printArea.document.write('<h2>마약류 폐기 내역</h2>')
-		printArea.document.write($('#print-date-info').html())
-		printArea.document.write($('#opremain-list').html())
-		printArea.document.write('</div>')
-		printArea.document.write('</body>')
-		printArea.document.write('<script>window.print();window.close();<\/script>')
-		return false;
+	$(function(){
+
+		$('#btn-print').click(function(e){
+			var printArea = window.open('', 'pop1', 'width=900, height=500, left=200, top=200, scrollbars=no, toolbars=no, location=no')
+			printArea.document.write('<head>')
+			printArea.document.write($('head').html())
+			printArea.document.write('</head>')
+			printArea.document.write('<body>')
+			printArea.document.write('<div class="container">')
+			printArea.document.write('<h2>마약류 폐기 내역</h2>')
+			printArea.document.write($('#print-date-info').html())
+			printArea.document.write($('#opremain-list').html())
+			printArea.document.write('</div>')
+			printArea.document.write('</body>')
+			printArea.document.write('<script>window.print();window.close();<\/script>')
+			return false;
+		})
+
+		$('#btn-download').click(function(e){
+			console.log('download')
+			var form = $('#form-opremain')
+			form.attr('action', "{% url 'narcotic:opremain-download' %}")
+			form.submit()
+		})
+		$('#btn-retrieve').click(function(e){
+			console.log('retrieve')
+			var form = $('#form-opremain')
+			form.attr('action', "{% url 'narcotic:opremain' %}")
+		})
 	})
 </script>
 {% include "tablesorter_js.html" %}

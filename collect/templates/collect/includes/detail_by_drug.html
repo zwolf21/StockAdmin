@@ -8,7 +8,7 @@
             <th class="text-center">건수</th>
         </thead>
         <tbody>
-            {% for object in object.orders.grp_by_drug_nm %}
+            {% for object in objects.grp_by_drug_nm %}
             <tr>
                 <td>{{ object.ord_cd }}</td>
                 <td><a class="show-detail" id="{{ object.ord_cd }}" href="javascript: return false;">{{ object.drug_nm }}</a></td>
@@ -50,7 +50,7 @@
                                 {% for obj in object.order_set %}
                                     <tr style="background: yellow;" {% if obj.duplicated %} class="duplicated" {% endif %}>
                                         <td align="center">{{ obj.ord_ymd }}</td>
-                                        <td align="center">{{ obj.ward|slice:"2" }}</td>
+                                        <td align="center">{{ obj.WARD|slice:"2" }}</td>
                                         <td align="center">{{ obj.medi_no }}</td>
                                         <td align="center">{{ obj.ptnt_no }}</td>
                                         <td align="center">{{ obj.ptnt_nm }}</td>

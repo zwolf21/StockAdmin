@@ -3,7 +3,7 @@ from datetime import date, datetime
 from django.shortcuts import render, render_to_response
 from django.views.generic import FormView, TemplateView, ListView
 from django.http import HttpResponse
-
+from django.conf import settings
 
 # Create your views here.
 from dateutil import parser
@@ -20,11 +20,14 @@ class OpRemainDownloadFV(FormView):
 	def form_valid(self, form):
 		start = self.request.POST.get('start')
 		end = self.request.POST.get('end')
-		content = get_opremain_contents(start, end)
-		fname = '{}~{}OpRemain.xlsx'.format(str(start), str(end))
-		response = HttpResponse(content, content_type='application/vnd.ms-excel')
-		response['Content-Disposition'] = 'attachment; filename='+fname
-		return response
+		# print(start, end)
+		content = get_opremain_contents_test(start, end) if settings.TEST else get_opremain_contents(start, end)
+		if content:
+			fname = '{}~{}OpRemain.xlsx'.format(str(start), str(end))
+			response = HttpResponse(content, content_type='application/vnd.ms-excel')
+			response['Content-Disposition'] = 'attachment; filename='+fname
+			return response
+		return HttpResponse('<h1>없읍니다</h1>')
 
 class OpRemainFV(FormView):
 	template_name = 'narcotic/opremain.html'
@@ -33,14 +36,14 @@ class OpRemainFV(FormView):
 	def form_valid(self, form):
 		start = self.request.POST.get('start')
 		end = self.request.POST.get('end')
-		opremain_list, opremain_grouped = get_opremain_contents(start, end, to_queryset=True)
+		print(start, end)
+		opremain_list, opremain_grouped = get_opremain_contents_test(start, end, to_queryset=True) if settings.TEST else get_opremain_contents(start, end, to_queryset=True)
 		context = self.get_context_data()
-		context['object_list'] = opremain_list
-		context['object_grouped_list'] = opremain_grouped
+		context['object_list'] = opremain_list or []
+		context['object_grouped_list'] = opremain_grouped or []
 		context['form'] = DataRangeForm(self.request.POST)
 		context['start_date'] = start
 		context['end_date'] = end
-		# print(opremain_list)
 		return render_to_response(self.template_name, context)
 
 

@@ -1,3 +1,4 @@
+from pprint import pprint
 from socket import * 
 import sys, os, re
 from itertools import groupby
@@ -89,7 +90,7 @@ def parse_narc_content(content, n=0, to_queryset=False):
 
 def excel_output(exl_table, grp):
 
-	date_index = set(row[0] for r, row in enumerate(exl_table) if r >0)
+	date_index = set(row[0] for r, row in enumerate(exl_table) if r > 0)
 	first_date, last_date = min(date_index), max(date_index)
 	title = '{}~{} 마약류 폐기 현황'.format(first_date, last_date)
 	fname = '{}.xlsx'.format(title)
@@ -126,13 +127,17 @@ def excel_output(exl_table, grp):
 	ws.set_column('H:H',5)	# 규격단위
 	ws.set_column('I:I',9)	# 폐기량
 
+	pprint(exl_table[:2])
+
 	for r, row in enumerate(exl_table):
 		for c, data in enumerate(row):
+			if c >= len(select_columns):
+				break
 			if select_columns[c] == '폐기단위':
 				continue
 
 			if select_columns[c] == '폐기량' and r >0:
-				ws.write(r+1, c, data, formats[row[-1]])
+				ws.write(r+1, c, data, formats[row[c+1]])
 			elif select_columns[c] == '처방량(규격단위)' and r > 0:
 				ws.write(r+1, c, float(data), formats['float'])
 			else:
@@ -215,8 +220,8 @@ def excel_output(exl_table, grp):
 	ws2.merge_range(cr, 6, cr, 9, reportElm['repoter']['address'], fm5)
 	cr+=1
 
-	ws2.merge_range(cr, 0, cr, 9, "")
-	cr+=1
+	# ws2.merge_range(cr, 0, cr, 9, "")
+	# cr+=1
 
 	ws2.merge_range(cr, 0, cr, 9, '폐기정보', fm1)
 	cr+=1
@@ -245,8 +250,8 @@ def excel_output(exl_table, grp):
 	ws2.merge_range(cr, 7, cr, 9, reportElm['remainInfo']['reasonDetail'], fm5)
 	cr+=1
 
-	ws2.merge_range(cr, 0, cr, 9, "")
-	cr+=1
+	# ws2.merge_range(cr, 0, cr, 9, "")
+	# cr+=1
 
 	ws2.merge_range(cr, 0, cr, 9, '폐기마약류', fm1)
 	cr+=1
@@ -255,10 +260,11 @@ def excel_output(exl_table, grp):
 	ws2.write(cr, 0, '제조자(수입자)명', fm7)
 	ws2.write(cr, 1, '약품명', fm7)
 	ws2.write(cr, 2, '구분', fm7)
-	ws2.write(cr, 3, '성분명', fm7)
-	ws2.write(cr, 4, '제형', fm7)
-	ws2.write(cr, 5, '제조번호', fm7)
-	ws2.write(cr, 6, '유효기한', fm7)
+	# ws2.write(cr, 3, '성분명', fm7)
+	ws2.merge_range(cr, 3, cr, 5, '성분명', fm7)
+	ws2.write(cr, 6, '제형', fm7)
+	# ws2.write(cr, 5, '제조번호', fm7)
+	# ws2.write(cr, 6, '유효기한', fm7)
 	ws2.write(cr, 7, '폐기량', fm7)
 	ws2.write(cr, 8, '개수', fm7)
 	ws2.write(cr, 9, '규격', fm7)
@@ -296,10 +302,11 @@ def excel_output(exl_table, grp):
 		ws2.write(r, 0, firm, fm6)
 		ws2.write(r, 1, name, fm6)
 		ws2.write(r, 2, cl, fm6)
-		ws2.write(r, 3, component, fm6)
-		ws2.write(r, 4, shape, fm6)
-		ws2.write(r, 5, lot_num, fm6)
-		ws2.write(r, 6, expire, fm6)
+		# ws2.write(r, 3, component, fm6)
+		ws2.merge_range(r, 3, r, 5, component, fm6)
+		ws2.write(r, 6, shape, fm6)
+		# ws2.write(r, 5, lot_num, fm6)
+		# ws2.write(r, 6, expire, fm6)
 		ws2.write(r, 7, amount, fm_amount)
 		ws2.write(r, 8, count, fm6)
 		ws2.write(r, 9, std_unit, fm6)
@@ -320,8 +327,9 @@ def get_opremain_contents(start_date, end_date, to_queryset=False):
 		table+=t
 		grp+=g
 
-	return excel_output(table, grp) if to_queryset == False else table, grp
-
+	if table and grp:
+		return excel_output(table, grp) if to_queryset == False else table, grp
+	return None if to_queryset else None, None
 
 
 def get_opremain_contents_test(start_date, end_date, to_queryset=False):
@@ -338,7 +346,9 @@ def get_opremain_contents_test(start_date, end_date, to_queryset=False):
 		table+=t
 		grp+=g
 
-	return excel_output(table, grp) if to_queryset == False else table, grp
+	if table and grp:
+		return excel_output(table, grp) if to_queryset == False else table, grp
+	return None
 
 	# ret = parse_narc_content(content)
 	# print(ret)

@@ -13,13 +13,21 @@
         dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
         showMonthAfterYear: true,
         yearSuffix: '년'
-    });
+        });
 
-		$('#id_start, #id_end, #id_indate, #id_date, #id_start_date, #id_end_date').datepicker({
-				dateFormat: 'yy-mm-dd',
-				local:'euc-kr'
-		});
-		
+        $('input[id*=dt]').datetimepicker({
+            timeFormat: 'HH:mm:ss',
+            stepHour: 1,
+            stepMinute: 1,
+            stepSecond: 1,
+            controlType: 'select',
+            oneLine: true,
+        });
+        $('input[id*=date], input[id*=end], input[id*=start]').datepicker({
+                dateFormat: 'yy-mm-dd',
+                local:'euc-kr'
+        });
+
 
 	})
 </script>

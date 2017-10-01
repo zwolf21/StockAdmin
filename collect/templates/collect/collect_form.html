@@ -1,141 +1,49 @@
 {% extends "collect/base.html" %}
 {% load staticfiles %}
 {% block style %}
-    
-<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
-{% endblock style %}
-{% block main %}
-{% if form.kind %}
-<form id="collect-form" method="post" class="form-inline" action="{% url 'collect:create' form.kind.value %}">
-    {% csrf_token %}
-    <div class="form-group">
-        <div class="col-xs-12 hidden">
-            <label>집계일자: {{ form.date }}</label>
-        </div>
-        {# <div class="col-xs-12 hidden"> #}
-        <div class="col-xs-12 hidden">
-            <label>집계항목: {{ form.kind }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label>처방구분: {{ form.types }}</label>
-        </div>
-        {# <div class="col-xs-12"> #}
-            {# <label for="id_types_0" class="btn btn-success btn-xs">정기<input checked="checked" class="badgebox" id="id_types_0" name="types" type="checkbox" value="ST" ><span class="badge">&check;</span></label> #}
-            {# <label for="id_types_1" class="btn btn-success btn-xs">추가<input checked="checked" class="badgebox" id="id_types_1" name="types" type="checkbox" value="AD" ><span class="badge">&check;</span></label> #}
-            {# <label for="id_types_2" class="btn btn-success btn-xs">응급<input checked="checked" class="badgebox" id="id_types_2" name="types" type="checkbox" value="EM" ><span class="badge">&check;</span></label> #}
-            {# <label for="id_types_3" class="btn btn-success btn-xs">퇴원<input checked="checked" class="badgebox" id="id_types_3" name="types" type="checkbox" value="OT" ><span class="badge">&check;</span></label> #}
-        {# </div> #}
-        <div class="col-xs-12">
-            <label>집계병동: {{ form.wards }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label >처방일자: {{ form.start_date }}</label>~<label>{{ form.end_date }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label >접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
-        </div>
-    </div>
-    <div class="row text-center">
-        <div class="form-group">
-            <div class="btn btn-group center-block">
-                <button class="btn btn-success" id="btn-collect">집계<span class="glyphicon glyphicon-download-alt"></span></button>
-                <button class="btn btn-warning" type="submit" id="btn-calctime">집계시간불러오기<span class="glyphicon glyphicon-download-alt"></span></button>
-            </div>
-        </div>
-    </div>
-</form>
-{% else %}
-<form id="collect-form" method="post" class="form-inline" action="{% url 'collect:create' 'ANY' %}">
-    {% csrf_token %}
-    <div class="form-group">        
-        <div class="col-xs-12 hidden">
-            <label>집계일자: {{ form.date }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label>집계항목: {{ form.kinds }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label>처방구분: {{ form.types }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label>집계병동: {{ form.wards }}</label>
-        </div>
-        <div class="col-xs-12 hidden">
-            <label >처방일자: {{ form.start_date }}</label>~<label>{{ form.end_date }}</label>
-        </div>
-        <div class="col-xs-12 hidden">
-            <label >접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
-        </div>
-    </div>
-    <div class="row text-center">
-        <div class="form-group">
-            <div class="btn btn-group center-block">
-                <button class="btn btn-success" id="btn-collect">집계<span class="glyphicon glyphicon-download-alt"></span></button>
-                {% if form.kind %}
-                <button class="btn btn-warning" type="submit" id="btn-calctime">집계시간불러오기<span class="glyphicon glyphicon-download-alt"></span></button>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</form>
-{% endif %}
-
-{% endblock main %}
-{% block script %}
 {{ block.super }}
-<script>
-    $(function(){
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+<style type="text/css">
+.col-xs-6 {
+    border: 2px dotted #cccccc;
+    padding: 20px 0px 20px 0px;
+    margin: 20px 0px 20px 0px;
+}
+input[id*=end], input[id*=start] {
+    width: 138px;
+}
+</style>
 
-        // 초기화
-        var start_date = $('#id_start_date').val()
-        var end_date = $('#id_end_date').val()
-        var start_dt = $('#id_start_dt').val()
-        var end_dt = $('#id_end_dt').val()
+{% endblock style %}
 
-        {% if form.kind %}
-            
+{% block main %}
+    {% if formset %}
 
-        if (start_date == '' ||  end_date == '' || start_dt == '' || end_dt == '') {
-            $('#btn-collect').hide()
-        }else{
-            $('#btn-calctime').hide()
-        }
-
-        // 정기, 추가, 응급 체크박스 수정시
-        $('[name=types]').change(function(event){
-            // 날짜 초기화
-            $('#id_start_date, #id_end_date, #id_start_dt, #id_end_dt').val('')
-            // 집계 버튼 변경
-            $('#btn-collect').hide()
-            $('#btn-calctime').show()
-        })
+        <form id="collect-form-{{ form.kinds.auto_id }}" method="post" class="form-inline" action="{% url 'collect:create-batch' %}">
+            {% csrf_token %}
+        {% for form in formset %}
+            <div class="col-xs-6">
+                {% include "collect/includes/collect-form-inside.html" %}
+            </div>
+            {% cycle '' '<br><br><br><br><br><br><br><br><br><br><br><br>' %}
+        {% if forloop.last %}
+        <div class="row text-center">
+              <button class="btn btn-success" id="btn-collect-batch" type="submit">일괄집계<span class="glyphicon glyphicon-download-alt"></span></button>
+        </div>
         {% endif %}
+        {% endfor %}
+            {{ formset.management_form }}
+        </form>    
+        <script>
+            $('#collect-form-{{ form.kinds.auto_id }}').submit(function(){
+                $('#btn-collect-batch').addClass('disabled')
+            })
+        </script>
+    {% else %}
 
-        // 추가 응급 버튼 동작 묶기
-        $('#id_types_1, #id_types_2').click(function(event){
-            if($(this).is(':checked')){
-                $('#id_types_1, #id_types_2').prop('checked', true)
-            }else{
-                $('#id_types_1, #id_types_2').prop('checked', false)
-            }
-        })
-
-        //집계 클릭시 발리데이션
-        $('#collect-form').submit(function(event){
-            var st = $('#id_types_0').is(':checked')
-            var ad = $('#id_types_1').is(':checked')
-            var em = $('#id_types_2').is(':checked')
-            var ot = $('#id_types_3').is(':checked')
-            
-            if (st || ad || em || ot) {
-                
-            }else{
-                event.preventDefault();
-                alert('정기 추가 응급 퇴원 중 한가지는 선택 해야 합니다')
-            }
-        })
-
-
-    })
-</script>
-{% endblock script %}
+    <form id="collect-form-{{ form.kinds.auto_id }}" method="post" class="form-inline" action="{% url 'collect:create' form.kinds.value.0 %}">
+        {% csrf_token %}
+        {% include "collect/includes/collect-form-inside.html" %}
+    </form>
+    {% endif %}
+{% endblock main %}

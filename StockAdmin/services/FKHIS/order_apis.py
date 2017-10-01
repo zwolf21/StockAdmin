@@ -9,7 +9,6 @@ from dateutil.parser import parse
 MODULE_BASE = os.path.dirname(os.path.dirname(__file__))
 MODULE_PATH = os.path.join(MODULE_BASE, 'StockAdmin/services/FKHIS')
 sys.path.append(MODULE_PATH)
-# from .listorm import Listorm, read_excel
 
 
 try:
@@ -27,6 +26,8 @@ type_order = {'ST':1, 'AD':2, 'EM':3, 'OT':4}
 type_verbose = {'ST': '정기', 'AD': '추가', 'EM': '응급', 'OT': '퇴원'}
 kind_verbose = {'NUT': '영양수액', 'INJ': '주사', 'LABEL': '라벨'}
 kind_reverbose = {'영양수액':'NUT', '주사':'INJ', '라벨':'LABEL'}
+
+unit_sort = lambda unit: {'ML': 100, 'G': 101, '통': 102, 'BAG':998, 'KIT': 1000, 'VIAL': 1001, 'AMP': 1002, 'SYR': 1003}.get(unit, 0)
 
 
 def time_to_normstr(*time_values, to='date'):
@@ -65,10 +66,6 @@ def norm_field(get_orderset):
 		date = date if isinstance(date, str) else time_to_normstr(date)
 		return get_orderset(types=types, wards=wards, start_date=start_date, end_date=end_date, start_dt=start_dt, end_dt=end_dt, kind=kind, kinds=kinds, date=date, get_static=get_static, **kwargs)
 	return wrapper		
-
-
-unit_sort = lambda unit: {'ML': 100, 'G': 101, '통': 102, 'BAG':998, 'KIT': 1000, 'VIAL': 1001, 'AMP': 1002, 'SYR': 1003}.get(unit, 0)
-
 
 @norm_field
 def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind=None, kinds=None, date=None, get_static=None, test=False):
@@ -113,113 +110,11 @@ def get_orderset(types, wards, start_date, end_date, start_dt, end_dt, kind=None
 		ord_lst = ord_lst.distinct('pk')
 		yield ord_lst, plus, minus
 
-def parse_order_list(order_list):
-	ord_lst = Listorm(order_list, nomalize=False)
-	# ret_lst = ord_lst.filterand(ret_yn='Y')
-	ret_lst = ord_lst.filter(lambda row: row.medi_no and row.medi_no >= '40000')
-	ord_lst = ord_lst.filter(lambda row: row.medi_no and row.medi_no < '40000')
-	# ord_lst = ord_lst.add_columns()
-
-	grp_by_ward = ord_lst.groupby('WARD', ord_qty=sum, total_amt=sum, drug_nm=len,
-		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
-		set_name = 'order_set'
-	).orderby('WARD', 'drug_nm')
-	# grp_by_ward['order_set'] = grp_by_ward.order_set.order_by('drug_nm')
-	# print('orderby')
-
-	grp_by_ward_drug_nm = ord_lst.groupby('WARD', 'ord_cd', ord_qty=sum, total_amt=sum, drug_nm=len,
-		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},
-		extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', '단일포장구분', 'std_unit_nm', '보관방법코드', 'drug_nm'],
-		set_name = 'order_set'
-	).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
-
-	live_order_list = ord_lst.filter(lambda row: row.dc_gb == 'N' and row.ret_stus not in ['O', 'C'])
-	dc_order_list = ord_lst.filter(lambda row: row.dc_gb == 'Y')
-	not_dc_order_list = ord_lst.filter(lambda row: row.dc_gb == 'N')
-	ret_order_list = ord_lst.filter(lambda row: row.ret_stus == 'O')
-	only_dc = ord_lst.filter(lambda row: row.ret_stus not in ['O', 'C'] and row.dc_gb == 'Y')
-	only_ret = ord_lst.filter(lambda row: row.dc_gb != 'Y' and row.ret_stus == 'O')
-	dc_or_ret = ord_lst.filter(lambda row: row.dc_gb == 'Y' or row.ret_stus == 'O').orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
-	# dc_or_ret|= ret_lst
-	dc_and_ret = (ret_lst | only_dc).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
-
-	grp_dc_and_ret = dc_and_ret.groupby('WARD', 'medi_no', 'ord_cd','ptnt_no', ord_qty=sum, total_amt=sum, drug_nm=len,
-		renames = {'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},
-		extra_columns = ['ptnt_nm', 'dc_ent_dt', 'ret_ymd', 'ord_ent_dt', '보관방법코드', '단일포장구분'],
-	).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
-
-	grp_by_drug_nm = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum,
-		renames={'drug_nm': 'drug_nm_count', 'total_amt': 'total_amt_sum', 'ord_qty': 'ord_qty_sum'},
-		extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', 'std_unit_nm', '보관방법코드'],
-		set_name = 'order_set'
-	).orderby('보관방법코드', lambda row: unit_sort(row.std_unit_nm),'단일포장구분', 'drug_nm')
-	
-	# 반납약 빼기 표시
-	dcret_counts = grp_dc_and_ret.groupby('ord_cd', total_amt_sum=sum,
-		renames = {'total_amt_sum': 'minus_count'}
-	)
-	# grp_by_ward_drug_nm = grp_by_ward_drug_nm.join(dcret_counts, on=['WARD','ord_cd'], how='left')
-
-
-	grp_dc_by_ward = dc_order_list.groupby('WARD', ord_qty=sum, total_amt=sum, drug_nm=len,
-		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
-		set_name='order_set'
-	).orderby('WARD', 'drug_nm')
-	grp_ret_by_ward = ret_order_list.groupby('WARD', ord_qty=sum, total_amt=sum, drug_nm=len,
-		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
-		set_name='order_set'
-	).orderby('WARD', 'drug_nm')
-
-	nt = namedtuple('OrderCollections', 'count order_list  not_dc_order_list ret_order_list only_dc only_ret dc_or_ret dc_and_ret grp_dc_and_ret grp_by_drug_nm grp_by_ward grp_by_ward_drug_nm grp_dc_by_ward grp_ret_by_ward')
-
-	context = nt(
-		count = len(ord_lst),
-		order_list = ord_lst,
-		not_dc_order_list = not_dc_order_list, 
-		ret_order_list = ret_order_list, 
-		only_dc = only_dc,
-		only_ret = only_ret,
-		dc_or_ret = dc_or_ret,
-		dc_and_ret = dc_and_ret,
-		grp_dc_and_ret = grp_dc_and_ret,
-		grp_by_drug_nm = grp_by_drug_nm,
-		grp_by_ward_drug_nm = grp_by_ward_drug_nm,
-		grp_by_ward = grp_by_ward, 
-		grp_dc_by_ward = grp_dc_by_ward,
-		grp_ret_by_ward = grp_ret_by_ward, 
-	)
-	return context
-
-
-
-# ret = get_orderset(types=['정기', '추가', '응급', '퇴원'],
-# 	wards=['51'], 
-# 	start_date='2017-09-20', end_date='2017-09-20',
-# 	start_dt='2016-09-19 00:00:00', end_dt='2017-09-20 00:00:00', 
-# 	kind='NUT',
-# 	# extras = ['란스톤15', '테리본', '하루날디'],
-# 	# excludes = ['오마프원', '하모닐란', '위너프', '슈프라민', '멀티플렉스'],
-# 	test=False
-# )
-
-# pprint(ret.first)
-
-
-
 
 
 class OrderApi(object):
-	type_order = {'ST':1, 'AD':2, 'EM':3, 'OT':4}
-	type_verbose = {'ST': '정기', 'AD': '추가', 'EM': '응급', 'OT': '퇴원'}
-	kind_verbose = {'NUT': '영양수액', 'INJ': '주사', 'LABEL': '라벨'}
-	kind_reverbose = {'영양수액':'NUT', '주사':'INJ', '라벨':'LABEL'}
-
-	# def __init__(self, start_date, end_date, wards, extras=None, excludes=None, test=False):
-	# 	self.start_date, self.end_date = start_date, end_date
-	# 	self.drug_list = get_drug_list(test=test)
 
 	def __init__(self, static=None, test=False, **kwargs):
-	# def __init__(self, dates, start_date, end_date, wards, static=None, test=False, **kwargs):
 		kwargs['start_date'], kwargs['end_date'] = time_to_normstr(kwargs.get('start_date'), kwargs.get('end_date'))
 		self.ptnt_lst = Listorm()
 		self.static= self._norm_static(static)
@@ -231,7 +126,7 @@ class OrderApi(object):
 	def _norm_context(self, context):
 		new_context = {k:v for k, v in context.items()}
 		types = map(lambda t: type_verbose.get(t, t), context['types'])
-		types = sorted(types, key=lambda t:self.type_order.get(t,t))
+		types = sorted(types, key=lambda t:type_order.get(t,t))
 		new_context['types'] = types
 		new_context['start_dt'], new_context['end_dt'] = time_to_normstr(context['start_dt'], context['end_dt'], to='datetime')
 		return new_context
@@ -295,6 +190,7 @@ class OrderApi(object):
 		return self.order_list.filter(lambda row: row.rcpt_dt and start_dt <= row.rcpt_dt < end_dt and row.rcpt_ord_tp_nm in types)
 
 	def get_order_lists(self, *filter_contexts, **kwargs):
+		print('get_order_lists call..')
 		for context in filter_contexts:
 			context = self._norm_context(context)
 			wards_filter = context.get('wards')
@@ -317,108 +213,108 @@ class OrderApi(object):
 				order_list = order_list.filter(lambda row: row.WARD in wards_filter)	
 			yield order_list
 
-	def parse_order_list(self, order_list):
-		ret_lst = order_list.filter(lambda row: row.medi_no and row.medi_no >= '40000')
-		ord_lst = order_list.filter(lambda row: row.medi_no and row.medi_no < '40000')
 
-		grp_by_drug_nm = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum,
-			renames={'drug_nm': 'drug_nm_count', 'total_amt': 'total_amt_sum', 'ord_qty': 'ord_qty_sum'},
-			extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', 'std_unit_nm', '보관방법코드'],
-			set_name = 'order_set'
-		).orderby('보관방법코드', lambda row: unit_sort(row.std_unit_nm),'단일포장구분', 'drug_nm')
+def parse_order_list(order_list):
+	if isinstance(order_list, list):
+		order_list = Listorm(order_list)
 
-		grp_by_ward = ord_lst.groupby('WARD', ord_qty=sum, total_amt=sum, drug_nm=len,
-			renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
-			set_name = 'order_set'
-		).orderby('WARD', 'drug_nm')
+	ret_lst = order_list.filter(lambda row: row.medi_no and row.medi_no >= '40000')
+	ord_lst = order_list.filter(lambda row: row.medi_no and row.medi_no < '40000')
 
-		grp_by_ward_drug_nm = ord_lst.groupby('WARD', 'drug_nm', ord_qty=sum, total_amt=sum, drug_nm=len,
-			renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},
-			extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', '단일포장구분', 'std_unit_nm', '보관방법코드', 'drug_nm'],
-			set_name = 'order_set'
-		).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
+	rcpt_dt_min, rcpt_dt_max = ord_lst.min('rcpt_dt'), ord_lst.max('rcpt_dt')
 
-		grp_by_ward_drug_nm_by_ward = grp_by_ward_drug_nm.groupby('WARD', drug_nm=len,
-			renames = {'drug_nm': 'drug_nm_count'},
-			extra_columns = ['WARD'],
-			set_name = 'ward_set'
-		).orderby('WARD')
+	grp_by_drug_nm = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum,
+		renames={'drug_nm': 'drug_nm_count', 'total_amt': 'total_amt_sum', 'ord_qty': 'ord_qty_sum'},
+		extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', 'std_unit_nm', '보관방법코드'],
+		set_name = 'order_set'
+	).orderby('보관방법코드', lambda row: unit_sort(row.std_unit_nm),'단일포장구분', 'drug_nm')
 
-		only_dc = ord_lst.filter(lambda row: row.ret_stus not in ['O', 'C'] and row.dc_gb == 'Y')
-		dc_and_ret = (ret_lst | only_dc).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
+	grp_by_ward = ord_lst.groupby('WARD', ord_qty=sum, total_amt=sum, drug_nm=len,
+		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'}, 
+		set_name = 'order_set'
+	).orderby('WARD', 'drug_nm')
 
-		grp_dc_and_ret = dc_and_ret.groupby('WARD', 'medi_no', 'ord_cd','ptnt_no', ord_qty=sum, total_amt=sum, drug_nm=len,
-			renames = {'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},
-			extra_columns = ['ptnt_nm', 'dc_ent_dt', 'ret_ymd', 'ord_ent_dt', '보관방법코드', '단일포장구분'],
-		).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
+	grp_by_ward_drug_nm = ord_lst.groupby('WARD', 'drug_nm', ord_qty=sum, total_amt=sum, drug_nm=len,
+		renames={'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},
+		extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', '단일포장구분', 'std_unit_nm', '보관방법코드', 'drug_nm'],
+		set_name = 'order_set'
+	).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
 
-		# grp_dc_and_ret_by_ward = grp_dc_and_ret.groupby('WARD', drug_nm=len,
-		# 	renames = {'drug_nm': 'drug_nm_count'},
-		# 	set_name = 'dc_and_ret'
-		# )
+	grp_by_ward_drug_nm_by_ward = grp_by_ward_drug_nm.groupby('WARD', drug_nm=len,
+		renames = {'drug_nm': 'drug_nm_count'},
+		extra_columns = ['WARD'],
+		set_name = 'ward_set'
+	).orderby('WARD')
 
-		# grp_by_ward_drug_nm_by_ward = grp_by_ward_drug_nm_by_ward.join(grp_dc_and_ret_by_ward, on='WARD', how='left').update(dc_and_ret=Listorm(), where=lambda row: not row.dc_and_ret)
-		# grp_by_ward_drug_nm_by_ward = grp_by_ward_drug_nm_by_ward.orderby('WARD')
-		return {
-			'grp_by_drug_nm':grp_by_drug_nm,
-			'grp_by_ward': grp_by_ward,
-			'grp_by_ward_drug_nm': grp_by_ward_drug_nm,
-			# 'grp_by_ward_drug_nm_by_ward':grp_by_ward_drug_nm_by_ward,
-			'grp_dc_and_ret': grp_dc_and_ret,
-		}
+	only_dc = ord_lst.filter(lambda row: row.ret_stus not in ['O', 'C'] and row.dc_gb == 'Y')
+	dc_and_ret = (ret_lst | only_dc).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
 
+	grp_dc_and_ret = dc_and_ret.groupby('WARD', 'medi_no', 'ord_cd','ptnt_no', ord_qty=sum, total_amt=sum, drug_nm=len,
+		renames = {'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},
+		extra_columns = ['ptnt_nm', 'dc_ent_dt', 'ret_ymd', 'ord_ent_dt', '보관방법코드', '단일포장구분'],
+	).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
 
-
-
-
-static=[
-    {
-        "extras": "",
-        "kind": "LABEL",
-        "excludes": ""
-    },
-    {
-        "extras": "염화칼륨\r\n염화나트륨주사액\r\n",
-        # "extras": "",
-        "kind": "INJ",
-        "excludes": "에락시스\r\n멕쿨"
-    },
-    {
-        "extras": "란스톤\r\n아달라트\r\n",
-        # "extras": '''에락시스
-        # ''',
-        "kind": "NUT",
-        "excludes": ""
-    }
-]
-
-contexts = [
-	{
-		'start_dt': '2017-09-19 00:00:00',
-		'end_dt': '2017-09-20 00:00:00',
-		'types': ['정기', 'AD','EM'],
-		'kinds': ['INJ'],
-		'wards': ['51', '52']
+	return {
+		'grp_by_drug_nm':grp_by_drug_nm,
+		'grp_by_ward': grp_by_ward,
+		'grp_by_ward_drug_nm': grp_by_ward_drug_nm,
+		# 'grp_by_ward_drug_nm_by_ward':grp_by_ward_drug_nm_by_ward,
+		'grp_dc_and_ret': grp_dc_and_ret,
+		'rcpt_dt_min': rcpt_dt_min, 'rcpt_dt_max': rcpt_dt_max,
 	}
-	# {
-	# 	'start_dt': '2017-09-19 00:00:00',
-	# 	'end_dt': '2017-09-20 23:59:59',
-	# 	'types': ['추가','응급', '정기'],
-	# 	'kinds': ['INJ', 'NUT']
-	# },
-	# {
-	# 	'start_dt': '2017-09-19 00:00:00',
-	# 	'end_dt': '2017-09-28 23:59:59',
-	# 	'types': ['추가','응급', '정기'],
-	# 	'kinds': ['INJ', 'NUT', 'LABEL']
-	# },
-	# {
-	# 	'start_dt': '2017-09-19 00:00:00',
-	# 	'end_dt': '2017-09-20 23:59:59',
-	# 	'types': ['추가','응급', 'ST'],
-	# 	'kinds': ['NUT', 'LABEL']
-	# },
-]
+
+
+
+
+
+# static=[
+#     {
+#         "extras": "",
+#         "kind": "LABEL",
+#         "excludes": ""
+#     },
+#     {
+#         "extras": "염화칼륨\r\n염화나트륨주사액\r\n",
+#         # "extras": "",
+#         "kind": "INJ",
+#         "excludes": "에락시스\r\n멕쿨"
+#     },
+#     {
+#         "extras": "란스톤\r\n아달라트\r\n",
+#         # "extras": '''에락시스
+#         # ''',
+#         "kind": "NUT",
+#         "excludes": ""
+#     }
+# ]
+
+# contexts = [
+# 	{
+# 		'start_dt': '2017-09-19 00:00:00',
+# 		'end_dt': '2017-09-20 00:00:00',
+# 		'types': ['정기', 'AD','EM'],
+# 		'kinds': ['INJ'],
+# 		'wards': ['51', '52']
+# 	}
+# 	{
+# 		'start_dt': '2017-09-19 00:00:00',
+# 		'end_dt': '2017-09-20 23:59:59',
+# 		'types': ['추가','응급', '정기'],
+# 		'kinds': ['INJ', 'NUT']
+# 	},
+# 	{
+# 		'start_dt': '2017-09-19 00:00:00',
+# 		'end_dt': '2017-09-28 23:59:59',
+# 		'types': ['추가','응급', '정기'],
+# 		'kinds': ['INJ', 'NUT', 'LABEL']
+# 	},
+# 	{
+# 		'start_dt': '2017-09-19 00:00:00',
+# 		'end_dt': '2017-09-20 23:59:59',
+# 		'types': ['추가','응급', 'ST'],
+# 		'kinds': ['NUT', 'LABEL']
+# 	},
+# ]
 
 # oa = OrderApi(dates=datetime.datetime.now(), start_date=datetime.datetime(2017,9,20), end_date='2017-09-20', wards=['51', '52', '61', '71', '81', '92', 'IC'],  static=static, test=True)
 # pprint(len(oa.drug_list))

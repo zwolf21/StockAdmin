@@ -32,7 +32,6 @@
         <button class="btn btn-success" id="btn-print" type="button">인쇄<span class="glyphicon glyphicon-print"></span></button>
         {% url 'collect:delete' object.slug as delete_url %}
         {% include "includes/delete_one_confirm.html" with url=delete_url id='collect-delete' %}
-
     </div>
 </div>  
 {% endblock main %}
@@ -40,7 +39,7 @@
 {% block list %}
 <div class="tab-pane fade in active" id="by-drug">
     {% include "collect/includes/detail_by_drug.html" %}
-    {% if object.kind == 'NUT' %}
+    {% if object.kinds.0 == 'NUT' %}
         {% include "collect/includes/detail_by_ward.html" %}
     {% endif %}
 </div>
