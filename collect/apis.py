@@ -56,14 +56,16 @@ class Collector(object):
 		for context, queryset in zip(contexts, oa.get_order_lists(*contexts)):
 			types = context['types']
 			start_dt, end_dt = context['start_dt'], context['end_dt']
+			start_date_each, end_date_each = context['start_date'], context['end_date']
+			wards_each = context['wards']
 			obj = self._generate_initial_object(
-				date=date, kinds=context['kinds'], types=types, wards=wards,
-				start_date = start_date, end_date=end_date, len_queryset = len(queryset)
+				date=date, kinds=context['kinds'], types=types, wards=wards_each,
+				start_date = start_date_each, end_date=end_date_each, len_queryset = len(queryset)
 			)
-			obj['queryset'] = queryset
+			obj['queryset'] = queryset.filter(lambda row: start_date_each <= row.ord_ymd <= end_date_each and row.WARD in wards_each)
 			obj['start_dt'], obj['end_dt'] = time_to_normstr(start_dt, end_dt, to='datetime')
 			self.db.save(obj, commit)
-		# ret lastest object
+
 		return obj
 
 	def last(self, **kwargs):
@@ -160,12 +162,14 @@ class Collector(object):
 
 
 def serialize_context(start_dt, end_dt, types, kinds, **kwargs):
+	start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
 	context = {
 		'start_dt': start_dt, 'end_dt': end_dt, 'types': types, 'kinds':kinds
 	}
 	return context
 
 def serialize_query(date, start_date, end_date, wards, **kwargs):
+	start_date, end_date = time_to_normstr(start_date, end_date)
 	context = {
 		'date': date, 'start_date': start_date, 'end_date': end_date, 'wards': wards
 	}
@@ -181,6 +185,7 @@ def save_collect(*form_cleaned_datas, test=False):
 		query = serialize_query(**form_data)
 		context = serialize_context(**form_data)
 		querys.append(query)
+		context.update(query)
 		contexts.append(context)
 
 	# 날짜 조회 범위 정하기
