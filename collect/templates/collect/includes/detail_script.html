@@ -14,7 +14,7 @@
 
             if (active != 'tab-ward-drug') {
             {% if object.kind != 'NUT' %}
-                printArea.document.write('<h2>{{ object.vkind }} 집계표</h2>')
+                printArea.document.write('<h2>{{ object.vkind|join:'/' }} 집계표</h2>')
             {% endif %}
                 printArea.document.write($('#print-date-info').html())
             }   
