@@ -87,10 +87,15 @@ def parse_narc_content(content, n=0, to_queryset=False):
 
 
 	# -------------------------------------------------------------------------------------------------------------------------------------------------
+	
+raws=['불출일자', '병동', '환자번호', '환자명', '폐기약품명', '약품코드', '처방량(규격단위)', '잔량', '규격단위', '폐기량', '폐기단위', 'get_dept_nm', 'ord_amt']
 
 def excel_output(exl_table, grp):
+	header, *body = exl_table
+	body = [row for row in body if row != raws]
+	exl_table = [header] + body
 
-	date_index = set(row[0] for r, row in enumerate(exl_table) if r > 0)
+	date_index = set(row[0] for r, row in enumerate(exl_table) if r > 0 and row[0][0].isdigit())
 	first_date, last_date = min(date_index), max(date_index)
 	title = '{}~{} 마약류 폐기 현황'.format(first_date, last_date)
 	fname = '{}.xlsx'.format(title)
@@ -127,9 +132,12 @@ def excel_output(exl_table, grp):
 	ws.set_column('H:H',5)	# 규격단위
 	ws.set_column('I:I',9)	# 폐기량
 
-	pprint(exl_table[:2])
-
-	for r, row in enumerate(exl_table):
+	
+	for nextrow, row in enumerate(exl_table):
+		r = nextrow
+		if r>0 and raws == row:
+			r = nextrow -1
+			continue
 		for c, data in enumerate(row):
 			if c >= len(select_columns):
 				break
