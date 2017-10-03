@@ -87,7 +87,7 @@
 					<div class="row" align="center">
 						<button class="btn btn-success" id="btn-print" type="button">인쇄<span class="glyphicon glyphicon-print"></span></button>
 						<button class="btn btn-danger" data-target="#modal-history-delete-one" data-toggle="modal"><span class="glyphicon glyphicon-trash">폐기</span></button>
-						{% include "orderutils/label_history_delete_one_confirm.html" %}
+						{% include "orderutils/label_history_delete_one_confirm.html"  %}
 					</div>
 				{% else %}
 				<form name="show" method="post" class="form-inline" action="{% url 'orderutils:labelcollect' %}">

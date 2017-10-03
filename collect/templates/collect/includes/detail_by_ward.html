@@ -1,5 +1,4 @@
 {% load humanize %}
-
 <div class="{{ cls }}">
     <div class="row text-center">
         <h4>{{ object.vtypes|join:',' }} {{ object.vkinds|join:'/' }} 수령확인</h4>
@@ -18,7 +17,6 @@
                         <th class="text-center">환자명</th>
                         <th class="text-center">약품명</th>
                         <th class="text-center">수량</th>
-                        {# <th class="text-center">규격단위</th> #}
                     </tr>
                 </thead>
                 <tbody>
@@ -31,7 +29,6 @@
                         <td class="text-center">{{ order.ptnt_nm }}</td>
                         <td class="text-right">{{ order.drug_nm }}</td>
                         <td class="text-center">{{ order.total_amt|floatformat:0 }} {{ order.std_unit_nm }}</td>
-                        {# <td class="text-center">{{ order.std_unit_nm }}</td> #}
                     </tr>
                     {% endfor %}
                 </tbody>

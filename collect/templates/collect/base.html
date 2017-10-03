@@ -68,7 +68,7 @@
 					<div class="row" align="right">
 						<div class="col-xs-12">
 							{% url 'collect:clear' as clear_url %}
-							{% include "includes/delete_one_confirm.html" with url=clear_url id='collect-clear' %}
+							{% include "includes/delete_confirm.html" with url=clear_url id='collect-clear' id_target='modal-clear' %}
 						</div>
 					</div>
 				</div>

@@ -1,5 +1,5 @@
-<button class="btn btn-danger" data-target="#{{ id }}" data-toggle="modal"><span class="glyphicon glyphicon-trash">폐기</span></button>
-<div class="modal" id="{{ id }}" tabindex="-1">
+<button id="{{ id }}" class="btn btn-danger" data-target="#{{ id_target }}" data-toggle="modal" data-backdrop="static"><span class="glyphicon glyphicon-trash">{{ label|default:"폐기" }}</span></button>
+<div class="modal" id="{{ id_target }}" tabindex="-1">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header" style="text-align: center">

@@ -1,0 +1,18 @@
+{% load staticfiles %}
+
+<button id="{{ id }}" class="{{ btn_class|default:'btn btn-success' }}" data-target="#{{ id_target }}" data-toggle="modal" data-backdrop="static">{{ label }}</button>
+<div class="modal" id="{{ id_target }}" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header" style="text-align: center">
+				<div style="font-size: 30px;">오래걸리는중....</div>
+			</div>
+			<div class="modal-body" style="text-align: center;">
+				<div class="text-center">
+					<img src="{% static "images/loading.gif" %}">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+

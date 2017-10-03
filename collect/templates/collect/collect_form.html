@@ -28,7 +28,8 @@ input[id*=end], input[id*=start] {
         {% cycle '' '<br><br><br><br><br><br><br><br><br><br><br><br>' %}
     {% if forloop.last %}
     <div class="row text-center">
-          <button class="btn btn-success" id="btn-collect-batch" type="submit">일괄집계<span class="glyphicon glyphicon-download-alt"></span></button>
+          {# <button class="btn btn-success" id="btn-collect-batch" type="submit">일괄집계<span class="glyphicon glyphicon-download-alt"></span></button> #}
+          {% include "includes/btn-redirect-loading.html" with id='btn-collect-batch' id_target='modal-collect-batch'  label='일괄집계' %}
     </div>
     {% endif %}
     {% endfor %}

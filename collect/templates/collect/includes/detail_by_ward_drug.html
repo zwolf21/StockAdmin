@@ -71,7 +71,6 @@
 		<h4 class="text-right">
 			수령확인:________________(서명)
 		</h4>
-	
 		{% regroup objects.grp_dc_and_ret by WARD as grp_dc_ret_by_ward %}
 		{% for ward_ in grp_dc_ret_by_ward %}
 			{% if ward_.grouper == ward.grouper %}
@@ -88,9 +87,7 @@
 							<th class="text-center">약품명</th>
 							<th class="text-center">수량</th>
 							<th class="text-center">DC/반납일시</th>
-							{# <th class="text-center">반납일자</th> #}
 							<th class="text-center">구분</th>
-						{# 	<th class="text-center">입력일시</th> #}
 						</tr>
 					</thead>
 					<tbody>
@@ -109,7 +106,6 @@
 							<td class="text-center">{{ dcret.ord_ent_dt }}</td>
 							<td class="text-center">반납</td>
 							{% endif %}
-							{# <td class="text-center">{{ dcret.ret_ymd }}</td> #}
 						</tr>
 					{% endfor %}	
 					</tbody>

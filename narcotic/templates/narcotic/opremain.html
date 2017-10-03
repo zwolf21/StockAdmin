@@ -27,8 +27,7 @@
 					{{ form.end }}
 				</div>
 			</div>
-			{# <input type="submit" name="" value="제출"> #}
-			<button class="btn btn-success btn-sm" id="btn-retrieve">조회하기</button>
+			{% include "includes/btn-redirect-loading.html" with id="btn-retrieve" id_target="modal-retrieve" label="조회하기" %}
 			<button class="btn btn-success btn-sm" id="btn-download">파일로받기</button>
 		</form>			
 		{% endif %}

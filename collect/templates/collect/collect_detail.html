@@ -31,7 +31,7 @@
     <div class="row" align="center">
         <button class="btn btn-success" id="btn-print" type="button">인쇄<span class="glyphicon glyphicon-print"></span></button>
         {% url 'collect:delete' object.slug as delete_url %}
-        {% include "includes/delete_one_confirm.html" with url=delete_url id='collect-delete' %}
+        {% include "includes/delete_confirm.html" with url=delete_url id='collect-delete-one' id_target='modal-delete-one' %}
     </div>
 </div>  
 {% endblock main %}

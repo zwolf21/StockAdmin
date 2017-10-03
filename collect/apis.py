@@ -11,7 +11,6 @@ from StockAdmin.services.FKHIS.order_apis import OrderApi, time_to_normstr, type
 from .storages import CollectStorage, StaticStorage, COLLECT_FILE, STATIC_INFO_FILE, MAX_OBJECT_LIST_LENGTH
 
 
-
 class Collector(object):
 
 	def __init__(self, *args, **kwargs):
@@ -166,7 +165,6 @@ def save_collect(*form_cleaned_datas, test=False):
 	print('tested:', test)
 	collector = Collector()
 	return collector.save(dates, min_start_date, max_end_date, total_wards, *contexts, test=test)
-
 
 
 class FormInitTime(object):
