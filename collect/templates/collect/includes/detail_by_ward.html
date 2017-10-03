@@ -2,7 +2,7 @@
 
 <div class="{{ cls }}">
     <div class="row text-center">
-        <h4>{{ object.vtypes|join:',' }} {{ object.vkind|join:'/' }} 수령확인</h4>
+        <h4>{{ object.vtypes|join:',' }} {{ object.vkinds|join:'/' }} 수령확인</h4>
     </div>
     <div class="row" style="border: 2px solid black;">
     {% for object in objects.grp_by_ward %}

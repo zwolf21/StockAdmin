@@ -18,32 +18,32 @@ input[id*=end], input[id*=start] {
 
 {% block main %}
     {% if formset %}
-
-        <form id="collect-form-{{ form.kinds.auto_id }}" method="post" class="form-inline" action="{% url 'collect:create-batch' %}">
-            {% csrf_token %}
-        {% for form in formset %}
-            <div class="col-xs-6">
-                {% include "collect/includes/collect-form-inside.html" %}
-            </div>
-            {% cycle '' '<br><br><br><br><br><br><br><br><br><br><br><br>' %}
-        {% if forloop.last %}
-        <div class="row text-center">
-              <button class="btn btn-success" id="btn-collect-batch" type="submit">일괄집계<span class="glyphicon glyphicon-download-alt"></span></button>
+    <form id="collect-form-{{ form.kinds.auto_id }}" method="post" class="form-inline" action="{% url 'collect:create-batch' %}">
+        {% csrf_token %}
+    {% for form in formset %}
+        <div class="col-xs-6">
+            {% include "collect/includes/collect-form-inside.html" %}
+            {% include "collect/includes/collect-form-scrip.html" %}
         </div>
-        {% endif %}
-        {% endfor %}
-            {{ formset.management_form }}
-        </form>    
-        <script>
-            $('#collect-form-{{ form.kinds.auto_id }}').submit(function(){
-                $('#btn-collect-batch').addClass('disabled')
-            })
-        </script>
+        {% cycle '' '<br><br><br><br><br><br><br><br><br><br><br><br>' %}
+    {% if forloop.last %}
+    <div class="row text-center">
+          <button class="btn btn-success" id="btn-collect-batch" type="submit">일괄집계<span class="glyphicon glyphicon-download-alt"></span></button>
+    </div>
+    {% endif %}
+    {% endfor %}
+        {{ formset.management_form }}
+    </form>    
+    <script>
+        $('#collect-form-{{ form.kinds.auto_id }}').submit(function(){
+            $('#btn-collect-batch').addClass('disabled')
+        })
+    </script>
     {% else %}
-
     <form id="collect-form-{{ form.kinds.auto_id }}" method="post" class="form-inline" action="{% url 'collect:create' form.kinds.value.0 %}">
         {% csrf_token %}
         {% include "collect/includes/collect-form-inside.html" %}
+        {% include "collect/includes/collect-form-scrip.html" %}
     </form>
     {% endif %}
 {% endblock main %}

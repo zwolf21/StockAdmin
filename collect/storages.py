@@ -5,10 +5,11 @@ from operator import itemgetter
 from listorm import Listorm
 
 from StockAdmin.services.FKHIS.order_apis import OrderApi, time_to_normstr, type_verbose, kind_reverbose, kind_verbose, parse_order_list
+
+
 COLLECT_FILE = os.path.join(os.path.dirname(__file__), 'caches/collection.json')
 STATIC_INFO_FILE = os.path.join(os.path.dirname(__file__), 'caches/config.json')
-MAX_OBJECT_LIST_LENGTH = 40
-
+MAX_OBJECT_LIST_LENGTH = 50
 
 
 class CollectStorage(object):
@@ -70,21 +71,8 @@ class CollectStorage(object):
 
 
 
-
-def _norm_exs(extras, excludes):
-	extras = re.split('\s*[\r\n]+,*\s*', extras) if isinstance(extras, str) else extras or Listorm()
-	excludes = re.split('\s*[\r\n]+,*\s*', excludes) if isinstance(excludes, str) else excludes or Listorm()
-	extras = list(filter(None, extras))
-	excludes = list(filter(None, excludes))
-	return extras, excludes	
-
-
 class StaticStorage(CollectStorage):
-	initial = [
-		{'kind': 'LABEL', 'extras': [], 'excludes': []},
-		{'kind': 'INJ', 'extras': [], 'excludes': []},
-		{'kind': 'NUT', 'extras': [], 'excludes': []},
-	]
+	initial = [{'kind': kind, 'extras': "", 'excludes': "", 'exclude_groups': ""} for kind in ['LABEL', 'INJ', 'NUT']]
 
 	def __init__(self, filepath=STATIC_INFO_FILE):
 		super(StaticStorage, self).__init__(filepath)
@@ -98,14 +86,10 @@ class StaticStorage(CollectStorage):
 				fp.write(json.dumps(self.initial, indent=4))
 			self._load()
 
-	def save(self, kind, excludes=None, extras=None, **kwargs):
-		extras, excludes = _norm_exs(extras, excludes)
-		print('excludes:', excludes, 'kind:', kind)
-		if excludes:
-			self.object_list.update(excludes=excludes, where=lambda row:row.kind==kind)
-		if extras:
-			self.object_list.update(extras=extras, where=lambda row:row.kind==kind)
-	
+	def save(self, kind, **kwargs):
+		print('kwargs:', kwargs)
+		self.object_list.update(where=lambda row:row.kind==kind, **kwargs)
+		
 		with open(self.path, 'w') as fp:
 			fp.write(json.dumps(self.object_list, indent=4))
 

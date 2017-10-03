@@ -1,165 +1,48 @@
-    <div class="form-group">
-        <div class="col-xs-12 hidden">
-            <label>집계일자: {{ form.date }}</label>
-        </div>
-        {# <div class="col-xs-12"> #}
-            {# <label>집계일자: {{ form.date.value|date:"Y-m-d" }}</label> #}
-        {# </div> #}
-        {% if formset %}
-        <div class="col-xs-12">
-        {% else %}   
-        <div class="col-xs-12 hidden">
+<div class="form-group">
+    <div class="col-xs-12 hidden">
+        <label>집계일자: {{ form.date }}</label>
+    </div>
+    {% comment %}
+    <div class="col-xs-12">
+        <label>집계일자: {{ form.date.value|date:"Y-m-d" }}</label>
+    </div>
+    {% endcomment %}
+    {% if formset %}
+    <div class="col-xs-12">
+    {% else %}   
+    <div class="col-xs-12 hidden">
+    {% endif %}
+        {% if form.kinds.value.0 == 'INJ' %}
+            <label>집계항목: 주사</label>
+        {% elif form.kinds.value.0 == 'NUT' %}
+            <label>집계항목: 영양수액</label>
+        {% elif form.kinds.value.0 == 'LABEL' %} 
+            <label>집계항목: 라벨</label>
         {% endif %}
-            {% if form.kinds.value.0 == 'INJ' %}
-                <label>집계항목: 주사</label>
-            {% elif form.kinds.value.0 == 'NUT' %}
-                <label>집계항목: 영양수액</label>
-            {% elif form.kinds.value.0 == 'LABEL' %} 
-                <label>집계항목: 라벨</label>
+    </div>
+    <div class="col-xs-12 hidden">
+        <label>집계항목: {{ form.kinds }}</label>
+    </div>
+    <div class="col-xs-12">
+        <label>처방구분: {{ form.types }}</label>
+    </div>
+    <div class="col-xs-12">
+        <label>집계병동: {{ form.wards }}</label>
+    </div>
+    <div class="col-xs-12">
+        <label >처방일자: {{ form.start_date }}</label>~<label>{{ form.end_date }}</label>
+    </div>
+    <div class="col-xs-12">
+        <label >접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
+    </div>
+</div>
+<div class="row text-center">
+    <div class="form-group">
+        <div class="btn btn-group center-block">
+            {% if not formset %}
+            <button class="btn btn-success" id="btn-collect-{{ form.kinds.auto_id }}">집계<span class="glyphicon glyphicon-download-alt"></span></button>
             {% endif %}
-        </div>
-        <div class="col-xs-12 hidden">
-            <label>집계항목: {{ form.kinds }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label>처방구분: {{ form.types }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label>집계병동: {{ form.wards }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label >처방일자: {{ form.start_date }}</label>~<label>{{ form.end_date }}</label>
-        </div>
-        <div class="col-xs-12">
-            <label >접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
+            <button class="btn btn-warning" id="btn-calctime-{{ form.kinds.auto_id }}">집계시간불러오기<span class="glyphicon glyphicon-download-alt"></span></button>
         </div>
     </div>
-    <div class="row text-center">
-        <div class="form-group">
-            <div class="btn btn-group center-block">
-                {% if not formset %}
-                <button class="btn btn-success" id="btn-collect-{{ form.kinds.auto_id }}">집계<span class="glyphicon glyphicon-download-alt"></span></button>
-                {% endif %}
-                <button class="btn btn-warning" id="btn-calctime-{{ form.kinds.auto_id }}">집계시간불러오기<span class="glyphicon glyphicon-download-alt"></span></button>
-            </div>
-        </div>
-    </div>
-
-<script>
-    $(function(){
-        // elements 초기화
-        var form_collect = $('#collect-form-{{ form.kinds.auto_id }}')
-        var input_start_date = $("#{{ form.start_date.auto_id }}")
-        var input_end_date = $('#{{ form.end_date.auto_id }}')
-        var input_start_dt = $('#{{ form.start_dt.auto_id }}')
-        var input_end_dt = $('#{{ form.end_dt.auto_id }}')
-        
-        var check_types_0 = $('#{{ form.types.auto_id }}_0')
-        var check_types_1 = $('#{{ form.types.auto_id }}_1')
-        var check_types_2 = $('#{{ form.types.auto_id }}_2')
-        var check_types_3 = $('#{{ form.types.auto_id }}_3')
-
-        var btn_collect = $('#btn-collect-{{ form.kinds.auto_id }}')
-        var btn_calctime = $('#btn-calctime-{{ form.kinds.auto_id }}')
-
-        var start_date = input_start_date.val()
-        var end_date = input_end_date.val()
-        var start_dt = input_start_dt.val()
-        var end_dt = input_end_dt.val()
-
-        if (start_date == '' ||  end_date == '' || start_dt == '' || end_dt == '') {
-            btn_collect.hide()
-        }else{
-            btn_calctime.hide()
-        }
-
-        // 정기, 추가, 응급 체크박스 수정시
-        $('input[id^={{ form.types.auto_id|slice:"-1" }}]').change(function(event){
-            // 날짜 초기화
-            console.log('type changed')
-            input_start_date.val('')
-            input_end_date.val('')
-            input_start_dt.val('')
-            input_end_dt.val('')
-            // 집계 버튼 변경
-            btn_collect.hide()
-            btn_calctime.show()
-        })
-
-        $('#{{ form.start_date.auto_id }}, #{{ form.end_date.auto_id }}, #{{ form.start_dt.auto_id }}, #{{ form.end_dt.auto_id }}').click(function(){
-            // btn_calctime.hide()
-            btn_collect.show()
-        })
- 
-        // 추가 응급 버튼 동작 묶기
-        $('#{{ form.types.auto_id }}_1, #{{ form.types.auto_id }}_2').click(function(event){
-            if($(this).is(':checked')){
-                $('#{{ form.types.auto_id }}_1, #{{ form.types.auto_id }}_2').prop('checked', true)
-            }else{
-                $('#{{ form.types.auto_id }}_1, #{{ form.types.auto_id }}_2').prop('checked', false)
-            }
-        })
-
-        //집계 클릭시 발리데이션
-        form_collect.submit(function(event){
-            var st = check_types_0.is(':checked')
-            var ad = check_types_1.is(':checked')
-            var em = check_types_2.is(':checked')
-            var ot = check_types_3.is(':checked')
-            
-            if (st || ad || em || ot) {
-                btn_collect.addClass('disabled')
-            }else{
-                event.preventDefault();
-                alert('정기 추가 응급 퇴원 중 한가지는 선택 해야 합니다')
-            }
-        })
-
-        // 시간 옵션 불러오기 ajax
-        btn_calctime.click(function(evnet){
-            event.preventDefault()
-            // var form_data = form_collect.serialize()
-            var wards = []
-            var kinds = []
-            var types = []
-            $('input[id^={{ form.wards.auto_id|slice:"-1" }}]').each(function(index, item){
-                if ($(this).is(':checked')) {
-                    wards.push($(item).val())
-                }
-            })
-            $('input[id^={{ form.kinds.auto_id|slice:"-1" }}]').each(function(index, item){
-                if ($(this).is(':checked')) {
-                    kinds.push($(item).val())
-                }
-            })
-            $('input[id^={{ form.types.auto_id|slice:"-1" }}]').each(function(index, item){
-                if ($(this).is(':checked')) {
-                    types.push($(item).val())
-                }
-            })
-            console.log(wards, kinds, types)
-            payload = {
-                "wards": wards, "kinds": kinds, "types": types
-            }
-
-           $.ajax({
-                url : "{% url 'collect:gen-time' %}",
-                type : 'get',
-                dataType:'json',
-                // data : {date:date, pk_list: JSON.stringify(checked_list)},
-                data: JSON.stringify(payload),
-                success: function(rsp){
-                    input_start_date.val(rsp.start_date)
-                    input_end_date.val(rsp.end_date)
-                    input_start_dt.val(rsp.start_dt)
-                    input_end_dt.val(rsp.end_dt)
-
-                    btn_calctime.hide()
-                    btn_collect.show()
-                   
-                }
-            })
-        })
-
-    })
-</script>
+</div>

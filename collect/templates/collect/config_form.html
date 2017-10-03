@@ -10,21 +10,32 @@
     <div class="form-group hidden">
         {{ form.kind }}
     </div>
-    <div class="form-group">
-        <div class="col-xs-5">
-            <div class="row">
-                <span class="glyphicon glyphicon-plus-sign">추가적으로 집계할 항목</span>
+    <div class="row">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-5">
+                <div class="row">
+                    <span class="glyphicon glyphicon-plus-sign">추가적으로 집계할 항목</span>
+                </div>
+                <div class="row">
+                {{ form.extras }}
+                </div>
             </div>
-            <div class="row">
-            {{ form.extras }}
+            <div class="col-xs-5 col-xs-push-1">
+                <div class="row">
+                    <span class="glyphicon glyphicon-minus-sign">집계 제외할 항목</span>
+                </div>
+                <div class="row">
+                {{ form.excludes }}
+                </div>
             </div>
         </div>
-        <div class="col-xs-5 col-xs-push-3">
-            <div class="row">
-                <span class="glyphicon glyphicon-minus-sign">집계 제외할 항목</span>
-            </div>
-            <div class="row">
-            {{ form.excludes }}
+    </div>
+    <hr>
+    <div class="row">  
+        <div class="form-group">
+            <label class="control-label col-xs-3" for="{{ form.exclude_groups.auto_id }}">효능코드제외</label>
+            <div class="col-xs-8">
+                {{ form.exclude_groups }}
             </div>
         </div>
     </div>

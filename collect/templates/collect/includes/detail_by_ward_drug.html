@@ -6,7 +6,7 @@
 	{% for ward in grp_by_ward %}
 	<div class="print-each">
 		<h3 class="text-center">
-			{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkind|join:'/' }} 집계표
+			{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkinds|join:'/' }} 집계표
 		</h3>
 		{% include "collect/includes/detail_info.html" with plusminus='' %}
 		<table class="list text-right" border="1" width="100%">
@@ -77,7 +77,7 @@
 			{% if ward_.grouper == ward.grouper %}
 		<div class="row">
 			<div class="col-xs-12" style="border: 1px solid black">	
-				<h4 class="text-center">{{ object.vtypes|join:'/' }} {{ ward_.grouper }} {{ object.vkind|join:"/" }} DC 또는 반납된 항목</h4>
+				<h4 class="text-center">{{ object.vtypes|join:'/' }} {{ ward_.grouper }} {{ object.vkinds|join:"/" }} DC 또는 반납된 항목</h4>
 				<table class="tablesorter" border="1"> 
 					<thead>
 						<tr>

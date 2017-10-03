@@ -2,13 +2,13 @@ import os, json, sys, datetime
 from pprint import pprint
 from itertools import chain
 from operator import itemgetter
+from functools import reduce
 
 from dateutil.parser import parse
 from listorm import Listorm
-from StockAdmin.services.FKHIS.order_apis import OrderApi, time_to_normstr, type_verbose, kind_reverbose, kind_verbose, parse_order_list
+from StockAdmin.services.FKHIS.order_apis import OrderApi, time_to_normstr, type_verbose, type_reverbose, kind_verbose, parse_order_list, norm_context
 
 from .storages import CollectStorage, StaticStorage, COLLECT_FILE, STATIC_INFO_FILE, MAX_OBJECT_LIST_LENGTH
-
 
 
 
@@ -36,37 +36,31 @@ class Collector(object):
 		latest = self.db.object_list.filterand(date=date, kinds=kinds, types=types, wards=wards).max('seq')
 		return latest + 1 if latest else 1
 
-	def _generate_initial_object(self, date, kinds, types, wards, start_date, end_date, len_queryset):
+	def _generate_initial_object(self, date, kinds, types, wards, start_date, end_date, start_dt, end_dt, len_queryset):
+		
+		vtypes = types # 쿼리 후의 컨텍스트는 한글로 되어있음, 일단 한글 types 를 vtypes 에 저장하고...
+		types = list(map(type_reverbose.get, vtypes)) # 슬러기 파이를 위해 다시 영어로 바꿔 줌(::IIS 에서 한글 주소 치면 하얀 화면만 나옴, IIS url에 한글 허용 X)
+		vkinds = list(map(kind_verbose.get, kinds)) 
+
 		seq = self._generate_seq(date, kinds, types, wards)
 		title = self._generate_title(date, kinds, types, seq, len_queryset)
 		slug = self._generate_slug(date, kinds, types, wards, seq)
-		date = time_to_normstr(date)
 		timestamp = time_to_normstr(datetime.datetime.now(), to='datetime')
-		start_date, end_date = time_to_normstr(start_date, end_date)
-		vtypes = list(map(type_verbose.get, types))
-		vkinds = list(map(kind_verbose.get, kinds))
 		context = {
 			'date': date, 'kinds':kinds, 'types': types, 'wards': wards, 'start_date': start_date, 'end_date': end_date,
-			'seq': seq, 'title': title, 'vtypes': vtypes, 'vkind': vkinds, 'timestamp': timestamp, 'slug':slug
+			'seq': seq, 'title': title, 'vtypes': vtypes, 'vkinds': vkinds, 'timestamp': timestamp, 'slug':slug,
+			'start_dt': start_dt, 'end_dt': end_dt
 		}
 		return context
 
 	def save(self, date, start_date, end_date, wards, *contexts, commit=True, test=False):
 		oa = OrderApi(static=self.config.get(), date=date, start_date=start_date, end_date=end_date, wards=wards, test=test)
 		for context, queryset in zip(contexts, oa.get_order_lists(*contexts)):
-			types = context['types']
-			start_dt, end_dt = context['start_dt'], context['end_dt']
-			start_date_each, end_date_each = context['start_date'], context['end_date']
-			wards_each = context['wards']
-			obj = self._generate_initial_object(
-				date=date, kinds=context['kinds'], types=types, wards=wards_each,
-				start_date = start_date_each, end_date=end_date_each, len_queryset = len(queryset)
-			)
-			obj['queryset'] = queryset.filter(lambda row: start_date_each <= row.ord_ymd <= end_date_each and row.WARD in wards_each)
-			obj['start_dt'], obj['end_dt'] = time_to_normstr(start_dt, end_dt, to='datetime')
-			self.db.save(obj, commit)
-
-		return obj
+			print('saving context:', context)
+			instance = self._generate_initial_object(len_queryset=len(queryset), **context)
+			instance['queryset'] = queryset
+			self.db.save(instance, commit)
+		return instance # 일부러 마지막 인스턴스를 리턴
 
 	def last(self, **kwargs):
 		if kwargs:
@@ -104,7 +98,6 @@ class Collector(object):
 
 	def get_config(self, kinds, **kwargs):
 		return self.config.get(kinds)
-
 
 	def time_options(self, kind, types, **kwargs):
 		today = datetime.date.today()
@@ -158,54 +151,21 @@ class Collector(object):
 		return {'start_date': start_date, 'end_date': end_date, 'start_dt': start_dt, 'end_dt': end_dt, 'date': today}
 
 
-
-
-
-def serialize_context(start_dt, end_dt, types, kinds, **kwargs):
-	start_dt, end_dt = time_to_normstr(start_dt, end_dt, to='datetime')
-	context = {
-		'start_dt': start_dt, 'end_dt': end_dt, 'types': types, 'kinds':kinds
-	}
-	return context
-
-def serialize_query(date, start_date, end_date, wards, **kwargs):
-	start_date, end_date = time_to_normstr(start_date, end_date)
-	context = {
-		'date': date, 'start_date': start_date, 'end_date': end_date, 'wards': wards
-	}
-	return context
-
-
-
-
 def save_collect(*form_cleaned_datas, test=False):
-	querys = Listorm()
-	contexts = Listorm()
-	for form_data in form_cleaned_datas:
-		query = serialize_query(**form_data)
-		context = serialize_context(**form_data)
-		querys.append(query)
-		context.update(query)
-		contexts.append(context)
 
-	# 날짜 조회 범위 정하기
-	start_date, end_date = querys.min('start_date'), querys.max('end_date')
+	contexts = Listorm(norm_context(form_data, verbosing='types') for form_data in form_cleaned_datas)
 
-	# 병동 조회 범위 정하기
-	wardset = []
-	for wards in querys.column_values('wards'):
-		wardset += wards
-
-	wards = sorted(set(wardset))
-	date = querys[0].date
-
+	dates = sorted(contexts.unique('date'))
+	min_start_date, max_end_date = contexts.min('start_date'), contexts.max('end_date')
+	total_wards = sorted(set(reduce(lambda acc, elem: acc + elem ,contexts.column_values('wards'))))
+	print('saving form data...')
+	pprint(contexts)
+	print('min_start_date: ', min_start_date)
+	print('max_end_date: ', max_end_date)
+	print('total_wards:', total_wards)
+	print('tested:', test)
 	collector = Collector()
-	return collector.save(date, start_date, end_date, wards, *contexts, test=test)
-
-
-
-
-
+	return collector.save(dates, min_start_date, max_end_date, total_wards, *contexts, test=test)
 
 
 
