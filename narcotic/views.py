@@ -11,6 +11,7 @@ from dateutil import parser
 from .modules.FKHIS.opremain import get_opremain_contents, get_opremain_contents_test
 from .modules.FKHIS.opstock import get_opstock_object_list, get_opstock_object_list_test
 from .forms import DataRangeForm, OpSelectForm
+from utils.shortcuts import file_response
 
 
 class OpRemainDownloadFV(FormView):
@@ -20,13 +21,10 @@ class OpRemainDownloadFV(FormView):
 	def form_valid(self, form):
 		start = self.request.POST.get('start')
 		end = self.request.POST.get('end')
-		# print(start, end)
 		content = get_opremain_contents_test(start, end) if settings.TEST else get_opremain_contents(start, end)
 		if content:
-			fname = '{}~{}OpRemain.xlsx'.format(str(start), str(end))
-			response = HttpResponse(content, content_type='application/vnd.ms-excel')
-			response['Content-Disposition'] = 'attachment; filename='+fname
-			return response
+			fname = '{}~{}마약류잔여량보고서.xlsx'.format(str(start), str(end))
+			return file_response(content, fname)
 		return HttpResponse('<h1>없읍니다</h1>')
 
 class OpRemainFV(FormView):

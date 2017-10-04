@@ -39,19 +39,7 @@ def make_description(items_count):
 	str_time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 	return "{} 건의 약품이 {} 에 저장 됨".format(items_count, str_time_stamp)
 
-# def transfrom_updated_result(changes_updated):
-# 	ret = []
-# 	for updated in changes_updated:
-# 		what = updated.pk, updated.after['약품명(한글)'], updated.after['EDI코드']
-# 		where = []
-# 		for col in updated.where:
-# 			if col in ('drug_name', 'inout'):
-# 				continue
-# 			value_before = updated.before[col]
-# 			value_after = updated.after[col]
-# 			where.append({'col': col, 'before': value_before, 'after': value_after})
-# 		ret.append({'where': where, 'what': what})
-# 	return ret
+
 def transfrom_updated_result(changes_updated):
 	return write_updated(changes_updated, None, pk='약품코드', column_orders=OCS_MASTER_COLUMNS, extras=['약품명(한글)', 'EDI코드'])
 

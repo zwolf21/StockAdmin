@@ -68,9 +68,9 @@ def compare_contents(content_before, content_after, pk, extras, to_context=False
 	ws_deleted = wb.add_worksheet('삭제된항목')
 	ws_updated = wb.add_worksheet('변경된항목')
 
-	write_CD(changes.added, ws_added, lst_before.column_orders)
-	write_CD(changes.deleted, ws_deleted, lst_before.column_orders)
-	write_updated(changes.updated, ws_updated, pk, column_orders=lst_before.column_orders, extras=extras)
+	write_CD(changes.added, ws_added, column_orders)
+	write_CD(changes.deleted, ws_deleted, column_orders)
+	write_updated(changes.updated, ws_updated, pk, column_orders=column_orders, extras=extras)
 
 	wb.close()
 

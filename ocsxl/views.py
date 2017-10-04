@@ -8,7 +8,7 @@ from .models import OcsFile
 from .utils import is_excel_file, get_compare, get_item_count, is_ocsxl, make_description, transfrom_updated_result
 from StockAdmin.services.xlutils import excel_file_response
 from StockAdmin.views import LoginRequiredMixin
-
+from utils.shortcuts import file_response
 
 # Create your views here.
 
@@ -75,9 +75,9 @@ def ocsfiles_compare_excel_response(request):
 			before, after = OcsFile.objects.filter(pk__in=pk_list).order_by('created')
 			before_created = before.created.strftime("%Y%m%d")
 			after_created = after.created.strftime("%Y%m%d")
-			filename = "OCS Changes {}~{}.xlsx".format(before.filename, after.filename)
+			filename = "OCS변동사항({}~{}).xlsx".format(before.filename, after.filename)
 			contents = get_compare(before.excel.read(), after.excel.read(), to_context=False)
-			return excel_file_response(contents, filename)
+			return file_response(contents, filename)
 
 
 
