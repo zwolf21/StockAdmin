@@ -25,7 +25,7 @@
 	li.collect-list:hover {
 		background-color: #C29F6D;
 	} 
-}
+
 </style>
 {% endblock style %}
 
@@ -42,35 +42,7 @@
 					</h5>
 				</div>
 				<div class="panel-body">
-					<div class="row">
-						<ul class="list-group">	
-							<li class="collect-list-header list-group-item">
-								<div class="row">
-									<div class="col-xs-3">
-										<a href="{% url 'collect:create' 'LABEL' %}">라벨</a>
-									</div>
-									<div class="col-xs-3">
-										<a href="{% url 'collect:create' 'INJ' %}">주사</a>
-									</div>
-									<div class="col-xs-3">
-										<a href="{% url 'collect:create' 'NUT' %}">영양수액</a>
-									</div>
-									<div class="col-xs-3">
-										<a href="{% url 'collect:create-batch' %}">일괄</a>
-									</div>
-								</div>
-							</li>
-						{% for object in object_list %}
-							<li class="collect-list list-group-item {% if object.since == 'today' %}today-item {% elif object.since == 'yesterday' %}yesterday-item {% else %}since-item{% endif %}" url="{% url 'collect:detail' object.slug %}" onclick="location.href='{% url 'collect:detail' object.slug %}'">{{ object.title }}</li>
-						{% endfor %}
-						</ul>
-					</div>
-					<div class="row" align="right">
-						<div class="col-xs-12">
-							{% url 'collect:clear' as clear_url %}
-							{% include "includes/delete_confirm.html" with url=clear_url id='collect-clear' id_target='modal-clear' %}
-						</div>
-					</div>
+					{% include 'collect/includes/collect-list.html' %}
 				</div>
 			</div>
 			{% endblock side %}
@@ -89,6 +61,7 @@
 				            <li class="{% if form.kinds.value.0 == 'INJ' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'INJ' %}">주사</a></li>
 				            <li class="{% if form.kinds.value.0 == 'NUT' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">영양수액</a></li>
 				            <li class="{% if formset %}active{% endif %}"><a href="{% url 'collect:create-batch' %}">일괄집계</a></li>
+				            <li class="{% if form.slugs %}active{% endif %}"><a href="{% url 'collect:merge' %}">집계합체</a></li>
 				        	{% endif %}
 				        {% else %}				        
 				            <li class="active"><a class="tab-collect" href="#by-drug" data-toggle="tab" id="tab-drug">약품별</a></li>

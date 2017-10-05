@@ -11,7 +11,15 @@
             {% for object in objects.grp_by_drug_nm %}
             <tr>
                 <td>{{ object.ord_cd }}</td>
-                <td><a class="show-detail" id="{{ object.ord_cd }}" href="javascript: return false;">{{ object.drug_nm }}</a></td>
+                <td>
+                    <a class="show-detail" id="{{ object.ord_cd }}" href="javascript: return false;">
+                    {% if object.보관방법코드 == '4' %}
+                        <span class="glyphicon glyphicon-ice-lolly">{{ object.drug_nm }}</span>
+                    {% else %}
+                        {{ object.drug_nm }}
+                    {% endif %}
+                    </a>
+                </td>
                 <td align="center">{{ object.total_amt_sum }}</td>
                 <td align="center">{{ object.ord_unit_nm }}</td>
                 <td align="center">{{ object.drug_nm_count }}</td>

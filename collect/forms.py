@@ -1,3 +1,4 @@
+from pprint import pprint
 import datetime
 from django.core.urlresolvers import reverse
 from django import forms
@@ -6,6 +7,8 @@ from django.forms import CheckboxSelectMultiple, Textarea, DateInput, DateTimeIn
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
+from .models import Collector
 
 _today = lambda :datetime.date.today()
 
@@ -76,7 +79,13 @@ class ConfigForm(forms.Form):
 
 
 
+class CollectMergeForm(forms.Form):
+    slugs = forms.MultipleChoiceField(widget=CheckboxSelectMultiple)
 
+    def __init__(self, *args, **kwargs):
+        super(CollectMergeForm, self).__init__(*args, **kwargs)
+        lst_queryset = Collector().get_queryset().filter(lambda row: 'MERGED' not in row.slug)
+        self.fields['slugs'].choices = lst_queryset.row_values('slug', 'title')#
 
 
 

@@ -27,7 +27,13 @@
                         <td class="text-center">{{ order.ptnt_no }}</td>
                         {% endif %}
                         <td class="text-center">{{ order.ptnt_nm }}</td>
-                        <td class="text-right">{{ order.drug_nm }}</td>
+                        <td class="text-right">
+                            {% if order.보관방법코드 == '4' %}
+                            <span class="glyphicon glyphicon-ice-lolly">{{ order.drug_nm }}</span>
+                            {% else %}
+                                {{ order.drug_nm }}
+                            {% endif %}
+                        </td>
                         <td class="text-center">{{ order.total_amt|floatformat:0 }} {{ order.std_unit_nm }}</td>
                     </tr>
                     {% endfor %}

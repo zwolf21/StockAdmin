@@ -22,7 +22,15 @@
 				<tr>
 					<td class="text-center">{{ forloop.counter }}</td>
 					<td class="text-center">{{ grp.ord_cd }}</td>
-					<td class="text-right"><a class="show-detail" id="{{ grp.WARD }}-{{ grp.ord_cd }}" href="javascript: return false;">{{ grp.drug_nm }}</a></td>
+					<td class="text-right">
+						<a class="show-detail" id="{{ grp.WARD }}-{{ grp.ord_cd }}" href="javascript: return false;">
+						{% if grp.보관방법코드 == '4' %}
+						<span class="glyphicon glyphicon-ice-lolly">{{ grp.drug_nm }}</span>
+						{% else %}
+						{{ grp.drug_nm }}
+						{% endif %}
+						</a>
+					</td>
 					<td class="text-center">{{ grp.total_amt_sum|floatformat:2 }}</td>
 					<td class="text-center">{{ grp.std_unit_nm }}</td>
 				</tr>

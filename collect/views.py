@@ -3,11 +3,11 @@ from pprint import pprint
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.views.generic import CreateView, UpdateView, FormView, TemplateView, ListView, DetailView, DeleteView
+from django.views.generic import CreateView, UpdateView, FormView, TemplateView, ListView, DetailView, DeleteView, View
 from django.conf import settings
 
-from .forms import CollectForm, CollectFormset, ConfigForm, FORMSET_INITIAL
-from .apis import Collector, save_collect, set_form_initial, guess_time_range
+from .forms import CollectForm, CollectFormset, ConfigForm, CollectMergeForm, FORMSET_INITIAL
+from .models import Collector, save_collect, set_form_initial, guess_time_range, merge_collect
 
 
 # 집계 항목 보기
@@ -27,16 +27,30 @@ class CollectDetailView(DetailView):
         context['objects'] = c.get_parsed(self.get_object().get('slug')) # 집계 양식 컨텍스트
         return context
 
+
 # 집계 생성하기
 class CollectFormView(FormView):
     template_name = 'collect/collect_form.html'
-    success_url = '.'
     form_class = CollectForm
+
+    def get_success_url(self):
+        c = Collector()
+        return reverse_lazy('collect:detail', args=(c.last()['slug'], ))
 
     def form_valid(self, form):
         obj = save_collect(form.cleaned_data, test=settings.TEST)
-        self.success_url = reverse('collect:detail', args=(obj['slug'],))
+        # self.success_url = reverse('collect:detail', args=(obj['slug'],))
         return super(CollectFormView, self).form_valid(form)
+    
+    # 집계 내역 합치는 POST 받기
+    def form_invalid(self, form):
+        print(form.data)
+            # c = Collector()
+            # slugs = self.request.POST.get('slugs')
+            # if slugs:
+            #     print('slugs:', slugs)
+            #     # c.merge_collect(*slugs)
+        return super(CollectFormView, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super(CollectFormView, self).get_context_data(**kwargs)
@@ -45,6 +59,29 @@ class CollectFormView(FormView):
         c = Collector()
         context['object_list'] = c.get_queryset()
         return context
+
+
+class CollectMergeFormView(FormView):
+    template_name = 'collect/collect_merge_form.html'
+    form_class = CollectMergeForm
+
+    def get_success_url(self):
+        c = Collector()
+        return reverse_lazy('collect:detail', args=(c.last()['slug'], ))
+
+    def form_valid(self, form):
+        # pprint(form.cleaned_data)
+        if merge_collect(**form.cleaned_data):
+            return super(CollectMergeFormView, self).form_valid(form)
+        return HttpResponseRedirect('.')
+
+    def get_context_data(self, **kwargs):
+        context = super(CollectMergeFormView, self).get_context_data(**kwargs)
+        c = Collector()
+        context['object_list'] = c.get_queryset()
+        return context
+
+
 
 # 집계 항목 지정 삭제
 class CollectDeleteView(DeleteView):
@@ -93,6 +130,11 @@ class CollectBatchFormView(FormView):
         if cleaned_datas:
             save_collect(*cleaned_datas, test=settings.TEST)
         return super(CollectBatchFormView, self).form_invalid(form)
+
+
+
+
+
 
 # 설정 뷰
 class ConfigFormView(FormView):

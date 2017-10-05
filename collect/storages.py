@@ -1,11 +1,9 @@
-import os, json, sys, datetime, re
+import os, json, re
 from pprint import pprint
-from operator import itemgetter
 
 from listorm import Listorm
 
-from StockAdmin.services.FKHIS.order_apis import OrderApi, time_to_normstr, type_verbose, kind_reverbose, kind_verbose, parse_order_list
-
+from utils.shortcuts import time_to_normstr
 
 COLLECT_FILE = os.path.join(os.path.dirname(__file__), 'caches/collection.json')
 STATIC_INFO_FILE = os.path.join(os.path.dirname(__file__), 'caches/config.json')
@@ -70,7 +68,6 @@ class CollectStorage(object):
 		return latest
 
 
-
 class StaticStorage(CollectStorage):
 	initial = [{'kind': kind, 'extras': "", 'excludes': "", 'exclude_groups': ""} for kind in ['LABEL', 'INJ', 'NUT']]
 
@@ -105,7 +102,6 @@ class StaticStorage(CollectStorage):
 			'excludes': '\r\n'.join(obj.excludes) + '\r\n' if obj.excludes else ''
 		}
 		return context
-
 
 
 

@@ -1,0 +1,44 @@
+{% extends "collect/base.html" %}
+{% load staticfiles %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+ <style type="text/css">
+ 	li.merge-item{
+ 		padding: 0px;
+ 	}
+ 	label[for*=slugs]{
+ 		width: 100%;
+ 		text-align: left;
+ 	}
+
+ </style>
+{% endblock style %}
+
+{% block main %}
+<form id="form-collect-merge" class="form-inline" method="post" action="{% url 'collect:merge' %}">
+	{% csrf_token %}
+	<div class="form-group">
+		<label for="{{ form.slugs.auto_id }}" class="control-label co-xs-4 text-center">집계내역선택 </label>
+		<div class="col-xl-8">
+		    {{ form.slugs }}
+		</div>
+	</div>
+	<div class="form-group">
+		<button class="btn btn-success" id="btn-collect-merge">선택 항목 합치기</button>
+	</div>
+</form>
+<script>
+$(function(){
+	//lazy style
+	$('input[id*=slugs]')
+	$('ul[id*=slugs]').addClass('list-group')
+	$('ul[id*=slugs] li').addClass('list-group-item merge-item')
+	$('label[for*=slugs]').addClass('btn btn-default')
+
+	{% for slugs in form.slugs %}
+        var check_slugs_{{ forloop.counter0 }} = $("#{{ form.slugs.auto_id }}_{{ forloop.counter0 }}")
+        check_slugs_{{ forloop.counter0 }}.addClass('badgebox').after('<span class="badge">&check;</span>')
+    {% endfor %}
+})
+</script>
+{% endblock main %}
