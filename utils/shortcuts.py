@@ -1,4 +1,4 @@
-import os, sys, re, datetime
+import os, sys, re, datetime, csv
 from mimetypes import guess_type
 from urllib.parse import quote
 from wsgiref.util import FileWrapper
@@ -12,6 +12,9 @@ from email.mime.application import MIMEApplication
 
 from django.http import HttpResponse
 from dateutil.parser import parse
+from listorm import Listorm
+import xlsxwriter
+
 
 
 def file_response(content, filename):
@@ -21,6 +24,15 @@ def file_response(content, filename):
 		response['Content-Encoding'] = encoding
 	response['Content-Disposition'] = "attachment; filename*=UTF-8''{}".format(quote(filename.encode('utf-8')))
 	return response
+
+def queryset_to_file(queryset, filename, selects=None, to='excel'):
+	records = queryset.values(*selects) if selects else queryset.values()
+	lst = Listorm(records, nomalize=False)
+	if to == 'excel':
+		content = lst.to_excel()
+	else:
+		content = lst.to_csv()
+	return file_response(content, filename)
 
 #file_chunk_map -> {result_filename: chunk}
 def gmail_attach_file(_from, _passwd, to_list, subject, content, file_chunk_map, host='smtp.gmail.com', port=587):
