@@ -208,8 +208,8 @@ def parse_order_list(order_list):
     # 약품명 앞에 냉장} 이런거 빼기    
     order_list.update(drug_nm=lambda row: norm_drug_name(row.drug_nm), where=lambda row: row.drug_nm)
 
-    ret_lst = order_list.filter(lambda row: row.medi_no and row.medi_no >= '40000')
-    ord_lst = order_list.filter(lambda row: row.medi_no and row.medi_no < '40000')
+    ret_lst = order_list.filter(lambda row: row.medi_no and row.ret_yn == 'Y')
+    ord_lst = order_list.filter(lambda row: row.medi_no and row.ret_yn == 'N')
 
 
     rcpt_dt_min, rcpt_dt_max = ord_lst.min('rcpt_dt'), ord_lst.max('rcpt_dt')
