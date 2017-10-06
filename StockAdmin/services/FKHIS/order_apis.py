@@ -167,7 +167,7 @@ class OrderApi(object):
                     lambda row: row['투여경로'] == '3' and row['약품법적구분'] in ['0'] and row['항암제구분'] == '0'
                 )
             # exclude_group 
-            print('excluding by efficacy codes:', static.exclude_groups)
+
             lst = lst.filter(lambda row: row['효능코드(보건복지부)'] not in static.exclude_groups)
             drug_list|= lst.excludesim(**{'약품명(한글)': excludes}) | extras_lst
         return drug_list
@@ -207,7 +207,6 @@ def parse_order_list(order_list):
 
     # 약품명 앞에 냉장} 이런거 빼기    
     order_list.update(drug_nm=lambda row: norm_drug_name(row.drug_nm), where=lambda row: row.drug_nm)
-    pprint(order_list.select('drug_nm').distinct('drug_nm'))
 
     ret_lst = order_list.filter(lambda row: row.medi_no and row.medi_no >= '40000')
     ord_lst = order_list.filter(lambda row: row.medi_no and row.medi_no < '40000')

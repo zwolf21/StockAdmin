@@ -150,6 +150,7 @@ class Collector(object):
 		tomorrow = today + datetime.timedelta(1)
 		now = datetime.datetime.now()
 		end_dt = now
+
 		if set(types) == {'ST', 'AD', 'EM'}:
 			today_latest = self.db.get_latest(date=today, kind=kind, types=types)
 			if today_latest:
@@ -178,6 +179,7 @@ class Collector(object):
 			else:
 				start_dt = today
 		elif set(types) == {'AD', 'EM'}:
+
 			start_date = today
 			end_date = today
 			st_ad_latest = self.db.get_latest(date=today, kind=kind, types=['ST', 'AD', 'EM'])
@@ -256,17 +258,16 @@ class FormInitTime(object):
 		return context
 
 	def inj_init(self):
+
 		context = self.get_default(['INJ'])
 		yesterday_latest_st = self.collector.db.get_latest(date=self.YESTERDAY, kinds=['INJ'], types=['ST'])
-		yesterday_latest_ad_em = self.collector.db.get_latest(date=self.YESTERDAY, kinds=['INJ'], types=['AD', 'EM'])
-		yesterday_latest_ad_em_st = self.collector.db.get_latest(date=self.YESTERDAY, kinds=['INJ'], types=['ST', 'AD', 'EM'])
-		today_latest_ad_em_st = self.collector.db.get_latest(date=self.TODAY, kinds=['INJ'], types=['ST', 'AD', 'EM'])
-		today_latest_ad_em = self.collector.db.get_latest(date=self.TODAY, kinds=['INJ'], types=['AD', 'EM'])
-	
+		yesterday_latest_ad_em = self.collector.db.get_latest(date=self.YESTERDAY, kinds=['INJ'], types=['EM', 'AD'])
+		yesterday_latest_ad_em_st = self.collector.db.get_latest(date=self.YESTERDAY, kinds=['INJ'], types=['EM','ST', 'AD'])
+		today_latest_ad_em_st = self.collector.db.get_latest(date=self.TODAY, kinds=['INJ'], types=['EM','ST', 'AD'])
+		today_latest_ad_em = self.collector.db.get_latest(date=self.TODAY, kinds=['INJ'], types=['EM', 'AD'])
 		yesterday_last_collecteds = sorted(filter(None, [yesterday_latest_st, yesterday_latest_ad_em, yesterday_latest_ad_em_st]), key=itemgetter('end_dt'))
 		now_hour = self._now_hour()
-
-		if self.types == ['ST', 'AD', 'EM']:
+		if set(self.types) == {'EM','ST', 'AD'}:
 			start_date = self.YESTERDAY
 			if today_latest_ad_em_st:
 				start_date = self.TODAY	
@@ -276,12 +277,12 @@ class FormInitTime(object):
 				start_dt = yesterday_last_collecteds[-1]['end_dt']
 			else:
 				start_dt = self._yesterday_last_dt(['INJ'])
-				print('start_dt:', start_dt)
 			context['start_dt'] = start_dt
 			context['start_date'] = start_date
 
-		elif self.types == ['AD', 'EM']:
+		elif set(self.types) <= {'EM', 'AD'}:
 			if today_latest_ad_em:
+
 				start_date = self.TODAY
 				start_dt = self._today_last_dt(['INJ'])
 			elif yesterday_latest_ad_em:
@@ -292,7 +293,7 @@ class FormInitTime(object):
 				start_dt = self.TODAY
 			context['start_date'], context['start_dt'] = start_date, start_dt
 
-		elif self.types == ['ST']:
+		elif set(self.types) <= {'ST'}:
 			start_date = self.TOMORROW
 			end_date = self.TOMORROW
 			start_dt = self._today_last_dt(['INJ'])

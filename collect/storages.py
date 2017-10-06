@@ -61,10 +61,14 @@ class CollectStorage(object):
 		return Listorm(self.object_list[::-1])
 
 	def get_latest(self, **kwargs):
+		latest = self.object_list
 		for key, val in kwargs.items():
 			if key == 'date':
-				kwargs[key] = time_to_normstr(val)
-		latest = self.object_list.filterand(**kwargs).top('seq')
+				date = time_to_normstr(val)
+				latest = latest.filterand(date=date)
+			elif key in ['types', 'kinds', 'wards']:
+				latest = latest.filter(lambda row: set(row[key]) <= set(val))
+		latest = latest.top('seq')
 		return latest
 
 
@@ -84,7 +88,6 @@ class StaticStorage(CollectStorage):
 			self._load()
 
 	def save(self, kind, **kwargs):
-		print('kwargs:', kwargs)
 		self.object_list.update(where=lambda row:row.kind==kind, **kwargs)
 		
 		with open(self.path, 'w') as fp:
