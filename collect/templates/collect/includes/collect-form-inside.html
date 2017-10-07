@@ -1,50 +1,52 @@
-<div class="form-group">
-    <div class="col-xs-12 hidden">
-        <label>집계일자: {{ form.date }}</label>
-    </div>
-    {% comment %}
-    <div class="col-xs-12">
-        <label>집계일자: {{ form.date.value|date:"Y-m-d" }}</label>
-    </div>
-    {% endcomment %}
-    {% if formset %}
-    <div class="col-xs-12">
-    {% else %}   
-    <div class="col-xs-12 hidden">
-    {% endif %}
-        {% if form.kinds.value.0 == 'INJ' %}
-            <label>집계항목: 주사</label>
-        {% elif form.kinds.value.0 == 'NUT' %}
-            <label>집계항목: 영양수액</label>
-        {% elif form.kinds.value.0 == 'LABEL' %} 
-            <label>집계항목: 라벨</label>
-        {% endif %}
-    </div>
-    <div class="col-xs-12 hidden">
-        <label>집계항목: {{ form.kinds }}</label>
-    </div>
-    <div class="col-xs-12">
-        <label>처방구분: {{ form.types }}</label>
-    </div>
-    <div class="col-xs-12">
-        <label>집계병동: {{ form.wards }}</label>
-    </div>
-    <div class="col-xs-12">
-        <label >처방일자: {{ form.start_date }}</label>~<label>{{ form.end_date }}</label>
-    </div>
-    <div class="col-xs-12">
-        <label >접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
-    </div>
-</div>
-<div class="row text-center">
+<div class="collect-form-content">
     <div class="form-group">
+        <div class="col-xs-12 hidden">
+            <label>집계일자: {{ form.date }}</label>
+        </div>
+        {% comment %}
         <div class="col-xs-12">
-            {% if not formset %}
-            {% with postfix=form.kinds.auto_id %}
-                {% include "includes/btn-redirect-loading.html" with id="btn-collect-"|add:postfix label='집계' id_target="modal-collect" %}
-            {% endwith %}
+            <label>집계일자: {{ form.date.value|date:"Y-m-d" }}</label>
+        </div>
+        {% endcomment %}
+        {% if formset %}
+        <div class="col-xs-12">
+        {% else %}   
+        <div class="col-xs-12 hidden">
+        {% endif %}
+            {% if form.kinds.value.0 == 'INJ' %}
+                <label>집계항목: 주사</label>
+            {% elif form.kinds.value.0 == 'NUT' %}
+                <label>집계항목: 영양수액</label>
+            {% elif form.kinds.value.0 == 'LABEL' %} 
+                <label>집계항목: 라벨</label>
             {% endif %}
-            <button class="btn btn-warning" id="btn-calctime-{{ form.kinds.auto_id }}">집계시간불러오기<span class="glyphicon glyphicon-download-alt"></span></button>
+        </div>
+        <div class="col-xs-12 hidden">
+            <label>집계항목: {{ form.kinds }}</label>
+        </div>
+        <div class="col-xs-12">
+            <label>처방구분: {{ form.types }}</label>
+        </div>
+        <div class="col-xs-12">
+            <label>집계병동: {{ form.wards }}</label>
+        </div>
+        <div class="col-xs-12">
+            <label >처방일자: {{ form.start_date }}</label>~<label>{{ form.end_date }}</label>
+        </div>
+        <div class="col-xs-12">
+            <label >접수일시: {{ form.start_dt }}</label>~<label>{{ form.end_dt }}</label>
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="form-group">
+            <div class="col-xs-12">
+                {% if not formset %}
+                {% with postfix=form.kinds.auto_id %}
+                    {% include "includes/btn-redirect-loading.html" with id="btn-collect-"|add:postfix label='집계' id_target="modal-collect" %}
+                {% endwith %}
+                {% endif %}
+                <button class="btn btn-warning" id="btn-calctime-{{ form.kinds.auto_id }}">집계시간불러오기<span class="glyphicon glyphicon-download-alt"></span></button>
+            </div>
         </div>
     </div>
 </div>

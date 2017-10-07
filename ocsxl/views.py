@@ -48,7 +48,13 @@ class OcsFileDelV(DeleteView):
 def ocsfiles_delete(request):
 	if request.method == "POST":
 		pk_list = request.POST['reportList'].split(',')
-		OcsFile.objects.filter(pk__in=pk_list).delete()
+		to_delete = OcsFile.objects.filter(pk__in=pk_list).delete()
+		# from pprint import pprint
+		# pprint(dir(to_delete))
+		# to_delete.excel.delete()		
+		# for ocsfile in to_delete:
+		# 	ocsfile.excel.delete(False)
+		# OcsFile.objects.filter(pk__in=pk_list).delete()
 		return HttpResponseRedirect(reverse_lazy('ocsxl:list'))
 
 

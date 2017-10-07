@@ -23,7 +23,7 @@ input[id*=end], input[id*=start] {
     {% for form in formset %}
         <div class="col-xs-6">
             {% include "collect/includes/collect-form-inside.html" %}
-            {% include "collect/includes/collect-form-scrip.html" %}
+            {# {% include "collect/includes/collect-form-scrip.html" %} #}
         </div>
         {% cycle '' '<br><br><br><br><br><br><br><br><br><br><br><br>' %}
     {% if forloop.last %}
@@ -44,7 +44,115 @@ input[id*=end], input[id*=start] {
     <form id="collect-form-{{ form.kinds.auto_id }}" method="post" class="form-inline" action="{% url 'collect:create' form.kinds.value.0 %}">
         {% csrf_token %}
         {% include "collect/includes/collect-form-inside.html" %}
-        {% include "collect/includes/collect-form-scrip.html" %}
+        {# {% include "collect/includes/collect-form-scrip.html" %} #}
     </form>
     {% endif %}
+
+<script>
+$(function(){
+    //lazy styling
+    $('label[for*=types]').addClass('btn btn-success btn-xs')
+    $('input[name*=types]').addClass('badgebox').after('<span class="badge">&check;</span>')
+
+    // 집계 버튼은 처음부터 숨김
+    $('button[id*=collect]').hide()
+
+    // 처방구분 클릭시 집계 버튼 숨기고 시간 불러오기 보임
+    $('input[name*=types]').change(function(event){
+        var div = $(this).parents('.collect-form-content')
+        div.find('button[id*=collect]').hide()
+        div.find('button[id*=calctime]').show()
+    })
+
+    // 날짜 필드 클릭시 집계 버튼 보이고 시간불러오기 버튼 숨김
+    $('input[name*=_date], input[name*=_dt]').click(function(event){
+        var div = $(this).parents('.collect-form-content')
+        // div.find('button[id*=calctime]').hide()     
+        div.find('button[id*=collect]').show()
+    })
+
+    // 추가, 응급버튼 동작 일치시키기
+    $('input[value=AD], input[value=EM]').click(function(event){
+        var div = $(this).parents('.collect-form-content')
+        var chkbox_ad_em = div.find('input[value=AD], input[value=EM]')
+        chkbox_ad_em.prop('checked', $(this).is(':checked'))
+    })
+
+    // 단독 폼에서 처방구분 체크 하나도안되있을시 발리데이션
+    function check_types(form){
+        var checked = false
+        form.find('input[name*=types]').each(function(index, elem){
+
+            if ($(elem).is(':checked')) {
+                checked = true
+                return false
+            }
+        })
+        if (checked == false) {
+            event.preventDefault()
+            alert('정기 추가 응급 퇴원 중 한가지는 선택 해야 합니다')
+        }
+        return checked
+    }
+
+    $('form[id*=collect]').submit(function(event){
+        if(!check_types($(this))){
+            event.preventDefault()
+            $('#modal-collect').modal('toggle')
+        }
+    })
+
+    //시간 불러오기
+    $('button[id*=calctime]').click(function(event){
+        event.preventDefault()
+        var div = $(this).parents('.collect-form-content')
+
+        if (!check_types(div)) {
+            return
+        }
+        
+        var wards = []
+        var kinds = []
+        var types = []
+
+        div.find('input[name*=wards]').each(function(index, elem){
+            if ($(elem).is(':checked')) {
+                wards.push($(elem).val())
+            }
+        })
+        div.find('input[name*=kinds]').each(function(index, elem){
+            if ($(elem).is(':checked')) {
+                kinds.push($(elem).val())
+            }
+        })
+        div.find('input[name*=types]').each(function(index, elem){
+            if ($(elem).is(':checked')) {
+                types.push($(elem).val())
+            }
+        })
+
+        var payload = {
+            "wards": wards, "kinds":kinds, "types": types
+        }
+
+        $.ajax({
+            url: "{% url 'collect:gen-time' %}",
+            type: "get",
+            dataType: "json",
+            data: JSON.stringify(payload),
+            success: function(rsp){
+
+                div.find('[name*=start_date]').val(rsp.start_date)
+                div.find('[name*=end_date]').val(rsp.end_date)
+                div.find('[name*=start_dt]').val(rsp.start_dt)
+                div.find('[name*=end_dt]').val(rsp.end_dt)
+
+                div.find('button[id*=calctime]').hide()
+                div.find('button[id*=collect]').show()
+                $('button[id*=collect]').show()
+            }
+        })
+    })
+})
+</script>
 {% endblock main %}
