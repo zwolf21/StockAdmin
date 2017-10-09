@@ -25,7 +25,7 @@
                 <h5> - 집계내역 -</h5>
             </div>
         {% endif %}
-        <li class="collect-list list-group-item {% if object.since == 'today' %}today-item {% elif object.since == 'yesterday' %}yesterday-item {% else %}since-item{% endif %}" url="{% url 'collect:detail' object.slug %}" onclick="location.href='{% url 'collect:detail' object.slug %}'">
+        <li class="collect-list list-group-item"url="{% url 'collect:detail' object.slug %}" onclick="location.href='{% url 'collect:detail' object.slug %}'" ago="{{ object.since }}">
             {{ object.title }}
         </li>
     {% endfor %}

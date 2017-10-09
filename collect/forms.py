@@ -3,12 +3,14 @@ import datetime
 from django.core.urlresolvers import reverse
 from django import forms
 from django.forms.formsets import formset_factory
-from django.forms import CheckboxSelectMultiple, Textarea, DateInput, DateTimeInput
+from django.forms import CheckboxSelectMultiple, Textarea, DateInput, DateTimeInput, CheckboxInput
 from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from .models import Collector
+from dateutil.parser import parse
+
+from .models import Collector, MAX_OBJECT_LIST_LENGTH
 
 _today = lambda :datetime.date.today()
 
@@ -43,6 +45,8 @@ FORMSET_INITIAL = \
             'types': ['AD', 'EM'],
         },  
 ]
+
+
 
 
 class HorizontalCheckboxRenderer(forms.CheckboxSelectMultiple.renderer):
@@ -85,9 +89,20 @@ class CollectMergeForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(CollectMergeForm, self).__init__(*args, **kwargs)
         lst_queryset = Collector().get_queryset().filter(lambda row: 'MERGED' not in row.slug)
-        self.fields['slugs'].choices = lst_queryset.row_values('slug', 'title')#
+        self.fields['slugs'].choices = lst_queryset.row_values('slug', 'title')
 
 
+def get_print_formset_initial():
+    return Collector().get_queryset().select('slug', 'title', 'since')
 
 
+class CollectPrintForm(forms.Form):
+    slug = forms.CharField(max_length=100)
+    title = forms.CharField(max_length=100, required=False)
+    grp_by_drug_nm = forms.IntegerField(initial=0)
+    grp_by_ward_drug_nm = forms.IntegerField(initial=0)
+    grp_by_ward = forms.IntegerField(initial=0)
+    since = forms.CharField(max_length=50, required=False)
+
+CollectPrintFormset = formset_factory(CollectPrintForm, max_num=MAX_OBJECT_LIST_LENGTH, extra=0)
 

@@ -2,7 +2,7 @@ import os, json, sys, datetime
 from pprint import pprint
 from itertools import chain
 from operator import itemgetter
-from functools import reduce
+from functools import reduce, wraps
 from collections import defaultdict
 
 from dateutil.parser import parse
@@ -11,6 +11,33 @@ from listorm import Listorm
 from .storages import *
 from StockAdmin.services.FKHIS.order_apis import *
 from utils.shortcuts import time_to_normstr
+
+
+def attatch_since(func):
+	@wraps(func)
+	def wrapper(self, *args, **kwargs):
+		today = datetime.date.today()
+		now = datetime.datetime.now()
+		def since(date_str):
+			timestamp = parse(date_str)
+			one_minute_ago = now - datetime.timedelta(minutes=1)
+			one_hour_ago = now - datetime.timedelta(hours=1)
+			ond_day_ago = now - datetime.timedelta(days=1)
+
+			if timestamp > one_minute_ago:
+				return 'second'
+			elif timestamp > one_hour_ago:
+				return 'minute'
+			elif timestamp > ond_day_ago:
+				return 'hour'
+			else:
+				return 'day'
+
+		queryset = func(self, *args, **kwargs)
+		queryset = queryset.add_columns(since=lambda row: since(row.timestamp))
+		return queryset
+	return wrapper
+
 
 
 class Collector(object):
@@ -112,24 +139,17 @@ class Collector(object):
 			return self.db.get_latest(**kwargs)
 		return self.db.object_list.last
 
-	def get_parsed(self, slug):
+	def get_parsed(self, slug, **kwargs):
 		obj = self.get_object(slug)
 		context = parse_order_list(obj.queryset)
 		return context
 
+	@attatch_since
 	def get_queryset(self):
-		today = datetime.date.today()
-		def since(date_str):
-			date = parse(date_str)
-			if today.day == date.day:
-				return 'today'
-			elif (date + datetime.timedelta(1)).day == today.day:
-				return 'yesterday'
-			return ''
-		queryset = self.db.object_list.add_columns(since=lambda row: since(row.date))
-		return Listorm(queryset[::-1])
+		return Listorm(self.db.object_list[::-1])
 
-	def get_object(self, slug):
+
+	def get_object(self, slug, **kwargs):
 		return self.db.get(slug)
 
 	def clear(self):
@@ -221,6 +241,44 @@ def save_collect(*form_cleaned_datas, test=False):
 	print('tested:', test)
 	collector = Collector()
 	return collector.save(dates, min_start_date, max_end_date, total_wards, *contexts, test=test)
+
+
+def get_print_context(*form_cleaned_datas):
+    counters = []
+    c = Collector()
+    for counter in form_cleaned_datas:
+        counter['object'] = c.get_object(counter.get('slug'))
+        counter['objects'] = c.get_parsed(counter.get('slug'))
+        for page, count in counter.items():
+            if page in counter['objects']:
+                counter[page] = list(range(int(count)))
+        counters.append(counter)
+    return counters
+
+def guess_print_count(request):
+    counter = {
+        'grp_by_drug_nm': 0,
+        'grp_by_ward_drug_nm': 0,
+        'grp_by_ward': 0
+    }
+    c = Collector()
+
+    for data, _ in request.GET.lists():
+        query = json.loads(data)
+        obj = c.get_object(**query)
+        if obj.kinds == ['INJ']:
+            if set(obj.types) == {'ST'}:
+                counter['grp_by_ward_drug_nm'] = 2
+            elif set(obj.types) == {'AD', 'EM'}:
+                counter['grp_by_ward_drug_nm'] = 1
+            elif set(obj.types) == {'ST', 'AD', 'EM'}:
+                counter['grp_by_ward_drug_nm'] = 1
+        elif obj.kinds == ['NUT']:
+            counter['grp_by_drug_nm'] = 1
+            counter['grp_by_ward'] = 1
+        elif obj.kinds == ['LABEL']:
+            counter['grp_by_drug_nm'] = 1
+    return json.dumps(counter)    
 
 
 class FormInitTime(object):

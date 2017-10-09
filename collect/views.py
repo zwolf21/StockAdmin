@@ -6,8 +6,8 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView, FormView, TemplateView, ListView, DetailView, DeleteView, View
 from django.conf import settings
 
-from .forms import CollectForm, CollectFormset, ConfigForm, CollectMergeForm, FORMSET_INITIAL
-from .models import Collector, save_collect, set_form_initial, guess_time_range, merge_collect
+from .forms import *
+from .models import Collector, save_collect, set_form_initial, guess_time_range, merge_collect, get_print_context, guess_print_count
 
 
 # 집계 항목 보기
@@ -25,6 +25,7 @@ class CollectDetailView(DetailView):
         context['object_list'] = c.get_queryset() # 집계 리스트
         context['config'] = c.get_config(kinds=[kind]) # 집계시 설정정보
         context['objects'] = c.get_parsed(self.get_object().get('slug')) # 집계 양식 컨텍스트
+        context['viewname'] = self.__class__.__name__
         return context
 
 
@@ -44,12 +45,6 @@ class CollectFormView(FormView):
     
     # 집계 내역 합치는 POST 받기
     def form_invalid(self, form):
-        print(form.data)
-            # c = Collector()
-            # slugs = self.request.POST.get('slugs')
-            # if slugs:
-            #     print('slugs:', slugs)
-            #     # c.merge_collect(*slugs)
         return super(CollectFormView, self).form_invalid(form)
 
     def get_context_data(self, **kwargs):
@@ -58,6 +53,8 @@ class CollectFormView(FormView):
         context['form'] = Form(kinds=[self.kwargs.get('kind')])
         c = Collector()
         context['object_list'] = c.get_queryset()
+        context['retrieve'] = False
+        context['viewname'] = self.__class__.__name__
         return context
 
 
@@ -79,6 +76,8 @@ class CollectMergeFormView(FormView):
         context = super(CollectMergeFormView, self).get_context_data(**kwargs)
         c = Collector()
         context['object_list'] = c.get_queryset()
+        context['retrieve'] = False
+        context['viewname'] = self.__class__.__name__
         return context
 
 
@@ -109,7 +108,7 @@ def clear(request):
 # 일괄 집계 생성
 class CollectBatchFormView(FormView):
     template_name = 'collect/collect_form.html'
-    success_url = '.'
+    success_url = reverse_lazy('collect:print')
     form_class = CollectForm
 
     def get_context_data(self, **kwargs):
@@ -119,6 +118,8 @@ class CollectBatchFormView(FormView):
         context['form'] = Form(self.request or None)
         c = Collector()
         context['object_list'] = c.get_queryset()
+        context['retireve'] = False
+        context['viewname'] = self.__class__.__name__
         return context
 
     # 폼셋 을 다룰땐 form_invalid 여기서 하는게...
@@ -129,10 +130,40 @@ class CollectBatchFormView(FormView):
         cleaned_datas = [form.cleaned_data for form in formset if form.is_valid()]
         if cleaned_datas:
             save_collect(*cleaned_datas, test=settings.TEST)
+            return HttpResponseRedirect(reverse('collect:print'))
         return super(CollectBatchFormView, self).form_invalid(form)
 
+# 일괄출력
+class CollectPrintFormView(FormView):
+    template_name = 'collect/collect_print_form.html'
+    success_url = '.'
+    form_class = CollectPrintForm
+    
+    def get_context_data(self, **kwargs):
+        context = super(CollectPrintFormView, self).get_context_data(**kwargs)        
+        context['formset'] = CollectPrintFormset(self.request.POST or None, initial=get_print_formset_initial())
+        context['object_list'] = Collector().get_queryset()
+        context['viewname'] = self.__class__.__name__
+        return context
+    
+    def form_valid(self, form):
+        return super(CollectPrintFormView, self).form_valid(form)
 
+    def form_invalid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+        cleaned_datas = [form.cleaned_data for form in formset if form.is_valid()]
+        if cleaned_datas:
+            context['counter_list'] = get_print_context(*cleaned_datas)
+            context['viewname'] = self.__class__.__name__
+            return self.render_to_response(context)
+        return super(CollectPrintFormView, self).form_invalid(form)
 
+import json
+def generate_paper_count(request):
+    if request.method == "GET":
+        content = guess_print_count(request)
+        return HttpResponse(content, content_type="application/json")
 
 
 
@@ -154,6 +185,7 @@ class ConfigFormView(FormView):
         Form = self.get_form_class()
         context['form'] = Form(initial=c.config.get(kind))
         context['object_list'] = c.get_queryset()
+        context['viewname'] = self.__class__.__name__
         return context
 
 # 구분에 따른 자동 폼 데이터 전송해 주기

@@ -19,12 +19,32 @@
 	li.yesterday-item {
 		background-color: #cccccc;
 	}
-	li.since-item {
+	/*li.since-item {
 		background-color: #aaaaaa
+	}
+	li.one-hour-item {
+		background-color: palegreen;
+	}
+	li.today-item {
+		background-color: lightgrey;
 	}
 	li.collect-list:hover {
 		background-color: #C29F6D;
-	} 
+	} */
+
+	[ago=second] {
+		background-color: honeydew;
+	}
+	[ago=minute] {
+		background-color: lightgrey;
+	}
+	[ago=hour] {
+		background-color: darkgray;
+	}
+	[ago=day] {
+		background-color: dimgray;
+
+	}
 
 </style>
 {% endblock style %}
@@ -47,30 +67,40 @@
 			</div>
 			{% endblock side %}
 		</div>
+
 		<div class="col-xs-9">
 			<div class="panel with-nav-tabs panel-success">
 			    <div class="panel-heading">
 			        <ul class="nav nav-tabs">
-			        	{% if form %}
-				        	{% if form.excludes %}
-				            <li class="{% if form.kind.value.0 == 'INJ' %}active{% endif %}"><a href="{% url 'collect:update-plusminus' 'INJ' %}">주사</a></li>
-				            <li class="{% if form.kind.value == 'NUT' %}active{% endif %}"><a href="{% url 'collect:update-plusminus' 'NUT' %}">영양수액</a></li>
-				            <li class="{% if form.kind.value == 'LABEL' %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">집계화면</a></li>
-				        	{% else %}
-				            <li class="{% if form.kinds.value.0 == 'LABEL' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">라벨</a></li>
-				            <li class="{% if form.kinds.value.0 == 'INJ' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'INJ' %}">주사</a></li>
-				            <li class="{% if form.kinds.value.0 == 'NUT' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">영양수액</a></li>
-				            <li class="{% if formset %}active{% endif %}"><a href="{% url 'collect:create-batch' %}">일괄집계</a></li>
-				            <li class="{% if form.slugs %}active{% endif %}"><a href="{% url 'collect:merge' %}">집계합체</a></li>
-				        	{% endif %}
-				        {% else %}				        
+			        	{% if viewname == 'CollectDetailView' %}
 				            <li class="active"><a class="tab-collect" href="#by-drug" data-toggle="tab" id="tab-drug">약품별</a></li>
 				            <li class=""><a class="tab-collect" href="#by-ward-drug" data-toggle="tab" id="tab-ward-drug">병동별</a></li>
 				            <li class=""><a class="tab-collect" href="#by-ward" data-toggle="tab" id="tab-ward">병동별(환자별)</a></li>
-			        	{% endif %}
-				            <li class="pull-right">
-				                <a href="{% url 'collect:update-plusminus' 'INJ' %}"><span class="glyphicon glyphicon-plus-sign"></span><span class="glyphicon glyphicon-minus-sign"></span>집계 추가/제외 관리</a>
+				            <li class="">
+				            	<a href="{% url 'collect:print' %}"><span class="glyphicon glyphicon-print">한번에인쇄</a>
 				            </li>
+			        	{% elif viewname == 'CollectFormView' or viewname == 'CollectBatchFormView' or viewname == 'CollectMergeFormView' %}
+				            <li class="{% if formset and not print %}active{% endif %}"><a href="{% url 'collect:create-batch' %}">종합</a></li>
+				            <li class="{% if form.kinds.value.0 == 'LABEL' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">라벨</a></li>
+				            <li class="{% if form.kinds.value.0 == 'INJ' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'INJ' %}">주사</a></li>
+				            <li class="{% if form.kinds.value.0 == 'NUT' and not formset %}active{% endif %}"><a href="{% url 'collect:create' 'NUT' %}">영양수액</a></li>
+				            <li class="{% if form.slugs %}active{% endif %}"><a href="{% url 'collect:merge' %}">집계합체</a></li>
+			        	{# {% elif viewname == 'CollectMergeFormView' %} #}
+				            <li class="pull-right">
+				                <a href="{% url 'collect:update-plusminus' 'INJ' %}">
+				                	<span class="glyphicon glyphicon-plus-sign"></span>
+				                	<span class="glyphicon glyphicon-minus-sign"></span>집계 추가/제외 관리
+				                </a>
+				            </li>
+			        	{% elif viewname == 'CollectPrintFormView' %}
+				            <li class="active"><a href=".">한번에인쇄</a></li>
+			        	{% elif viewname == 'ConfigFormView' %}
+				            <li class="{% if form.kind.value.0 == 'INJ' %}active{% endif %}"><a href="{% url 'collect:update-plusminus' 'INJ' %}">주사</a></li>
+				            <li class="{% if form.kind.value == 'NUT' %}active{% endif %}"><a href="{% url 'collect:update-plusminus' 'NUT' %}">영양수액</a></li>
+				            <li class="{% if form.kind.value == 'LABEL' %}active{% endif %}"><a href="{% url 'collect:create' 'LABEL' %}">집계화면</a></li>
+			        	{% endif %}
+				      			        
+			        
 			        </ul>
 			    </div>
 			    <div class="panel-body">

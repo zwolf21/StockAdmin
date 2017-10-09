@@ -12,8 +12,8 @@ from pprint import pprint
 
 
 # DB Instance 삭제시 파일도 같이 삭제
-class OcsFileManager(DeleteWithFileMixin, models.Manager): pass
-
+class OcsFileManager(DeleteWithFileMixin, models.Manager): 
+    pass
 
 
 class OcsFile(models.Model):

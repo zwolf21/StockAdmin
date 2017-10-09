@@ -1,6 +1,7 @@
 {% extends "collect/base.html" %}
 {% load staticfiles %}
 {% block style %}
+{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
  <style type="text/css">
  	li.merge-item{
@@ -18,7 +19,7 @@
 <form id="form-collect-merge" class="form-inline" method="post" action="{% url 'collect:merge' %}">
 	{% csrf_token %}
 	<div class="form-group">
-		<label for="{{ form.slugs.auto_id }}" class="control-label co-xs-4 text-center">집계내역선택 </label>
+		<label for="{{ form.slugs.auto_id }}" class="control-label co-xs-4 text-center">집계내역선택</label>
 		<div class="col-xl-8">
 		    {{ form.slugs }}
 		</div>
@@ -37,7 +38,7 @@ $(function(){
 
 	{% for slugs in form.slugs %}
         var check_slugs_{{ forloop.counter0 }} = $("#{{ form.slugs.auto_id }}_{{ forloop.counter0 }}")
-        check_slugs_{{ forloop.counter0 }}.addClass('badgebox').after('<span class="badge">&check;</span>')
+        check_slugs_{{ forloop.counter0 }}.addClass('badgebox').after('<span class="badge" style="background-color: dimgray;">&check;</span>')
     {% endfor %}
 })
 </script>

@@ -11,5 +11,7 @@ urlpatterns = [
 	url(r'^update/plusminus/(?P<kind>NUT|INJ)/$', ConfigFormView.as_view(), name='update-plusminus'),
 
 	url(r'^generate-form/$', generate_form_initial, name='gen-time'),
-	url(r'^merge/$', CollectMergeFormView.as_view(), name='merge')
+	url(r'^merge/$', CollectMergeFormView.as_view(), name='merge'),
+	url(r'^print/$', CollectPrintFormView.as_view(), name='print'),
+	url(r'^print/papercount/$', generate_paper_count, name='print-papercount'),
 ]

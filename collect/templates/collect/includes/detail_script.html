@@ -12,12 +12,20 @@
             printArea.document.write('<body>')
             printArea.document.write('<div class="container-fluid">')
 
+
+
+            {% if not counter_list %}
+            
             if (active != 'tab-ward-drug') {
-            {% if object.kind != 'NUT' %}
-                printArea.document.write('<h2>{{ object.vkinds|join:'/' }} 집계표</h2>')
-            {% endif %}
                 printArea.document.write($('#print-date-info').html())
-            }   
+           
+                {% if object.kinds.0 != 'NUT' %}
+                printArea.document.write('<h2>{{ object.vkinds|join:'/' }} 집계표</h2>')
+                {% endif %}
+
+            }
+            {% endif %}
+
             printArea.document.write($('.panel-footer').html())
             printArea.document.write('</div>')
             printArea.document.write('</body>')

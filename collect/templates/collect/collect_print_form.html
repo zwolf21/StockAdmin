@@ -1,0 +1,221 @@
+{% extends 'collect/base.html' %}
+{% load staticfiles %}
+{% block style %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "css/third.css" %}">
+ <style type="text/css">
+ 	input[type=number] {
+ 		width: 48px;
+ 		text-align: right;
+ 	}
+ 	label[for*=slug]{
+ 		width: 100%;
+ 		text-align: left;
+ 	}
+ 	li.print-item-row, li.print-result{
+ 		padding: 5px 0px 0px 5px;
+ 		height: 43px;
+ 		text-align: center;
+ 		vertical-align: middle;
+ 	}
+ 	div.print-item {
+ 		vertical-align: middle;
+ 	}
+
+ 	/*프린팅 할 시 에만 디스플레이 켜기, 평소엔 안보임*/
+ 	.batch-print { display: none; }    
+	@media print 
+	{
+	    .batch-print { display: block !important; }
+	}
+
+
+ </style>
+{% endblock style %}
+{% block main %}
+{% if not counter_list %}
+	<h4>인쇄 할 집계표를 선택</h4>
+	<form class="form-horizontal" id="form-collect-print" action="{% url 'collect:print' %}" method="post">
+	{{ formset.management_form }}     
+	<div class="form-group">
+		<div class="col-xs-12">
+		<button id="btn-pre-print" class="btn btn-success" type="submit">인쇄하러가기<span class="glyphicon glyphicon-hand-right"></span></button>		
+		</div>
+	</div>
+		{% csrf_token %}
+	<ul class="list-group">
+	{% for form in formset %}
+		{% if forloop.first %}
+		<li class="list-group-item list-group-item-warning print-item-row">
+			<div class="form-group">
+				<div class="col-xs-5">
+					집계내역
+				</div>
+				<div class="col-xs-2">
+					약품별
+				</div>
+				<div class="col-xs-2">
+					병동별
+				</div>
+				<div class="col-xs-2">
+					병동(환자)별
+				</div>
+			</div>
+		</li>
+		{% endif %}
+		<li class="list-group-item print-item-row">
+			<div class="hidden">
+				{{ form.title }}
+			</div>
+			<div class="form-group print-item">
+				<div class="col-xs-5">
+				<label for="{{ form.slug.auto_id }}" class="btn btn-default btn-sm" ago="{{ form.since.value }}">
+				<input id="{{ form.slug.auto_id }}" class="badgebox" type="checkbox" name="{{ form.slug.html_name }}" value="{{ form.slug.value }}">
+				<span class="badge" style="background-color: dimgray;">&check;</span>
+				{{ form.title.value }}
+				</label>
+				</div>	
+				<div class="col-xs-2">
+				{{ form.grp_by_drug_nm }}부
+				</div>
+				<div class="col-xs-2">
+				{{ form.grp_by_ward_drug_nm }}부
+				</div>
+				<div class="col-xs-2">
+				{{ form.grp_by_ward }}부
+				</div>
+			</div>
+		</li>   	
+	{% endfor %}    
+	</ul>
+
+	<script>
+	$(function(){
+
+		// 인쇄 부수 처방 종류, 구분 별 자동으로 불러오기
+		$('input[name*=slug]').change(function(){
+			var div = $(this).parents('.print-item')
+			var input_grp_by_drug_nm = div.find('input[name$=grp_by_drug_nm]')
+			var input_grp_by_ward_drug_nm = div.find('input[name$=grp_by_ward_drug_nm]')
+			var input_grp_by_ward = div.find('input[name$=grp_by_ward]')
+
+			var payload = {slug:$(this).val()}
+
+			if ($(this).is(':checked')) {
+				console.log(payload)
+				$.ajax({
+					url: "{% url 'collect:print-papercount' %}",
+					type: "get",
+					dataType: "json",
+					data: JSON.stringify(payload),
+					success: function(rsp){
+						console.log(rsp)
+						input_grp_by_drug_nm.val(rsp.grp_by_drug_nm)
+						input_grp_by_ward_drug_nm.val(rsp.grp_by_ward_drug_nm)
+						input_grp_by_ward.val(rsp.grp_by_ward)
+					}
+				})
+			}else{
+				input_grp_by_drug_nm.val(0)
+				input_grp_by_ward_drug_nm.val(0)
+				input_grp_by_ward.val(0)
+			}
+		})
+
+		// 인쇄전 발리데이션
+		$('#btn-pre-print').click(function(event){
+			var any_checked = false
+			$('input[name*=slug]').each(function(idx, elem){
+				var checked = $(elem).is(':checked')
+				if(checked){
+					any_checked = true;
+					return false
+				}
+			})
+			if(!any_checked){
+				event.preventDefault()
+				alert('인쇄할 집계표를 하나라도 선택하세요')
+			}
+		})
+
+	})
+	</script>
+	</form>
+{% else %}
+	<h4>인쇄내역: 맞습니까</h4>
+	<ul class="list-group">
+		<li class="list-group-item list-group-item-info print-result">
+			<div class="form-group">
+				<div class="col-xs-5">
+					집계내역
+				</div>
+				<div class="col-xs-2">
+					약품별
+				</div>
+				<div class="col-xs-2">
+					병동별
+				</div>
+				<div class="col-xs-2">
+					병동(환자)별
+				</div>
+			</div>
+		</li>
+		{% for counter in counter_list %}
+		<li class="list-group-item print-result">
+			<div class="row">
+				<div class="col-xs-5">
+					{{ counter.object.title }}				
+				</div>	
+				<div class="col-xs-2">
+					{{ counter.grp_by_drug_nm|length }} 부
+				</div>
+				<div class="col-xs-2">
+					{{ counter.grp_by_ward_drug_nm|length }}부
+				</div>
+				<div class="col-xs-2">
+					{{ counter.grp_by_ward|length }}부
+				</div>
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+    <div class="row" align="center">
+        <button class="btn btn-success" id="btn-print" type="button">인쇄하기<span class="glyphicon glyphicon-print"></span></button>
+    </div>
+   
+{% endif %}
+{% endblock main %}
+
+{% block list %}
+<div class="batch-print">
+	
+{% for counter in counter_list %}
+	{% with objects=counter.objects object=counter.object  %}
+		{% for _ in counter.grp_by_drug_nm %}
+		<div class="print-each">
+			<h2>{{ object.vkinds|join:"|" }} 집계표</h2>
+			{% include "collect/includes/detail_info.html" %}
+			{% include "collect/includes/detail_by_drug.html" %}
+		</div>
+		{% endfor %}
+		{% for _ in counter.grp_by_ward_drug_nm %}
+			{% include "collect/includes/detail_by_ward_drug.html" %}
+		{% endfor %}
+		{% for _ in counter.grp_by_ward %}
+		<div class="print-each">
+			{% include "collect/includes/detail_info.html" %}
+		    {% include "collect/includes/detail_by_ward.html" %}  
+		</div>
+		{% endfor %}
+	{% endwith %}
+{% endfor %}
+</div>
+
+{% endblock list %}
+
+{% block script %}
+    {{ block.super }}
+    {% include "collect/includes/detail_script.html" %}    
+{% endblock script %}
+
+    
