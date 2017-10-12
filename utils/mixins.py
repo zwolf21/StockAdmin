@@ -4,6 +4,7 @@ from six import string_types
 from django.db.models.fields.files import FieldFile
 
 
+
 class SearchFilterMixin(object):
 	filter_arg_postfix = 'icontains'
 	keyword_field_name = 'q'
@@ -20,7 +21,7 @@ class SearchFilterMixin(object):
 		return query_set
 
 
-# DB 삭제시 파일 필드의 실제 파일도 같이 삭제
+# DB 삭제시 파일 필드의 실제 파일도 같이 삭제, 매니저에 믹스인 하여 모델클래스에 objects로 등록
 class DeleteWithFileMixin(object):
 	def get_queryset(self):
 		class DeleteQueryset(models.query.QuerySet):

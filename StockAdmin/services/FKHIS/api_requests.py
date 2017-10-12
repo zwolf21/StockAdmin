@@ -4,8 +4,9 @@ from pprint import pprint
 from socket import *
 from abc import abstractmethod
 import time
-from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from bs4 import BeautifulSoup
 
 SERVER = '192.168.8.8'
 PORT = 7501
@@ -56,7 +57,9 @@ class ApiRequest:
     def __init__(self, request_bytes):
         self.request = request_bytes
 
-    def api_call(self, host=SERVER, port=PORT, request=None, timeout=60):
+    def api_call(self, host=SERVER, port=PORT, request=None, timeout=60, sleep=1):
+        print('API Calling from {}:{}....'.format(host, port))
+        time.sleep(sleep)
         cs = socket(AF_INET, SOCK_STREAM)
         cs.settimeout(timeout)
         cs.connect((host, port))
@@ -177,15 +180,30 @@ class OrderSelectApiRequest(ApiRequest):
             req = date_pat.sub(ord_start_date, req, 1)
             self.requests.append(req)
 
-    def api_calls(self):
+    def api_calls(self, max_worker=1):
 
-        for reqeust in self.requests:
-            self.raws.append(super(OrderSelectApiRequest, self).api_call(request=reqeust))
-            time.sleep(0.3)
+        # for reqeust in self.requests:
+        #     self.raws.append(super(OrderSelectApiRequest, self).api_call(request=reqeust))
+        #     time.sleep(0.3)
+
+        workers = min(len(self.requests), max_worker)
+        print('Starting api calls with workers ({})'.format(workers))
+        with ThreadPoolExecutor(workers) as executor:
+            todo_list = []
+            for i, request in enumerate(self.requests):
+                future = executor.submit(self.api_call, request=request, sleep=i)
+                todo_list.append(future)
+
+            done_iter = as_completed(todo_list)
+            for completed in done_iter:
+                raws = completed.result()
+                self.raws.append(raws)
 
         return self.raws
 
+
     def get_records(self):
+        print('ApiRequest.get_records: parcing request to table...')
         records = []
         # for (raw, ward) in zip(self.raws, self.wards):
         #     rec = super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
