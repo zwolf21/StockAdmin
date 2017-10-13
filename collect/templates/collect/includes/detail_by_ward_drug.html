@@ -6,7 +6,7 @@
 	{% for ward in grp_by_ward %}
 	<div class="print-each">
 		<h3 class="text-center">
-			{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkinds|join:'/' }} 집계표
+			{{ object.vtypes|join:'/' }} {{ ward.grouper }} {{ object.vkinds|join:'/' }} 집계표 ({{ object.seq }}차)
 		</h3>
 		{% include "collect/includes/detail_info.html" with plusminus='' %}
 		<table class="list text-right" border="1" width="100%">

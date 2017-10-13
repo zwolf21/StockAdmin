@@ -133,7 +133,7 @@ class OrderApi(object):
 
     def _get_order_list(self, start_date, end_date, wards, **kwargs):
         request = OrderSelectApiRequest(start_date, end_date, wards)
-        request.api_calls()
+        request.api_calls(max_worker=10)
         return Listorm(request.get_records())
         
     def set_order_list(self, test, **kwargs):
@@ -238,7 +238,9 @@ def parse_order_list(order_list):
     ).orderby('WARD')
 
     only_dc = ord_lst.filter(lambda row: row.ret_stus not in ['O', 'C'] and row.dc_gb == 'Y')
-    dc_and_ret = (ret_lst | only_dc).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
+    dc_and_ret = only_dc.orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
+    # 2017-10-13 반납은 빼달라는 요청에 의하여 DC만 파싱
+    # dc_and_ret = (ret_lst | only_dc).orderby('WARD','보관방법코드', lambda row: unit_sort(row.std_unit_nm), '단일포장구분', 'drug_nm')
 
     grp_dc_and_ret = dc_and_ret.groupby('WARD', 'medi_no', 'ord_cd','ptnt_no', ord_qty=sum, total_amt=sum, drug_nm=len,
         renames = {'ord_qty': 'ord_qty_sum', 'total_amt': 'total_amt_sum', 'drug_nm': 'drug_nm_count'},

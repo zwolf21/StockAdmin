@@ -7,7 +7,7 @@ from utils.shortcuts import time_to_normstr
 
 COLLECT_FILE = os.path.join(os.path.dirname(__file__), 'caches/collection.json')
 STATIC_INFO_FILE = os.path.join(os.path.dirname(__file__), 'caches/config.json')
-MAX_OBJECT_LIST_LENGTH = 50
+MAX_OBJECT_LIST_LENGTH = 30
 
 
 class CollectStorage(object):

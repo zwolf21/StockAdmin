@@ -8,10 +8,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from bs4 import BeautifulSoup
 
-# SERVER = '192.168.8.8'
-# PORT = 7501
-SERVER = '192.168.8.11'
+SERVER = '192.168.8.8'
 PORT = 7501
+# SERVER = '192.168.8.11'
+# PORT = 7501
 
 MODULE_BASE = os.path.dirname(__file__)
 DRUG_DB_PATH = os.path.join(MODULE_BASE, '약품정보.xls')
@@ -201,7 +201,7 @@ class OrderSelectApiRequest(ApiRequest):
             for completed in done_iter:
                 raws = completed.result()
                 self.raws.append(raws)
-
+        print('Ending api calls with workers ({})'.format(workers))
         return self.raws
 
 
@@ -254,11 +254,11 @@ class OrderSelectApiRequest(ApiRequest):
 
 # pprint(API_REQ['ordSelect']['51'].decode('ascii', errors='ignore'))
 
-req = OrderSelectApiRequest('2017-10-12', '2017-10-13', ['51','52','61','71', '81', '92','IC'])
+# req = OrderSelectApiRequest('2017-10-12', '2017-10-13', ['51','52','61','71', '81', '92','IC'])
 
 # save_to_path = 'response_samples/orderselect/IC.rsp'
-req.api_calls(max_worker=10)
-req.get_records()
+# req.api_calls(max_worker=1)
+# req.get_records()
 # print(req.raws)
 # pprint(req.get_records()[1])
 # data=req.raws[0]

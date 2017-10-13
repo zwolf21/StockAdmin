@@ -199,9 +199,9 @@ class Collector(object):
 			else:
 				start_dt = today
 		elif set(types) == {'AD', 'EM'}:
-
 			start_date = today
 			end_date = today
+
 			st_ad_latest = self.db.get_latest(date=today, kind=kind, types=['ST', 'AD', 'EM'])
 			if st_ad_latest:
 				start_dt = st_ad_latest.end_dt
@@ -339,10 +339,12 @@ class FormInitTime(object):
 			context['start_date'] = start_date
 
 		elif set(self.types) <= {'EM', 'AD'}:
-			if today_latest_ad_em:
-
+			if today_latest_ad_em or today_latest_ad_em_st:
 				start_date = self.TODAY
+				if today_latest_ad_em_st:
+					self.types = ['EM', 'ST', 'AD'] # 임시로 바꿈
 				start_dt = self._today_last_dt(['INJ'])
+
 			elif yesterday_latest_ad_em:
 				start_date = self.YESTERDAY
 				start_dt = self._yesterday_last_dt(['INJ'])
