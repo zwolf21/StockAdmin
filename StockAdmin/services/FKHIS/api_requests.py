@@ -8,8 +8,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from bs4 import BeautifulSoup
 
-SERVER = '192.168.8.8'
+# SERVER = '192.168.8.8'
+# PORT = 7501
+SERVER = '192.168.8.11'
 PORT = 7501
+
 MODULE_BASE = os.path.dirname(__file__)
 DRUG_DB_PATH = os.path.join(MODULE_BASE, '약품정보.xls')
 
@@ -58,8 +61,8 @@ class ApiRequest:
         self.request = request_bytes
 
     def api_call(self, host=SERVER, port=PORT, request=None, timeout=60, sleep=1):
-        print('API Calling from {}:{}....'.format(host, port))
         time.sleep(sleep)
+        print('API Calling from {}:{}....'.format(host, port))
         cs = socket(AF_INET, SOCK_STREAM)
         cs.settimeout(timeout)
         cs.connect((host, port))
@@ -202,7 +205,7 @@ class OrderSelectApiRequest(ApiRequest):
         return self.raws
 
 
-    def get_records(self):
+    def get_records(self, max_worker=10):
         print('ApiRequest.get_records: parcing request to table...')
         records = []
         # for (raw, ward) in zip(self.raws, self.wards):
@@ -210,6 +213,16 @@ class OrderSelectApiRequest(ApiRequest):
         #     records+=rec
         for raw in self.raws:
             records += super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
+        # workers = min(len(self.raws), max_worker)
+        # with ThreadPoolExecutor(workers) as executor:
+        #     todo_list = []
+        #     for raw in self.raws:
+        #         future = executor.submit(super(OrderSelectApiRequest, self).get_records, table_name='table1', raw_data=raw)
+        #         todo_list.append(future)
+
+        #     done_iter = as_completed(todo_list)
+        #     for completed in done_iter:
+        #         records += completed.result() 
         return records
 
     def set_test_response(self, response_sample_path):
@@ -241,9 +254,13 @@ class OrderSelectApiRequest(ApiRequest):
 
 # pprint(API_REQ['ordSelect']['51'].decode('ascii', errors='ignore'))
 
-# req = OrderSelectApiRequest('2017-09-18', '2017-09-20', ['IC'])
+req = OrderSelectApiRequest('2017-10-12', '2017-10-13', ['51','52','61','71', '81', '92','IC'])
+
 # save_to_path = 'response_samples/orderselect/IC.rsp'
-# req.api_calls()
+req.api_calls(max_worker=10)
+req.get_records()
+# print(req.raws)
+# pprint(req.get_records()[1])
 # data=req.raws[0]
 
 # with open(save_to_path, 'wb') as fp:
