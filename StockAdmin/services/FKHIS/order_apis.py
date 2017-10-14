@@ -133,8 +133,8 @@ class OrderApi(object):
 
     def _get_order_list(self, start_date, end_date, wards, **kwargs):
         request = OrderSelectApiRequest(start_date, end_date, wards)
-        request.api_calls(max_worker=10)
-        return Listorm(request.get_records())
+        return Listorm(request.api_calls(max_worker=10))
+        # return Listorm(request.get_records())
         
     def set_order_list(self, test, **kwargs):
         if test:

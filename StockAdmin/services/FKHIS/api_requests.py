@@ -184,26 +184,56 @@ class OrderSelectApiRequest(ApiRequest):
             self.requests.append(req)
 
     def api_calls(self, max_worker=1):
-
         # for reqeust in self.requests:
         #     self.raws.append(super(OrderSelectApiRequest, self).api_call(request=reqeust))
         #     time.sleep(0.3)
-
+        records = []
         workers = min(len(self.requests), max_worker)
         print('Starting api calls with workers ({})'.format(workers))
+
         with ThreadPoolExecutor(workers) as executor:
             todo_list = []
             for i, request in enumerate(self.requests):
-                future = executor.submit(self.api_call, request=request, sleep=i)
+                future = executor.submit(self.api_call_and_parsing, request=request, sleep=i)
                 todo_list.append(future)
 
-            done_iter = as_completed(todo_list)
-            for completed in done_iter:
-                raws = completed.result()
-                self.raws.append(raws)
-        print('Ending api calls with workers ({})'.format(workers))
-        return self.raws
+            for completed in as_completed(todo_list):
+                records += completed.result()
 
+        print('Ending api calls with workers ({})'.format(workers))
+        return records
+
+    # def api_calls(self, max_worker=1):
+
+    #     # for reqeust in self.requests:
+    #     #     self.raws.append(super(OrderSelectApiRequest, self).api_call(request=reqeust))
+    #     #     time.sleep(0.3)
+    #     ret = []
+    #     workers = min(len(self.requests), max_worker)
+    #     print('Starting api calls with workers ({})'.format(workers))
+    #     with ThreadPoolExecutor(workers) as executor:
+    #         todo_list = []
+    #         for i, request in enumerate(self.requests):
+    #             future = executor.submit(self.api_call, request=request, sleep=i)
+    #             todo_list.append(future)
+
+    #         done_iter = as_completed(todo_list)
+    #         for completed in done_iter:
+    #             raws = completed.result()
+    #             self.raws.append(raws)
+    #     print('Ending api calls with workers ({})'.format(workers))
+    #     return self.raws
+
+    def api_call_and_parsing(self, ntry=3, **kwargs):
+        try:
+            raw = self.api_call(**kwargs)
+            record = super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
+        except:        
+            if ntry < 1:
+                raise ValueError('Fail to get records! T.T')
+            self.api_call_and_parsing(ntry=ntry-1, **kwargs)
+        else:
+            return record
 
     def get_records(self, max_worker=10):
         print('ApiRequest.get_records: parcing request to table...')

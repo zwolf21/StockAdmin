@@ -5,7 +5,7 @@
     </div>
     <div class="row" style="border: 2px solid black;">
     {% for object in objects.grp_by_ward %}
-        <div class="col-xs-6" style="border: 1px dotted black">
+        <div class="col-xs-6" style="border-right: 1px dotted black">
             <h4>{{ object.WARD }}</h4>
             <table class="tablesorter" border="1" width="100%" style="border: 1px solid black">
                 <thead>
@@ -43,7 +43,7 @@
                 수령확인:________________(서명)
             </p>
         </div>
-        {% cycle '' '<div class="clearfix"></div>' %}
+        {% cycle '' '<div class="clearfix" style="border-bottom: 1px dotted black"></div>' %}
     {% endfor %}
     </div>
 </div>
