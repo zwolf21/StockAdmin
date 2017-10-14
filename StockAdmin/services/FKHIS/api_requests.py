@@ -1,5 +1,7 @@
 import re, os
 from datetime import date
+from functools import wraps
+from itertools import cycle
 from pprint import pprint
 from socket import *
 from abc import abstractmethod
@@ -8,10 +10,34 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from bs4 import BeautifulSoup
 
-SERVER = '192.168.8.8'
+SERVER = '192.168.8.8' # get_server 로 두가지 서버 번갈아 가며 지정
+DEFAULT_SERVER = '192.168.8.8'
 PORT = 7501
 # SERVER = '192.168.8.11'
 # PORT = 7501
+
+servers = [('192.168.8.8', 7501), ('192.168.8.11', 7501)]
+def auto_server(func):
+    nrotate = 0
+    @wraps(func)
+    def wrapper(self, **kwargs):
+        nonlocal nrotate
+        nrotate+= 1
+        index = nrotate%len(servers)
+        host, port = servers[index]
+        return func(self, host=host, port=port, **kwargs)
+    return wrapper
+
+def next_server(server):
+    bFind = False
+    for srv in servers*2:
+        if bFind:
+            return srv
+        if server == srv:
+            bFind = True
+
+print(next_server(('192.168.8.8', 7501)))
+
 
 MODULE_BASE = os.path.dirname(__file__)
 DRUG_DB_PATH = os.path.join(MODULE_BASE, '약품정보.xls')
@@ -60,9 +86,11 @@ class ApiRequest:
     def __init__(self, request_bytes):
         self.request = request_bytes
 
-    def api_call(self, host=SERVER, port=PORT, request=None, timeout=60, sleep=1):
+    @auto_server
+    def api_call(self, host=None, port=None, request=None, timeout=10, sleep=1):
         time.sleep(sleep)
-        print('API Calling from {}:{}....'.format(host, port))
+        
+        print('API Calling to {}:{}....'.format(host, port))
         cs = socket(AF_INET, SOCK_STREAM)
         cs.settimeout(timeout)
         cs.connect((host, port))
@@ -95,6 +123,7 @@ class ApiRequest:
 
     def get_raw_content(self):
         return self.raw
+
 
 
 class ChemoApiRequest(ApiRequest):
@@ -226,12 +255,13 @@ class OrderSelectApiRequest(ApiRequest):
 
     def api_call_and_parsing(self, ntry=3, **kwargs):
         try:
+            print('api_call_and_parsing...ntry:{}'.format(ntry))
             raw = self.api_call(**kwargs)
             record = super(OrderSelectApiRequest, self).get_records('table1', raw_data=raw)
-        except:        
+        except:
             if ntry < 1:
                 raise ValueError('Fail to get records! T.T')
-            self.api_call_and_parsing(ntry=ntry-1, **kwargs)
+            return self.api_call_and_parsing(ntry=ntry-1, **kwargs)
         else:
             return record
 
@@ -284,10 +314,10 @@ class OrderSelectApiRequest(ApiRequest):
 
 # pprint(API_REQ['ordSelect']['51'].decode('ascii', errors='ignore'))
 
-# req = OrderSelectApiRequest('2017-10-12', '2017-10-13', ['51','52','61','71', '81', '92','IC'])
+# req = OrderSelectApiRequest('2017-10-12', '2017-10-13', ['51'])
 
 # save_to_path = 'response_samples/orderselect/IC.rsp'
-# req.api_calls(max_worker=1)
+# req.api_calls(max_worker=10)
 # req.get_records()
 # print(req.raws)
 # pprint(req.get_records()[1])
