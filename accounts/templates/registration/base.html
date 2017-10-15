@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static "custom/login/form.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "custom/login/script.js" %}">
+
+
+<div class="container">
+	<div class="row">
+		<div class="col-xs-6 col-md-offset-3">
+			<div class="panel panel-login">
+				
+				<div class="panel-heading">
+					<div class="row">
+						{% if user.is_active %}
+						<div class="col-xs-12">
+							<a {% block active_change %}{% endblock %} href="{% url 'password_change' %}">{{ user }} 비빌번호 변경</a>
+						</div>
+						{% else %}
+						<div class="col-xs-6">
+							<a {% block active_login %}{% endblock %} href="{% url 'login' %}">로그인</a>
+						</div>
+						<div class="col-xs-6">
+							<a {% block active_register %}{% endblock %} href="{% url 'register' %}">등록</a>
+						</div>
+						{% endif %}
+					</div>	
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-xs-12">
+						{% block form %}
+						{% endblock form %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<script>
+	$(function(){
+		$('input[name=username]').addClass('form-control').attr('placeholder', '이름')
+		$('input[name*=password]').addClass('form-control').attr('placeholder', '비밀번호')
+		$('input[name=password2]').addClass('form-control').attr('placeholder', '비밀번호확인')
+		$('input[name=old_password]').addClass('form-control').attr('placeholder', '이전비밀번호')
+		$('input[name=new_password1]').addClass('form-control').attr('placeholder', '새비밀번호')
+		$('input[name=new_password2]').addClass('form-control').attr('placeholder', '비밀번호확인')
+	})
+</script>
+<script src="{% static "custom/login/script.js" %}"></script>
+{% endblock content %}

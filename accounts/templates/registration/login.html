@@ -1,0 +1,26 @@
+{% extends "registration/base.html" %}
+
+{% block active_login %}class="active"{% endblock active_login %}
+
+{% block form %}
+<form id="login-form" action="{% url 'login' %}" method="post" role="form" style="display: block;">
+	{% csrf_token %}
+	<input type="hidden" name="next" value="{{ next }}">
+	<div class="form-group">
+		{{ form.username }}
+	</div>
+	<div class="form-group">
+		{{ form.password }}
+	</div>
+	{% if form.errors %}
+	<p class="alert alert-danger form-control-static">{{ form.non_field_errors.as_text }}</p>
+	{% endif %}
+	<div class="form-group">
+		<div class="row">
+			<div class="col-xs-6 col-xs-offset-3">
+				<input class="form-control btn btn-login" type="submit" name="login-submit" id="login-submit" value="로그인">
+			</div>
+		</div>
+	</div>
+</form>			
+{% endblock form %}		

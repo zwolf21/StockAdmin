@@ -6,12 +6,15 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView, FormView, TemplateView, ListView, DetailView, DeleteView, View
 from django.conf import settings
 
+from django.contrib.auth.decorators import login_required
+from StockAdmin.views import LoginRequiredMixin
+
 from .forms import *
 from .models import Collector, save_collect, set_form_initial, guess_time_range, merge_collect, get_print_context, guess_print_count
 
 
 # 집계 항목 보기
-class CollectDetailView(DetailView):
+class CollectDetailView(LoginRequiredMixin, DetailView):
     template_name = 'collect/collect_detail.html'
 
     def get_object(self):
@@ -58,7 +61,7 @@ class CollectFormView(FormView):
         return context
 
 
-class CollectMergeFormView(FormView):
+class CollectMergeFormView(LoginRequiredMixin, FormView):
     template_name = 'collect/collect_merge_form.html'
     form_class = CollectMergeForm
 
@@ -83,7 +86,7 @@ class CollectMergeFormView(FormView):
 
 
 # 집계 항목 지정 삭제
-class CollectDeleteView(DeleteView):
+class CollectDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('collect:create', args=('LABEL',))
@@ -99,6 +102,7 @@ class CollectDeleteView(DeleteView):
         return super(CollectDeleteView, self).delete(request, *args, **kwargs)
 
 # 집계 리스트 전부 삭제
+@login_required
 def clear(request):
     if request.method == "POST":
         c = Collector()
@@ -134,7 +138,7 @@ class CollectBatchFormView(FormView):
         return super(CollectBatchFormView, self).form_invalid(form)
 
 # 일괄출력
-class CollectPrintFormView(FormView):
+class CollectPrintFormView(LoginRequiredMixin, FormView):
     template_name = 'collect/collect_print_form.html'
     success_url = '.'
     form_class = CollectPrintForm
@@ -168,7 +172,7 @@ def generate_paper_count(request):
 
 
 # 설정 뷰
-class ConfigFormView(FormView):
+class ConfigFormView(LoginRequiredMixin, FormView):
     template_name = 'collect/config_form.html'
     success_url = reverse_lazy('collect:create', args=('LABEL',))
     form_class = ConfigForm

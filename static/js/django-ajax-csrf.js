@@ -1,4 +1,5 @@
 function getCookie(name) {
+    //##TAG: CSRF 토큰 정보 세팅하기, csrf_token
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');

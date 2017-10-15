@@ -36,8 +36,6 @@ def next_server(server):
         if server == srv:
             bFind = True
 
-print(next_server(('192.168.8.8', 7501)))
-
 
 MODULE_BASE = os.path.dirname(__file__)
 DRUG_DB_PATH = os.path.join(MODULE_BASE, '약품정보.xls')

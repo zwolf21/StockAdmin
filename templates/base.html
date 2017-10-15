@@ -170,8 +170,9 @@
                             </div>
                         </li>
                         <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-logout√"></span>로그아웃</a></li>
+                        <li><a href="{% url 'password_change' %}"><span class="glyphicon glyphicon-logout√"></span>비번변경</a></li>
                         {% else %}
-                        <li><a href="{% url 'login' %}"><span class="{% url 'login' %}"></span>로그인</a></li>
+                        <li><a href="{% url 'login' %}"><span class="{% url 'login' %}"></span>로그인/사용자등록</a></li>
                         {% endif %}
                         
                     </ul>
