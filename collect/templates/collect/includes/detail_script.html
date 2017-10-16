@@ -36,8 +36,10 @@
         $('.show-detail').click(function(){
             var id = $(this).attr('id');
             var selector = `#detail-${id}`
+            var selector1 = `#detail-s${id}`
             console.log(selector)
             $(selector).slideToggle()
+            $(selector1).slideToggle()
             return false
         })
         $('.show-detail-all').click(function(){
