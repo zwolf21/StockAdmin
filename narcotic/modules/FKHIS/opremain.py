@@ -53,7 +53,6 @@ def parse_narc_content(content, n=0, to_queryset=False):
 		drop_if = lambda row: not row.get('narct_owarh_ymd') or row['drug_cd']  not in drugDB or not row.get('ptnt_no')
 	)
 
-
 	recs.select(['narct_owarh_ymd', 'ward', 'ori_ord_ymd', 'ord_no', 'ptnt_no', 'ptnt_nm', 'drug_cd', 'drug_nm', 'ord_qty_std', 'tot_qty', 'get_dept_nm'], 
 		where = lambda row: row['ret_gb'] not in ['D/C', '반납', '수납취소']
 	)
@@ -63,6 +62,8 @@ def parse_narc_content(content, n=0, to_queryset=False):
 	recs.update([('잔량', lambda row: round(row['잔량'], 2)), ('폐기량', lambda row: round(row['폐기량'], 2))])
 
 	recs.select('*', where= lambda row: row['잔량'] > 0).order_by(['name', 'narct_owarh_ymd', 'ward'])
+	if  len(recs.records) == 0:
+		return [], []
 	recs.rename([
 		('narct_owarh_ymd', '불출일자'), ('ori_ord_ymd', '원처방일자'), ('ord_no', '처방번호[묶음]'), ('tot_qty', '집계량'), 
 		('name', '폐기약품명'), ('drug_cd', '약품코드'), ('amount', '집계량'), ('ord_qty_std', '처방량(규격단위)'), ('drug_nm', '약품명'), 
@@ -324,19 +325,20 @@ def excel_output(exl_table, grp):
 
 
 def get_opremain_contents(start_date, end_date, to_queryset=False):
-
-	
 	xmls = opremain_query(start_date, end_date, os.path.join(BASE_DIR, 'requests/NarcOut.req'))
 	xmls += opremain_query(start_date, end_date, os.path.join(BASE_DIR, 'requests/PsyOut.req'))
 
 	table, grp = [], []
 	for i, xml in enumerate(xmls):
 		t, g = parse_narc_content(xml, 0, to_queryset)
+		if not t:
+			continue
 		table+=t
 		grp+=g
 
 	if table and grp:
 		return excel_output(table, grp) if to_queryset == False else table, grp
+
 	return None if to_queryset else None, None
 
 
@@ -351,6 +353,7 @@ def get_opremain_contents_test(start_date, end_date, to_queryset=False):
 	table, grp = [], []
 	for i, xml in enumerate(xmls):
 		t, g = parse_narc_content(xml, 0 if i==0 else 1, to_queryset)
+		if not t: continue
 		table+=t
 		grp+=g
 
