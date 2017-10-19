@@ -4,8 +4,8 @@
 	<title>{% block title %} StockAdmin {% endblock title %}</title>
         
 {% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap.min.css" %}">
-{# <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css"> #}
+{# <link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap.min.css" %}"> #}
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css">
 {# <link rel="stylesheet" type="text/css" href="{% static "bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" %}"> #}
 <link rel="stylesheet" type="text/css" href="{% static "jquery-ui-1.12.1.custom/jquery-ui.css" %}">
 <link rel="stylesheet" type="text/css" href="{% static "jquery-ui-1.12.1.custom/jquery-ui-timepicker-addon.css" %}">
@@ -30,8 +30,11 @@
 {% block style %}
     
 {% endblock style %}
-
-
+<style type="text/css">
+ a:link { color: red; text-decoration: none !important;}
+ a:visited { color: black; text-decoration: none;}
+ a:hover { color: blue; text-decoration: underline;}
+</style>
 </head>
 <body>
 
