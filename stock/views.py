@@ -8,11 +8,13 @@ from django.core.mail import EmailMessage
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from djangoslicer import SlicePaginatorMixin
+import os, re
 
+from listorm import Listorm
+from pprint import pprint
 from datetime import datetime, timedelta, date
 from itertools import groupby, filterfalse
 from collections import OrderedDict
-import os, re
 
 # Create your views here.
 from django.conf import settings
@@ -214,13 +216,32 @@ class StockInPLV(SlicePaginatorMixin, ListView):
 class StockInPLVano(StockInPLV):
 	template_name = 'stock/period_plv_ano.html'
 
+	# def get_context_data(self, **kwargs):
+	# 	context = super(StockInPLVano, self).get_context_data(**kwargs)
+	# 	queryset = self.get_queryset().order_by('drug')
+	# 	queryset = [{'drug':g ,'total_amount':sum(e.amount for e in l)} for g, l in groupby(queryset, lambda x: x.drug)]
+	# 	context['object_list'] = queryset
+	# 	context['total_price'] = sum(e['drug'].price * e['total_amount'] for e in queryset)
+	# 	return context
+	
+	# 성능 개선 코드 위의 코드보다 5배는 빠른듯
 	def get_context_data(self, **kwargs):
 		context = super(StockInPLVano, self).get_context_data(**kwargs)
 		queryset = self.get_queryset().order_by('drug')
-		queryset = [{'drug':g ,'total_amount':sum(e.amount for e in l)} for g, l in groupby(queryset, lambda x: x.drug)]
-		context['object_list'] = queryset
-		context['total_price'] = sum(e['drug'].price * e['total_amount'] for e in queryset)
+		ediset= Listorm(queryset.values('drug__edi').distinct()).column_values('drug__edi')
+		Info = queryset.first().drug.__class__
+		drugset = {edi: Info.objects.get(edi=edi) for edi in ediset}	
+		aggset = queryset.values('buyitem__drug').annotate(total_amount=Sum('amount'))
+		aggset = Listorm(aggset)
+		aggset = aggset.add_columns(
+			total_price=lambda row: drugset.get(row.buyitem__drug).price  * row.total_amount,
+			drug=lambda row: drugset.get(row.buyitem__drug)
+		)
+		context['object_list'] = aggset
+		context['total_price'] = aggset.apply_column('total_price', sum)
 		return context
+
+
 
 
 class StockInDelV(LoginRequiredMixin ,DeleteView):

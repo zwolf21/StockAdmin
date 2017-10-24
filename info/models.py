@@ -67,7 +67,6 @@ class Info(models.Model):
 	invest_class = models.CharField('재고분류', choices=invest_class_choices, max_length=10, default='해당없음')
 	
 
-
 	@property
 	def current_stock(self):
 		dynamic_amount = self.stockrec_set.filter(frozen=False).aggregate(Sum('amount'))['amount__sum'] or 0
