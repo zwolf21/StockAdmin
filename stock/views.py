@@ -123,6 +123,7 @@ class StockIncompleteLVmail(LoginRequiredMixin, StockIncompleteLV):
 		mail_content = request.GET.get('content', '미입고현황(발주일기준)')
 		now = datetime.now().strftime("%Y-%m-%d %H:%I")
 		filename = '{} {}~{}미입고현황.xlsx'.format(account_name, start_date, end_date)
+		##TAG:메일보내기
 		data = excel_output(xl_template)
 		subject = '{} {} 미입고현황'.format(account_name, now)
 		# excel_gmail_send(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD, [mail_to], subject, mail_content, {filename: data})

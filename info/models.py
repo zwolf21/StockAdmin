@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Sum, Max, Q, Min
+from django.db.models import Sum, Max, Q, Min, F
 from django.contrib.auth.models import User
 from datetime import date, timedelta
 
@@ -73,19 +73,28 @@ class Info(models.Model):
 		dynamic_amount = self.stockrec_set.filter(frozen=False).aggregate(Sum('amount'))['amount__sum'] or 0
 		return dynamic_amount + self.base_amount
 
+	def _get_incompleted_set(self, only_valid=True):
+		buyitems = self.buyitem_set.annotate(stock_amount=Sum('stockrec__amount'))
+		if only_valid:
+			buyitems = buyitems.filter(buy__isnull=False, buy__commiter__isnull=False, end=False)
+		return buyitems.filter(Q(stock_amount__lt=F('amount'))|Q(stock_amount__isnull=True))
+
 	@property
 	def total_incomplete_amount(self):
-		incomplete = 0
-		for item in self.buyitem_set.filter(buy__isnull=False, buy__commiter__isnull=False):
-			incomplete += item.incomplete_amount
-		return incomplete
+		incompletes = self._get_incompleted_set()
+		stock_info = incompletes.aggregate(stock_total=Sum('stock_amount'), order_total=Sum('amount'))
+		order = stock_info['order_total'] or 0
+		stock = stock_info['stock_total'] or 0 
+		return order - stock
 
 	@property
 	def total_incomplete_amount_all(self):
-		incomplete = 0
-		for item in self.buyitem_set.all():
-			incomplete += item.incomplete_amount
-		return incomplete
+		incompletes = self._get_incompleted_set(only_valid=False)
+		stock_info = incompletes.aggregate(stock_total=Sum('stock_amount'), order_total=Sum('amount'))
+		order = stock_info['order_total'] or 0
+		stock = stock_info['stock_total'] or 0 
+		return order - stock
+
 
 	@property
 	def total_stockin_amount(self):
@@ -107,7 +116,6 @@ class Info(models.Model):
 		if self.stockrec_set.exists():
 			return self.stockrec_set.values('amount').annotate(Max('date')).first()['amount']
 		return 0
-
 
 
 	@property
@@ -133,8 +141,6 @@ class Info(models.Model):
 		if (incomplete + stock_amount - nWeek_elapsed*weekly_avg) < weekly_avg /2:
 			return (weekly_avg // self.pkg_amount) * self.pkg_amount or self.pkg_amount
 		return 0
-
-
 
 
 	@property
