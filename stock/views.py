@@ -228,9 +228,13 @@ class StockInPLVano(StockInPLV):
 	def get_context_data(self, **kwargs):
 		context = super(StockInPLVano, self).get_context_data(**kwargs)
 		queryset = self.get_queryset().order_by('drug')
-		ediset= Listorm(queryset.values('drug__edi').distinct()).column_values('drug__edi')
-		Info = queryset.first().drug.__class__
-		drugset = {edi: Info.objects.get(edi=edi) for edi in ediset}	
+		if queryset.exists():
+			ediset= Listorm(queryset.values('drug__edi').distinct()).column_values('drug__edi')
+			Info = queryset.first().drug.__class__
+			drugset = {edi: Info.objects.get(edi=edi) for edi in ediset}	
+		else:
+			ediset = []
+			drugset = {}		
 		aggset = queryset.values('buyitem__drug').annotate(total_amount=Sum('amount'))
 		aggset = Listorm(aggset)
 		aggset = aggset.add_columns(
