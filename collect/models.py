@@ -341,7 +341,7 @@ class FormInitTime(object):
 		elif set(self.types) <= {'EM', 'AD'}:
 			if today_latest_ad_em or today_latest_ad_em_st:
 				start_date = self.TODAY
-				if today_latest_ad_em_st:
+				if today_latest_ad_em_st and not today_latest_ad_em:
 					self.types = ['EM', 'ST', 'AD'] # 임시로 바꿈
 				start_dt = self._today_last_dt(['INJ'])
 
