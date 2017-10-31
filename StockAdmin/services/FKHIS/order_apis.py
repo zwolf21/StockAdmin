@@ -170,7 +170,7 @@ class OrderApi(object):
 
             lst = lst.filter(lambda row: row['효능코드(보건복지부)'] not in static.exclude_groups)
             drug_list|= lst.excludesim(**{'약품명(한글)': excludes}) | extras_lst
-        return drug_list
+        return drug_list.distinct('약품코드')
 
     def filter_order_list(self, types, start_date, end_date, start_dt, end_dt, **kwargs):
         date_filter = lambda row: row.ord_ymd and start_date <= row.ord_ymd <= end_date and row.rcpt_dt and start_dt <= row.rcpt_dt < end_dt
