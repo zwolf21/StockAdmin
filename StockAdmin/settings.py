@@ -48,7 +48,8 @@ INSTALLED_APPS = (
     'orderutils',
     'stock_invest',
     'ocsxl',
-    'collect'
+    'collect',
+    'gosicomp'
 )
 
 TEMPLATES = [

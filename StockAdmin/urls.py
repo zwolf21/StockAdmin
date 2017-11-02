@@ -22,4 +22,5 @@ urlpatterns = patterns('',
     url(r'^orderutils/', include('orderutils.urls','orderutils')),
     url(r'^ocsxl/', include('ocsxl.urls', 'ocsxl')),
     url(r'^collect/', include('collect.urls', 'collect')),
+    url(r'^gosicomp/', include('gosicomp.urls', 'gosicomp')),
 )

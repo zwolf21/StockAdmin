@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <h3>고시변동 파일 제출</h3>
+    <form action="{% url 'gosicomp:compare' %}" method="post" enctype="multipart/form-data" class="form-inline">
+        {% csrf_token %}
+        {{ form.file.label_tag }}{{ form.excel }}
+        <input type="submit" class="btn btn-default">  
+    </form>
+</div>
+
+
+{% endblock content %}

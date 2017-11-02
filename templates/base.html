@@ -79,6 +79,9 @@
                                 <li class="dropdown-submenu">
                                     <a href="{% url 'ocsxl:list' %}">OCS약품정보파일관리</a>  
                                 </li>
+                                <li class="dropdown-submenu">
+                                    <a href="{% url 'gosicomp:compare' %}">급여목록비교</a>
+                                </li>
                          
                             </ul>
                         </li>
@@ -140,9 +143,6 @@
                                 <b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a href="{% url 'orderutils:labelcollect' %}"></a>
-                                </li>
                                 <li>
                                     <a href="{% url 'collect:create-batch' %}">집계표</a>
                                 </li>
