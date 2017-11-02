@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+<h3>비교 결과</h3>	
+
+
+<table class="tablesorter">
+	<thead>
+		<tr>
+			<th>시트명</th>
+			<th>제품코드</th>
+			<th>제품명</th>
+			<th>약품코드</th>
+			<th>원내외</th>
+			<th>상한금액</th>
+			<th>보험단가</th>
+			<th>일반단가</th>
+			<th>수가시작일</th>
+			<th>수가종료일</th>
+			<th>시작일</th>
+			<th>종료일</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for object in object_list %}
+		<tr>
+			<td>{{ object.시트명 }}</td>
+			<td>{{ object.제품코드 }}</td>
+			<td>{{ object.제품명 }}</td>
+			<td>{{ object.약품코드 }}</td>
+			<td>{{ object.원내외 }}</td>
+			<td>{{ object.상한금액 }}</td>
+			<td>{{ object.보험단가 }}</td>
+			<td>{{ object.일반단가 }}</td>
+			<td>{{ object.수가시작일자 }}</td>
+			<td>{{ object.수가종료일자 }}</td>
+			<td>{{ object.시작일자 }}</td>
+			<td>{{ object.종료일자 }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+</div>
+{% include "tablesorter_js.html" %}
+
+{% endblock content %}
