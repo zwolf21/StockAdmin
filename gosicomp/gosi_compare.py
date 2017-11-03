@@ -1,7 +1,7 @@
 import xlrd, re, argparse, sys, os
 from listorm import Listorm, read_excel
 
-from StockAdmin.services.FKHIS.dbconn import get_all_list
+from StockAdmin.services.FKHIS.dbconn import get_all_list, get_all_suga
 
 from utils.shortcuts import file_response
 
@@ -101,7 +101,9 @@ def analize_excel(xl_drug_info=None, xl_gosi_table=None, filename=None):
 	gosi_tbl.set_number_type(제품코드='')
 	drug_info = read_excel(xl_drug_info) if xl_drug_info else get_all_list()
 	drug_info.set_number_type(보험단가=0)
-	join_result = drug_info.join(gosi_tbl, left_on='EDI코드', right_on='제품코드')
+	suga_info = get_all_suga()
+	join_result = drug_info.join(gosi_tbl, left_on='EDI코드', right_on='제품코드').join(suga_info, left_on='약품코드', right_on='수가코드')
+	print(join_result)
 	join_result.add_columns(상한초과=lambda row: row.보험단가 > row.상한금액)
 	join_result = join_result.map(**{'원내/원외 처방구분': lambda key: {'1': '원외만', '2': '원내만', '3': '원외/원내'}.get(key, key)})
 	return join_result.to_excel(selects=['시트명', '제품코드','제품명','수가코드','원내/원외 처방구분', '상한금액','보험단가', '일반단가', '상한초과', '수가시작일자', '수가종료일자','시작일자', '종료일자'])

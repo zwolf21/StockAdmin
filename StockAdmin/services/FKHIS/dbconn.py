@@ -61,6 +61,15 @@ class FkocsAPI:
 		# pprint(records)
 		return Listorm(records).rename(**renames)
 
+	def get_suga_info(self, distinct=True, **renames):
+		query = "SELECT GNL_PNT_UNITPRC, IC_PNT_UNITPRC, SKUB_PNT_UNITPRC, STR_YMD, END_YMD, SUGA_CD FROM PBS_SUGA_MST"
+		self.cursor.execute(query)
+		records = [row for row in self.cursor.fetchall()]
+		if distinct:
+			return Listorm(records).orderby('-STR_YMD').distinct('SUGA_CD').rename(**renames)
+		return Listorm(records).rename(**renames)
+		
+
 	def get_nutfluid_info(self, **renames):
 		query = "SELECT * FROM SPB_DRUG_MST WHERE DUSE_YN='N' AND EFCY_CD='325' OR EFCY_CD='634'"
 		self.cursor.execute(query)
@@ -142,13 +151,19 @@ def record_to_excel(records, table_name):
 
 # lst = read_excel('원내약품정보상세.xlsx')
 # fk = FkocsAPI(server=server, user=user, password=password, database=database, charset='utf8')
-# fk.backup_druginfo('약품정보.xlsx', columns=columns, **codes)
-# -- fk.cursor.execute("SELECT * FROM PIC_IPD_CALC_SLIP WHERE ORD_YMD='{}'".format('20170804'))
+
+# fk.iter_tables(callback=record_to_excel)
+# fk.backup_druginfo('약품정보_ocs.xlsx', columns=columns, **codes)
+# fk.cursor.execute("SELECT * FROM PIC_IPD_CALC_SLIP WHERE ORD_YMD='{}'".format('20170804'))
 # fk.cursor.execute('SELECT * FROM SPB_DRUG_MST')
 # records = [row for row in fk.cursor.fetchall()]
 # Listorm(records).to_excel('오늘처방.xlsx')
 # fk.update_efficacy_code('10DW10', 323)
 # fk.backup_druginfo('backup.xlsx')
+
+# sugalist = fk.get_suga_info()
+# sugalist.to_excel('AReslut.xlsx')
+# print(len(sugalist))
 
 def drug_update(source_excel, base_excel, what):
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
@@ -207,8 +222,9 @@ def get_all_list(test=False, **kwargs):
 	fk = FkocsAPI(server=server, user=user, password=password, database=database)
 	return fk.get_all_info(**codes)
 
-
-
+def get_all_suga():
+	fk = FkocsAPI(server=server, user=user, password=password, database=database)
+	return fk.get_suga_info(**codes)
 
 
 

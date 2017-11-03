@@ -19,7 +19,6 @@
 			<th>일반단가</th>
 			<th>수가시작일</th>
 			<th>수가종료일</th>
-			<th>시작일</th>
 			<th>종료일</th>
 		</tr>
 	</thead>
@@ -32,11 +31,10 @@
 			<td>{{ object.약품코드 }}</td>
 			<td>{{ object.원내외 }}</td>
 			<td>{{ object.상한금액 }}</td>
-			<td>{{ object.보험단가 }}</td>
-			<td>{{ object.일반단가 }}</td>
-			<td>{{ object.수가시작일자 }}</td>
-			<td>{{ object.수가종료일자 }}</td>
+			<td>{{ object.보험수가 }}</td>
+			<td>{{ object.일반수가 }}</td>
 			<td>{{ object.시작일자 }}</td>
+			<td>{{ object.종료일자 }}</td>
 			<td>{{ object.종료일자 }}</td>
 		</tr>
 		{% endfor %}
