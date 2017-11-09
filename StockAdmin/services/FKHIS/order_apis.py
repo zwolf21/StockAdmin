@@ -214,6 +214,10 @@ def parse_order_list(order_list):
 
     rcpt_dt_min, rcpt_dt_max = ord_lst.min('rcpt_dt'), ord_lst.max('rcpt_dt')
 
+    # 2017-11-09 후지스 전산 수정으로 인하여 발생한 것으로 의심되는 null 값 오류 수정 None -> ''
+    ord_lst = ord_lst.update(보관방법코드='', where=lambda row: not row['보관방법코드'])
+    ord_lst = ord_lst.update(단일포장구분='', where=lambda row: not row['단일포장구분'])
+
     grp_by_drug_nm = ord_lst.groupby('drug_nm', ord_qty=sum, drug_nm=len, total_amt=sum,
         renames={'drug_nm': 'drug_nm_count', 'total_amt': 'total_amt_sum', 'ord_qty': 'ord_qty_sum'},
         extra_columns = ['ord_cd', 'ord_unit_nm', '단일포장구분', '효능코드(보건복지부)', 'std_unit_nm', '보관방법코드'],
