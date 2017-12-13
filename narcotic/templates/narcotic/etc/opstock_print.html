@@ -26,10 +26,10 @@
 
 </head>
 <body>
-	<div class="container-fluid" id="print">
+	<div class="container-fluid text-center" id="print">
 	<h2>마약류재고현황</h2>
 	<h4>{% now "Y-m-d H:i:s" %}</h4>
-	<table id="print1">
+	<table id="print1" width="100%;">
 		<thead>
 			<tr>
 				<th>연번</th>
@@ -44,7 +44,7 @@
 			<tr>
 				<td style="text-align: center;">{{ forloop.counter }}</td>
 				<td>{{ object.drug_cd }}</td>
-				<td>{{ object.drug_nm }}</td>
+				<td class="text-right">{{ object.drug_nm }}</td>
 				<td align="right">{{ object.stock }}</td>
 				<td align="center">{{ object.stock_unit }}</td>
 			</tr>
@@ -64,7 +64,7 @@ $(function(){
 		var initBody = document.body.innerHTML;
 		window.onbeforeprint = function () {
 
-			document.body.innerHTML = document.getElementById("print1").innerHTML;
+			document.body.innerHTML = document.getElementById("print").innerHTML;
 		}
 		window.onafterprint = function () {
 
