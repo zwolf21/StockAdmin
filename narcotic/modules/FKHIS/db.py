@@ -1,5 +1,5 @@
 from datetime import date
-
+# 현재 사용중인 파일
 drugs = \
 [
 	{"code": "7FTN10X",   "name": "구연산펜타닐 주 500mcg/10ml"	,		"std_unit": "AMP"	,		"amount": 10	,		"amount_unit": "ml", "firm": "하나제약(주)"		, "edi": "657802283", "class": "마약", "component": "Fentanyl citrate 785μg"				, "shape": "주사제" },
@@ -54,7 +54,7 @@ reportElm = \
 
 	"remainInfo" : {
 		"date" : date.today().strftime("%Y-%m-%d"),
-		"observer" : "원무과 강영진",
+		"observer" : "원무과 최병준",
 		"supervisor" : "약제과 최혜영",
 		"place" : "에이치플러스양지병원약제과",
 		"method" : "소각",
